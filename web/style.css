@@ -1,0 +1,635 @@
+body {
+	margin-top: 1px;
+	margin-left: 1px;
+	margin-right: 1px;
+	padding: 0px;
+	color: #666;
+        font: 11px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+	xfont-size: 13px;
+	xline-height: 1.1em; 
+	background-color: #dfe3ee;
+	xxbackground-color: #89fc63;
+	border-collapse: collapse;
+	border-color: #f7f7f7;
+
+}
+
+td {
+	text-align:left;
+}
+
+a, a:link,a:visited,a:hover { color: Black; text-decoration: underline; }
+
+.manpage {
+	color: Black;
+        font: bold 12px Courier;
+	text-align:left;
+}
+.creds {
+  font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+  background: White;
+  color: Black;
+  text-decoration: none;
+}
+.frame {
+        border-top: 1px solid Black;
+        border-left: 1px solid Black;
+        border-right: 1px solid Black;
+        border-bottom: 1px solid Black;
+}
+.dynofilter {
+    font-size: 10px;
+    border-color: #29447e #29447e #1a356e;
+    color: #fff;
+    background-color: #5B74A8;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#637bad), to(#5872a7));
+    background-image: -moz-linear-gradient(#637bad, #5872a7);
+    background-image: -o-linear-gradient(#637bad, #5872a7);
+    background-image: linear-gradient(#637bad, #5872a7);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#637bad', EndColorStr='#5872a7'); /* for IE 6 - 9 */
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    text-align: middle;
+    vertical-align: middle;
+        xborder-top: 1px solid White;
+        xborder-left: 1px solid White;
+        xborder-right: 1px solid Black;
+        xborder-bottom: 1px solid Black;
+}
+.filterbutton {
+    font-size: 10px;
+    border-color: #29447e #29447e #1a356e;
+    color: #fff;
+    background-color: #5B74A8;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#637bad), to(#5872a7));
+    background-image: -moz-linear-gradient(#637bad, #5872a7);
+    background-image: -o-linear-gradient(#637bad, #5872a7);
+    background-image: linear-gradient(#637bad, #5872a7);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#637bad', EndColorStr='#5872a7'); /* for IE 6 - 9 */
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    text-align: middle;
+    vertical-align: middle;
+        xborder-top: 1px solid White;
+        xborder-left: 1px solid White;
+        xborder-right: 1px solid Black;
+        xborder-bottom: 1px solid Black;
+}
+.searchbar {
+    font-size: 10px;
+    text-align:center;
+    vertical-align:middle;
+    xpaddingorder: top right bottom left;
+    padding: 0px 0px 4px 0px;
+    margin: 0px 0px 0px 0px;
+    border-spacing: 0px;
+    border-collapse: collapse;
+}
+.searchbartext {
+    font-size: 10px;
+    text-align:left;
+    vertical-align:middle;
+    padding: 0px 0px 4px 0px;
+    margin: 0px 0px 0px 0px;
+    border-spacing: 0px;
+    border-collapse: collapse;
+}
+
+.middlesmall {
+        width: 100%; 
+        color: Black;
+        font-size:12px;
+	text-align:center;
+}
+.middlebig {
+        width: 100%; 
+        color: Black;
+        font-size:32px;
+	text-align:center;
+}
+
+.btn {
+  font-family: Roboto;
+  background: #3B5998;
+  color: White;
+  font-size: 10px;
+  padding: 5px 10px 5px 10px;
+  text-decoration: none;
+}
+
+.btn:hover {
+  font-family: Roboto;
+  background: #3B5998;
+  color: Black;
+  text-decoration: none;
+}
+.bartable {
+    width: 99%; 
+    border-spacing: 0px;
+    border-collapse: collapse;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+    margin: 0px;
+}
+.barbtn {
+  color: White;
+  font-family: Roboto;
+  background: #3B5998;
+  xbackground: #3498db;
+  font-size: 10px;
+  margin: 0px;
+  padding: 1px 4px 1px 4px;
+  text-decoration: none;
+}
+.barbtn:hover {
+  color: White;
+  background: #3B5998;
+  xbackground: #3cb0fd;
+  text-decoration: none;
+}
+.modebtn {
+  background: #8b9dc3;
+  color: White;
+  font-size: 10px;
+  padding: 1px 10px 1px 10px;
+  text-decoration: none;
+}
+
+.modebtn:hover {
+  color: Black;
+  background: #8b9dc3;
+  text-decoration: none;
+}
+.dark {
+     color: DarkBlue;
+}
+
+.cncncncnc {
+
+  border-radius: 2em;
+  -webkit-border-radius-topleft: 2em;
+  -webkit-border-radius-topright: 2em;
+
+}
+
+.btn2 {
+  background: White;
+  -moz-border-radius-topleft: 23em;
+  -moz-border-radius-topright: 23em;
+  color: Black;
+  font-size: 11px;
+  padding: 5px 10px 5px 10px;
+  text-decoration: none;
+}
+
+.btn2:hover {
+  color: Black;
+  background: LightBlue;
+  text-decoration: none;
+}
+
+.btnsmall {
+  background-color: #dfe3ee;
+  color: #000000;
+  font-size: 8px;
+  padding: 3px 7px 3px 7px;
+  text-decoration: none;
+}
+
+.btnsmall:hover {
+  color: Black;
+  background-color: #dfe3ee;
+  text-decoration: none;
+}
+.ui-dialog.mydialog {
+    font-size: .8em;
+}
+.ui-dialog-osx {
+    -moz-border-radius: 0 0 8px 8px;
+    -webkit-border-radius: 0 0 8px 8px;
+    border-radius: 0 0 8px 8px; border-width: 0 2px 2px 2px;
+}
+td.big{
+	padding: 8px;
+	margin: 8px;
+        font-size:24px;
+	text-align:middle;
+	vertical-align:middle;
+}
+.footer {
+        width: 100%; 
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 6px;
+	padding: 0px;
+        margin:0px;
+        padding: 0px;
+        color: White;
+        font-size:6px;
+	line-height: 1.0em; 
+        text-shadow: 1px 1px 1px #fff;
+        background-color: Black;
+        border-top: 2px solid DarkBlue;
+}
+.tinybanner {
+        width: 100%; 
+        font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        margin:0px;
+        padding: 0px;
+        color: White;
+	line-height: 1.0em; 
+        text-shadow: 0px 0px 0px #fff;
+        background-color:#3b5998;
+        border-bottom: 2px solid #8b9dc3;
+        border-top: 2px solid #8b9dc3;
+}
+.banner {
+        width: 100%; 
+        font: 14px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        margin:0px;
+        padding: 0px;
+        color: White;
+	line-height: 1.0em; 
+        text-shadow: 0px 0px 0px #fff;
+        background-color:#3b5998;
+        border-bottom: 2px solid #8b9dc3;
+        border-top: 2px solid #8b9dc3;
+}
+td.smallish {
+        font-size:11px;
+}
+table.basictable {
+        width: 100%; 
+        margin:0px;
+        padding: 0px;
+	border-width: 1px;
+	border-collapse: collapse;
+	border-color: Black;
+}
+
+table.minigridtable {
+	font-size:8px;
+	color:Black;
+	border-width: 1px;
+	border-color: #666666;
+	border-collapse: collapse;
+	background-color: #f2f2f2;
+}
+table.minigridtable th {
+	border-width: 1px;
+	padding: 1px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #dedede;
+	background-color: #f2f2f2;
+}
+table.minigridtable td {
+	border-width: 1px;
+	padding: 1px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #ffffff;
+	background-color: #f2f2f2;
+}
+table.minigridtable a {
+	font-size:8px;
+	color:Black;
+	text-decoration:underline;
+}
+.upperright {
+        color: Black;
+	font-size:12px;
+	text-align:left;
+        border: 1px solid #000;
+}
+.menu {
+	font-size:12px;
+        color: Black;
+}
+.control {
+	font-size:10px;
+	color:Black;
+	text-decoration:none;
+}
+
+/* liScroll styles */
+
+.tickercontainer { /* the outer div with the black border */
+border: 1px solid #000;
+background: #fff; 
+width: 1138px; 
+height: 27px; 
+margin: 0; 
+padding: 0;
+overflow: hidden; 
+}
+.tickercontainer .mask { /* that serves as a mask. so you get a sort of padding both left and right */
+position: relative;
+left: 10px;
+top: 8px;
+width: 1118px;
+overflow: hidden;
+}
+ul.newsticker { /* that's your list */
+position: relative;
+left: 750px;
+font: bold 10px Verdana;
+list-style-type: none;
+margin: 0;
+padding: 0;
+
+}
+ul.newsticker li {
+float: left; /* important: display inline gives incorrect results when you check for elem's width */
+margin: 0;
+padding: 0;
+background: #fff;
+}
+ul.newsticker a {
+white-space: nowrap;
+padding: 0;
+color: #ff0000;
+font: bold 10px Verdana;
+margin: 0 50px 0 0;
+} 
+ul.newsticker span {
+color: Black;
+font: bold 18px Verdana;
+margin: 0 10px 0 0;
+} 
+
+
+.theanchor {
+  text-decoration: underline;
+}
+/*
+****************************************************************************************
+The four links states are:
+    a:link - a normal, unvisited link
+    a:visited - a link the user has visited
+    a:hover - a link when the user mouses over it
+    a:active - a link the moment it is clicked
+****************************************************************************************
+*/
+.thewave {
+  width: 67px;
+  height: 40px;
+  background-color: #33FF00;
+  moz-border-radius: 15px;
+  -webkit-border-radius: 15px;
+  border: 5px solid #009900;
+  padding: 5px;
+}
+
+.thewave:link {
+  text-decoration: none;
+}
+.thewave:visited {
+  text-decoration: none;
+}
+.thewave:active {
+  text-decoration: none;
+}
+
+.thewave:hover {
+  text-decoration: none;
+}
+
+.bread {
+  color: White;
+  font-size: 12px;
+  text-shadow: 0px 0px 0px #fff;
+  text-decoration: none;
+}
+.bread:hover {
+  color: White;
+  text-shadow: 0px 0px 0px #fff;
+  text-decoration: none;
+}
+
+.thebtn {
+  background: #3498db;
+  background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+  background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+  background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+  background-image: -o-linear-gradient(top, #3498db, #2980b9);
+  background-image: linear-gradient(to bottom, #3498db, #2980b9);
+  -webkit-border-radius: 48;
+  -moz-border-radius: 48;
+  border-radius: 48px;
+  color: #ffffff;
+  font-size: 12px;
+  padding: 4px 8px 4px 8px;
+  text-decoration: none;
+}
+
+.thebtn:hover {
+  background: #3cb0fd;
+  background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+  text-decoration: none;
+}
+
+.radiowave {
+width:330px;
+  text-align:middle;
+  vertical-align:middle;
+  background: Blue;
+  -webkit-border-radius: 48;
+  -moz-border-radius: 48;
+  border-radius: 48px;
+  color: White;
+  font: bold 12px Courier;
+  padding: 4px 8px 4px 8px;
+  text-decoration: none;
+}
+.radiowave:hover {
+  background: Blue;
+  color: White;
+  text-decoration: none;
+}
+
+
+.nodec,
+.nodec:active,
+.nodec:hover,
+.nodec:link,
+.nodec:visited {
+     text-decoration: none;
+}
+
+.round,
+.round:active,
+.round:hover,
+.round:link,
+.round:visited {
+     background: Blue;
+     -moz-border-radius: 18px;
+     border-radius: 18px;
+     text-decoration: none;
+}
+
+
+
+.uibutton,
+.uibutton:visited {
+    width: 90%; 
+    position: relative;
+    z-index: 1;
+    overflow: visible;
+    display: inline-block;
+    xpaddingorder: top right bottom left;
+    padding: 0.3em 0.3em 0.3em 0.3em;
+    border: 1px solid #999;
+    border-bottom-color: #888;
+    margin: 0;
+    text-decoration: none;
+    text-align: center;
+    vertical-align: middle;
+    font: bold 11px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+    white-space: nowrap;
+    cursor: pointer;
+    /* outline: none; */
+    color: #333;
+    background-color: #eee;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f5f6f6), to(#e4e4e3));
+    background-image: -moz-linear-gradient(#f5f6f6, #e4e4e3);
+    background-image: -o-linear-gradient(#f5f6f6, #e4e4e3);
+    background-image: linear-gradient(#f5f6f6, #e4e4e3);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f5f6f6', EndColorStr='#e4e4e3'); /* for IE 6 - 9 */
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #fff;
+    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #fff;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #fff;
+    /* IE hacks */
+    zoom: 1;
+    *display: inline;
+}
+
+.uibutton:hover,
+.uibutton:focus,
+.uibutton:active {
+    border-color: #777 #777 #666;
+    color: Black;
+}
+
+.uibutton:active {
+    border-color: #aaa;
+    background: #ddd;
+    filter: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+/* overrides extra padding on button elements in Firefox */
+.uibutton::-moz-focus-inner {
+    padding: 0;
+    border: 0;
+}
+
+.uibutton.large {
+    font-size: 13px;
+}
+
+.uibutton.confirmprime {
+    font: bold 8px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+    border-color: #29447e #29447e #1a356e;
+    color: #fff;
+    background-color: #5B74A8;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#637bad), to(#5872a7));
+    background-image: -moz-linear-gradient(#637bad, #5872a7);
+    background-image: -o-linear-gradient(#637bad, #5872a7);
+    background-image: linear-gradient(#637bad, #5872a7);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#637bad', EndColorStr='#5872a7'); /* for IE 6 - 9 */
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+}
+.uibutton.confirm {
+    border-color: #29447e #29447e #1a356e;
+    color: #fff;
+    background-color: #5B74A8;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#637bad), to(#5872a7));
+    background-image: -moz-linear-gradient(#637bad, #5872a7);
+    background-image: -o-linear-gradient(#637bad, #5872a7);
+    background-image: linear-gradient(#637bad, #5872a7);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#637bad', EndColorStr='#5872a7'); /* for IE 6 - 9 */
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    text-align: middle;
+    vertical-align: middle;
+        xborder-top: 1px solid White;
+        xborder-left: 1px solid White;
+        xborder-right: 1px solid Black;
+        xborder-bottom: 1px solid Black;
+}
+.uibutton.confirm2 {
+    border-color: #29447e #29447e #1a356e;
+    color: #fff;
+    background-color: #5B74A8;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#637bad), to(#5872a7));
+    background-image: -moz-linear-gradient(#637bad, #5872a7);
+    background-image: -o-linear-gradient(#637bad, #5872a7);
+    background-image: linear-gradient(#637bad, #5872a7);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#637bad', EndColorStr='#5872a7'); /* for IE 6 - 9 */
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 #8a9cc2;
+    text-align: middle;
+    vertical-align: middle;
+        xborder-top: 1px solid White;
+        xborder-left: 1px solid White;
+        xborder-right: 1px solid Black;
+        xborder-bottom: 1px solid Black;
+}
+
+
+.uibutton.confirm:active {
+    border-color: #29447E;
+    background: #4F6AA3;
+    filter: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+table.gridtable {
+        font: bold 11px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+	color:Black;
+	border-width: 1px;
+	border-collapse: collapse;
+	background-color: #dfe3ee;
+	border-color: #f7f7f7;
+}
+table.gridtable th {
+        font: bold 11px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        font: bold;
+        color: #ffffff;
+	border-width: 1px;
+	padding: 2px;
+	border-style: solid;
+	text-align:left;
+        background-color:#3b5998;
+	border-collapse: collapse;
+	border-color: #f7f7f7;
+}
+table.gridtable td {
+        font: bold 11px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+	border-width: 1px;
+	padding: 2px;
+	border-style: solid;
+	background-color: #dfe3ee;
+	border-collapse: collapse;
+	border-color: #f7f7f7;
+	text-align:left;
+}
+table.gridtable a {
+        font: bold 11px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+	color:Black;
+	text-decoration:underline;
+}

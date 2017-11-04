@@ -1,0 +1,336 @@
+body {
+        font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        margin:0px;
+	padding: 0px;
+        color: Black;
+	background-color: White;
+	border-collapse: collapse;
+        border-top: 0px solid Black;
+        border-left: 0px solid Black;
+        border-right: 0px solid Black;
+        border-bottom: 0px solid Black;
+}
+.xxxxxxxtextarea {
+ background-color: yellow;
+ xfont-size: 4em;
+ xfont-weight: bold;
+ xfont-family: Verdana, Arial, Helvetica, sans-serif;
+ font: 26px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+ border: 1px solid black;
+}
+
+.large {
+        font: 16px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        margin: 0px;
+        padding: 0px;
+        color: Black;
+        background-color: #DFE3EE;
+	border-collapse: collapse;
+        border-top: 0px solid White;
+        border-left: 0px solid White;
+        border-right: 0px solid White;
+        border-bottom: 0px solid White;
+}
+.largeinput {
+        font: 16px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        margin: 0px;
+        padding: 0px;
+        color: Black;
+        background-color: #FFFFFF;
+	border-collapse: collapse;
+        border-top:    1px solid Black;
+        border-left:   1px solid Black;
+        border-right:  1px solid Black;
+        border-bottom: 1px solid Black;
+}
+.white {
+        font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        margin: 0px;
+        padding: 0px;
+        color: Black;
+        xbackground-color:White;
+        ybackground-color: #5B74A8;
+        background-color: #DFE3EE;
+	border-collapse: collapse;
+        border-top: 0px solid White;
+        border-left: 0px solid White;
+        border-right: 0px solid White;
+        border-bottom: 0px solid White;
+}
+.black0x0 {
+        font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        margin: 0px;
+        padding: 0px;
+        color: White;
+        background-color:Black;
+	border-collapse: collapse;
+        border-top: 0px solid Black;
+        border-left: 0px solid Black;
+        border-right: 0px solid Black;
+        border-bottom: 0px solid Black;
+}
+.black {
+        font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        margin: 0px;
+        padding: 0px;
+        color: White;
+        background-color:Green;
+	border-collapse: collapse;
+        border-top: 3px solid Green;
+        border-left: 3px solid Green;
+        border-right: 3px solid Green;
+        border-bottom: 3px solid Green;
+}
+.banner {
+        width: 100%; 
+        font: 14px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+	margin-top: 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+        padding: 0px;
+        color: White;
+	line-height: 1.0em; 
+        text-shadow: 0px 0px 0px #fff;
+        background-color:Black;
+        border-bottom: 0px solid #8b9dc3;
+        border-top: 0px solid #8b9dc3;
+}
+.client_area {
+        width: 100%; 
+        font: 14px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        margin: 0px;
+        padding: 0px;
+        color: Black;
+	background-color: White;
+}
+.menu_area {
+        width: 100%; 
+        font: 14px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        margin: 0px;
+        padding: 0px;
+        color: White;
+	background-color: Black;
+}
+.menu {
+	font-size:12px;
+        color: Black;
+        margin:0px;
+        padding: 0px;
+	border-width: 0px;
+}
+
+td {
+	text-align:left;
+}
+a, a:link,a:visited,a:hover { color: Black; text-decoration: underline; }
+
+.bootonselect {
+  font-size:11px;
+  color: #fff;
+  background-color: #5B74A8;
+  text-align: middle;
+  vertical-align: middle;
+  font-weight: bold;
+  border: 1px solid White;
+  padding: 4px;
+  text-transform:uppercase;
+}
+ 
+.bootonselect:hover {
+  color: #FFF;
+  background: #900;
+  text-align: middle;
+  vertical-align: middle;
+  border: 1px solid White;
+  cursor: pointer; /* cursor: hand; for IE5 */
+}
+
+.bootonsmall {
+  font-size:8px;
+  color: #fff;
+  background-color: #5B74A8;
+  text-align: middle;
+  vertical-align: middle;
+  font-weight: bold;
+  border: 1px solid White;
+  text-transform:uppercase;
+}
+.bootonsmall:hover {
+  color: #FFF;
+  background: #900;
+  text-align: middle;
+  vertical-align: middle;
+  cursor: pointer; /* cursor: hand; for IE5 */
+}
+
+.antibooton {
+  font-size:10px;
+  color: White;
+  background-color: Black;
+  text-align: right;
+  vertical-align: middle;
+  font-weight: bold;
+  border: 0px solid White;
+  text-transform:none;
+}
+.booton {
+  font-size:11px;
+  color: #fff;
+  background-color: #5B74A8;
+  text-align: middle;
+  vertical-align: middle;
+  font-weight: bold;
+  border: 1px solid White;
+  text-transform:uppercase;
+}
+ 
+.booton:hover {
+  color: #FFF;
+  background: #900;
+  text-align: middle;
+  vertical-align: middle;
+  cursor: pointer; /* cursor: hand; for IE5 */
+}
+
+.manpage {
+	color: Black;
+        font: bold 12px Courier;
+	text-align:left;
+}
+
+.searchbar {
+    font-size: 10px;
+    text-align:center;
+    vertical-align:middle;
+    xpaddingorder: top right bottom left;
+    padding: 0px 0px 4px 0px;
+    margin: 0px 0px 0px 0px;
+    border-spacing: 0px;
+    border-collapse: collapse;
+}
+.searchbartext {
+    font-size: 10px;
+    text-align:left;
+    vertical-align:middle;
+    padding: 0px 0px 4px 0px;
+    margin: 0px 0px 0px 0px;
+    border-spacing: 0px;
+    border-collapse: collapse;
+}
+
+.middlesmall {
+        width: 100%; 
+        color: Black;
+        font-size:12px;
+	text-align:center;
+}
+.footer {
+        width: 100%; 
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 6px;
+	padding: 0px;
+        margin:0px;
+        padding: 0px;
+        color: White;
+        font-size:6px;
+	line-height: 1.0em; 
+        text-shadow: 1px 1px 1px #fff;
+        background-color: Black;
+        border-top: 2px solid DarkBlue;
+}
+
+.theanchor {
+  text-decoration: underline;
+}
+/*
+****************************************************************************************
+The four links states are:
+    a:link - a normal, unvisited link
+    a:visited - a link the user has visited
+    a:hover - a link when the user mouses over it
+    a:active - a link the moment it is clicked
+****************************************************************************************
+*/
+
+.round,
+.round:active,
+.round:hover,
+.round:link,
+.round:visited {
+     background: Blue;
+     -moz-border-radius: 18px;
+     border-radius: 18px;
+     text-decoration: none;
+}
+
+
+table.gridtable {
+     font:             bold 11px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+     color:            Black;
+     border-collapse:  collapse;
+     border-style:     solid;
+     border-width:     1px;
+     background-color: #dfe3ee;
+     border-color:     #f7f7f7;
+}
+table.gridtable th {
+     color:            White;
+     border-collapse:  collapse;
+     border-style:     solid;
+     border-width:     1px;
+     padding:          2px;
+     text-align:       left;
+     background-color: #3b5998;
+     border-color:     #f7f7f7;
+}
+table.gridtable td {
+     border-collapse:  collapse;
+     border-style:     solid;
+     border-width:     1px;
+     background-color: #dfe3ee;
+     border-color:     #f7f7f7;
+     padding:          1px;
+     text-align:       left;
+}
+table.gridtable xxxselect {
+   margin: 0px;
+   border: 0px solid #111;
+   background: transparent;
+   xwidth: 150px;
+   width: 100%;
+   padding: 0px 20px 0px 0px;
+   xpadding: 5px 35px 5px 5px;
+   font-size: 11px;
+   color: Black;
+   font-weight: bold;
+   border: 1px solid #ccc;
+   xheight: 34px;
+   -webkit-appearance: none;
+   -moz-appearance: none;
+   appearance: none;
+   xxbackground: url('favicon.ico') 96% / 15% no-repeat #dfe3ee;
+   xbackground: url(http://www.stackoverflow.com/favicon.ico) 96% / 15% no-repeat #dfe3ee;
+   xbackground-image: url('favicon.ico');
+   xbackground-repeat: no-repeat;
+   xbackground-attachment: fixed;
+   xbackground-position: 30% 20%;
+   background: #dfe3ee;
+}
+table.gridtable select {
+   width: 100px;
+   margin: 0px;
+   border: 1px solid white;
+   background: transparent;
+   padding: 0px 7px 0px 0px;
+   font-size: 11px;
+   color: Black;
+   font-weight: bold;
+   -webkit-appearance: none;
+   -moz-appearance: none;
+   appearance: none;
+}
+table.gridtable a {
+     text-decoration:  underline;
+}

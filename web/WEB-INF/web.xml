@@ -1,0 +1,11 @@
+<web-app>
+    <servlet>
+              <servlet-name>s3u</servlet-name>
+              <servlet-class>s3u</servlet-class>
+     </servlet>
+     <servlet-mapping>
+             <servlet-name>s3u</servlet-name>
+             <url-pattern>/p1</url-pattern>
+     </servlet-mapping>
+</web-app>
+

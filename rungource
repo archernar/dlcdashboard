@@ -1,0 +1,2 @@
+gource --max-files 10000 --highlight-dirs -c 4 --user-image-dir ~mestes
+

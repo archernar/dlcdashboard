@@ -1,0 +1,2827 @@
+import java.util.Calendar;
+import java.util.TimeZone;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Random;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Map;
+import java.util.Date;
+import org.joda.time.*;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Properties;
+import javax.servlet.ServletException;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.text.DecimalFormat;
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.amazonaws.services.identitymanagement.model.User;
+import com.amazonaws.services.identitymanagement.model.ListUsersRequest;
+import com.amazonaws.services.identitymanagement.model.GetUserRequest;
+import com.amazonaws.services.identitymanagement.model.GetUserResult;
+import com.amazonaws.services.identitymanagement.model.Group;
+import com.amazonaws.services.identitymanagement.model.Role;
+import com.amazonaws.services.identitymanagement.model.ListUsersResult;
+import com.amazonaws.services.identitymanagement.model.ListGroupsResult;
+import com.amazonaws.services.identitymanagement.model.GetGroupRequest;
+import com.amazonaws.services.identitymanagement.model.ListRolesResult;
+import com.amazonaws.services.identitymanagement.model.ListGroupsForUserRequest;
+import com.amazonaws.services.identitymanagement.model.ListGroupsForUserResult;
+import com.amazonaws.services.ec2.model.InstanceBlockDeviceMapping;
+import com.amazonaws.services.ec2.model.EbsInstanceBlockDevice;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.IpPermission;
+import com.amazonaws.services.ec2.model.DescribeVolumesResult;
+import com.amazonaws.services.ec2.model.DescribeVolumesRequest;
+import com.amazonaws.services.ec2.model.Volume;
+import com.amazonaws.services.ec2.model.DescribeImagesRequest;
+import com.amazonaws.services.ec2.model.DescribeImagesResult;
+import com.amazonaws.services.ec2.model.Image;
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
+import com.amazonaws.services.ec2.model.Instance;
+import com.amazonaws.services.ec2.model.Reservation;
+import com.amazonaws.services.ec2.model.Tag;
+import com.amazonaws.services.ec2.model.GroupIdentifier;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClient;
+import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import com.amazonaws.services.sqs.model.DeleteMessageRequest;
+import com.amazonaws.services.sqs.model.DeleteQueueRequest;
+import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
+
+import com.amazonaws.regions.Regions;   // Enum
+import com.amazonaws.regions.Region;    // Class with the methods
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
+import com.amazonaws.services.cloudwatch.model.Datapoint;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
+import com.amazonaws.services.cloudwatch.model.Dimension;
+import com.amazonaws.services.sqs.model.ListQueuesResult;
+import com.amazonaws.services.ec2.model.VolumeAttachment;
+import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationsResult;
+import com.amazonaws.services.elasticbeanstalk.model.ApplicationDescription;
+// https://github.com/fangyidong/json-simple
+// import com.fasterxml.jackson.core.JsonParseException;
+// import com.fasterxml.jackson.databind.JsonMappingException;
+// import com.fasterxml.jackson.databind.ObjectMapper;
+// import com.fasterxml.jackson.annotation.JsonProperty;
+//                              sgvco(dq(
+//                                anchor + "&nbsp;&nbsp;" +
+//                                getAnchor(ie.getCpuMetricUrl(),"C") + "&nbsp;"+
+//                                getAnchor(ie.getNetinMetricUrl(),"I") + "&nbsp;"+
+//                                getAnchor(ie.getNetoutMetricUrl(),"O")     )) +c+
+// http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/publishingMetrics.html#publishingDataPoints1
+// out.println(y0);
+// out.println(cryDecode(y0));
+
+
+
+public class s3u extends HttpServlet {
+    //private static final List<String> ACTIVE_REGIONS = Arrays.asList("E1","W1","W2","A1","U1","U2");
+    private static final List<String> ACTIVE_REGIONS = Arrays.asList("E1","W1","W2");
+
+    int entry = 0;
+    long startTime = 0;
+    long endTime = 0;
+    static final DLCUtil UTIL = new DLCUtil();
+
+    public s3u() {
+        super();
+        Custom custom = new Custom();
+        Cache.instanceConfigMapInit();
+        Cache.instancePriceMapInit();
+    }
+    protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+    // PrintWriter out = resp.getWriter();
+    MyPrintWriter out = new MyPrintWriter(resp);
+    BuildNumber buildnumber = new BuildNumber();
+    Custom custom = new Custom();
+    DLCUtil util = new DLCUtil();
+    DLCUtil u    = new DLCUtil();
+    DLCConnect cn = null;
+    String szPricingString;
+    int moder = 0;
+    InstanceX.setVolumeDataFlag(0);
+    entry++;
+    String namespace   = "";
+    String aws_key     = u.getURLStringParameter(req, "key", "");
+    String aws_sec     = u.getURLStringParameter(req, "sec", "");
+    String aws_env     = u.getURLStringParameter(req, "env", custom.getDefaultAccount());
+    String aws_reg     = u.getURLStringParameter(req, "loc", custom.getDefaultRegion());
+    String aws_region  = u.getURLStringParameter(req, "loc", custom.getDefaultRegion());
+    String op          = u.getURLStringParameter(req, "op", "inventory");
+    String spec        = u.getURLStringParameter(req, "spec", "");
+    List<String> speclist = Arrays.asList(spec);
+    String filter      = u.getURLStringParameter(req, "filter", "");
+    String node        = u.getURLStringParameter(req, "node", "none");
+    String qual        = u.getURLStringParameter(req, "qual", "default");
+    String mappedqual  = mapQ(qual);
+    String vnode       = u.getURLStringParameter(req, "vnode", "none");
+    int paramHours     = u.getURLIntParameter(req, "hours",  "6");
+    int offset         = u.getURLIntParameter(req, "offset", "0");
+    int period         = u.getURLIntParameter(req, "period", "60");
+    int hours          = paramHours;
+    String serviceUrl  = util.getServiceUrl(aws_env,op,qual,node,aws_reg,period,paramHours);
+    HttpSession session = req.getSession(true);
+    if ( session.isNew() ) {
+         cn = new DLCConnect(aws_env, aws_region, aws_key, aws_sec);
+         session.setAttribute("DLCConnect", cn); 
+    } else {
+         //cn = (DLCConnect) session.getValue("DLCConnect"); 
+         cn = (DLCConnect) session.getAttribute("DLCConnect"); 
+    }
+    String accountNumber   = custom.getAccountNumber(aws_env);
+    List<String> ACCOUNTS  = custom.getAccounts();
+    List<String> REGIONS   = custom.getRegions();
+
+    List<String> VERSION = new ArrayList<String>();
+    VERSION.add(buildnumber.getBuildNumber());
+
+    List<String> SELECTED_REGIONS = new ArrayList<String>();
+    if (aws_region.equals("ALL"))
+         for (String i:ACTIVE_REGIONS) SELECTED_REGIONS.add(i); 
+    else
+         SELECTED_REGIONS.add(aws_region);
+
+    List<String> SELECTED_ENVS = new ArrayList<String>();
+    if (aws_env.equals("ALL"))
+         for (String i:ACCOUNTS) SELECTED_ENVS.add(i); 
+    else
+         SELECTED_ENVS.add(aws_env);
+     resp.setContentType("application/json");
+
+     int n=0;
+     String c = ",";
+     String delim = "";
+     try {
+          MyStringBuilder sbHeader = new MyStringBuilder();
+          MyStringBuilder sbOut = new MyStringBuilder();
+          MyTimeStamp ts = new MyTimeStamp();
+          sbHeader.appendln(dqcolon("timestamp")  + dqcomma(ts.getTimeStamp()));
+          sbHeader.appendln(dqcolon("timestamp")  + dqcomma(ts.now()));
+          sbHeader.appendln(dqcolon("account")    + dqcomma(accountNumber));
+          sbHeader.appendln(dqcolon("aws_env")    + dqcomma(aws_env));
+          sbHeader.appendln(dqcolon("region")     + dqcomma(aws_reg));
+          sbHeader.appendln(dqcolon("regionname") + dqcomma(util.mapRegionCodesToNames(aws_reg)));
+          sbHeader.appendln(dqcolon("node")       + dqcomma(node));
+          sbHeader.appendln(dqcolon("actualnow")  + dqcomma(new DateTime().minusHours(0).toDate().toString()));
+          sbHeader.appendln(dqcolon("hours")      + dqcomma(hours));
+          sbHeader.appendln(dqcolon("offset")  + dqcomma(offset));
+          sbHeader.appendln(dqcolon("effoff")  + dqcomma(offset+hours));
+// Symbol  Meaning                      Presentation  Examples
+// ------  -------                      ------------  -------
+// G       era                          text          AD
+// C       century of era (>=0)         number        20
+// Y       year of era (>=0)            year          1996
+//
+// x       weekyear                     year          1996
+// w       week of weekyear             number        27
+// e       day of week                  number        2
+// E       day of week                  text          Tuesday; Tue
+//
+// y       year                         year          1996
+// D       day of year                  number        189
+// M       month of year                month         July; Jul; 07
+// d       day of month                 number        10
+//
+// a       halfday of day               text          PM
+// K       hour of halfday (0~11)       number        0
+// h       clockhour of halfday (1~12)  number        12
+//
+// H       hour of day (0~23)           number        0
+// k       clockhour of day (1~24)      number        24
+// m       minute of hour               number        30
+// s       second of minute             number        55
+// S       fraction of second           number        978
+//
+// z       time zone                    text          Pacific Standard Time; PST
+// Z       time zone offset/id          zone          -0800; -08:00; America/Los_Angeles
+//
+// '       escape for text              delimiter
+// ''      single quote                 literal       '
+ 
+          DateTimeFormatter fmt         = DateTimeFormat.forPattern("MM/dd kk:mm");
+          String            szDate      = "";
+
+
+          //sbHeader.appendln(dqcolon("effnow")  + dqcomma(new DateTime().minusHours(offset).toDate().toString()));
+          szDate      = fmt.print( new DateTime().minusHours(offset));
+          sbHeader.appendln(dqcolon("effnow")  + dqcomma(szDate));
+
+          //sbHeader.appendln(dqcolon("effpst")  + dqcomma(new DateTime().minusHours(offset+hours).toDate().toString()));
+          szDate      = fmt.print( new DateTime().minusHours(offset+hours));
+          sbHeader.appendln(dqcolon("effpst")  + dqcomma(szDate));
+
+          sbHeader.appendln(dqcolon("qual")    + dqcomma(qual));
+          sbHeader.appendln(dqcolon("qf")      + dqcomma(mapQF(qual)));
+          sbHeader.jsonNVc("mappedqual",  mappedqual);
+          sbHeader.jsonNVc("op",          op);
+          sbHeader.jsonNVc("entry",       entry);
+          sbHeader.jsonNVc("url",         serviceUrl);
+          switch (op.toLowerCase()) {
+               case "images":
+                    out.println(UTIL.szJSON_COLS);
+                    tableHeadersDefs(out, Arrays.asList("Instance","imageID","imagename","imagedescription"));
+                    break; 
+          }
+          
+          switch (op.toLowerCase()) {
+               case "nameduser":
+                    n=0;
+                    for (String i:SELECTED_ENVS) {
+                         AmazonIdentityManagementClient conn  = cn.ConnectIAM(i);
+                         List <User> l = new ArrayList<User>();
+                         GetUserRequest r = new GetUserRequest();
+                         r.setUserName("cloudwatch");
+                         l.add(conn.getUser(r).getUser());
+                         // NEED HERE n=usus(conn,n,i,aws_reg,out,l);
+                    }
+                    out.println("]");
+                    break; 
+               case "images":
+                    n=0;
+                    for (String i:SELECTED_ENVS) {
+                         AmazonEC2Client conn = cn.Connect(i,aws_reg);
+                         n=imim(conn,n,i,aws_reg,out, conn.describeInstances().getReservations());
+                    }
+                    out.println("]");
+                    break; 
+               case "start":
+                    if (moder == 0) {
+                         InstanceX ie = new InstanceX(cn, aws_env, aws_reg, node);
+                         ie.startInstance();
+                         moder=1;
+                    }
+               case "stop":
+                    if (moder == 0) {
+                         InstanceX ie = new InstanceX(cn, aws_env, aws_reg, node);
+                         ie.stopInstance();
+                         moder=1;
+                    }
+               case "allenvs":
+               case "activeenvs":
+               case "selectedenvs":
+               case "version":
+               case "bucketcount":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(valueOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         if (op.toLowerCase().equals("activeenvs"))   n=valueOpRows(n,sbOut,ACCOUNTS);
+                         if (op.toLowerCase().equals("selectedenvs")) n=valueOpRows(n,sbOut,SELECTED_ENVS);
+                         if (op.toLowerCase().equals("version"))      n=valueOpRows(n,sbOut,VERSION);
+                         if (op.toLowerCase().equals("bucketcount")) {
+                                   AmazonS3Client conn  = cn.ConnectS3(aws_env,aws_reg);
+                                   n=S3BucketCountOpRows(conn,n,aws_env,sbOut,conn.listBuckets());
+                         }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "instancecountall":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(instanceCountOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                    for (String i:ACCOUNTS)
+                         n=instanceCountOpRows(n,i,aws_reg,sbOut,cn.Connect(i,aws_reg).describeInstances().getReservations());
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "instancecount":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(instanceCountOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                    n=instanceCountOpRows(n,aws_env,aws_reg,sbOut,cn.Connect(aws_env,aws_reg).describeInstances().getReservations());
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "accounts":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(valueOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         n=valueOpRows(n,sbOut,ACCOUNTS);
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+// out.println(",{" + dqcolon("timing")  + dq( myts.markTimeBuffer() ) +"}");
+// String file = "/tmp/accounts.txt";
+// PrintWriter fout = new PrintWriter( new BufferedWriter(new FileWriter(file)));
+// fout.println(sbOut.toString());
+// fout.close();
+                    break; 
+               case "performancenode":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(performanceOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         for (String i:SELECTED_ENVS) {
+                              n=performanceOpRows(n,cn,sbOut,cn.getListByNode(cn,i,aws_reg,node));
+                         }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                         sbOut.insertln(2,dq("rowcount") + ": " + dq(n) + ",");
+                         sbOut.insertln(2,dq("columncount") + ": " + dq(performanceOpCols().size()) + ",");
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "performance":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(performanceOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                              for (String i:SELECTED_ENVS) n=performanceOpRows(n,cn,sbOut,cn.getList(cn,i,aws_reg,filter));
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                         sbOut.insertln(2,dq("rowcount") + ": " + dq(n) + ",");
+                         sbOut.insertln(2,dq("columncount") + ": " + dq(performanceOpCols().size()) + ",");
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "testdata":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(testdataOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         for (String i:SELECTED_ENVS) n=n+testdataOpRows(n,cn,sbOut);
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE_COMMA);
+                    sbOut.println(dqcolon("rows_count")  + dq(n));
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "fakeinventory":
+                    n=0;
+                    sbOut.println(u.JSONOO, sbHeader.toString(), u.JSONCO, dTC(fakeOpCols()), u.JSONCC, u.JSONRO);
+                         for (String i:SELECTED_ENVS) n=n+fakeOpRows(n,cn,sbOut);
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE_COMMA);
+                    sbOut.println(dqcolon("rows_count")  + dq(n));
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "s3buckets":
+                    n=0;
+                    sbOut.println(u.JSONOO, sbHeader.toString(), u.JSONCO, dTC(S3BucketsOpCols()), u.JSONCC, u.JSONRO);
+                         for (String i:SELECTED_ENVS) 
+                              for (String r:SELECTED_REGIONS) { 
+                                   AmazonS3Client conn  = cn.ConnectS3(i,r);
+                                   n=S3BucketsOpRows(conn,n,i,sbOut,conn.listBuckets());
+                              }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE, UTIL.szJSON_OBJECT_CLOSE).output(out);
+                    break; 
+               case "tag":
+                    n=0;
+                    sbOut.println(u.JSONOO, sbHeader.toString(), u.JSONCO, dTC(tagOpCols()), u.JSONCC, u.JSONRO);
+                         for (String i:SELECTED_ENVS) 
+                              for (String r:SELECTED_REGIONS) { 
+                                   n=tagOpRows(n,cn,sbOut,cn.getList(cn,i,r,filter));
+                              }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE, UTIL.szJSON_OBJECT_CLOSE).output(out);
+                    break; 
+               case "beans":
+                    n=0;
+                    sbOut.println(u.JSONOO, sbHeader.toString(), u.JSONCO, dTC(beansOpCols()), u.JSONCC, u.JSONRO);
+                         for (String i:SELECTED_ENVS) 
+                              for (String r:SELECTED_REGIONS) { 
+                                   n=beansOpRows(n,cn,i,r,sbOut);
+                              }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE, UTIL.szJSON_OBJECT_CLOSE).output(out);
+                    break; 
+               case "cost":
+                    n=0;
+                    sbOut.println(u.JSONOO, sbHeader.toString(), u.JSONCO, dTC(costOpCols()), u.JSONCC, u.JSONRO);
+                         for (String i:SELECTED_ENVS) 
+                              for (String r:SELECTED_REGIONS) { 
+                                   n=costOpRows(n,cn,sbOut,cn.getList(cn,i,r,filter));
+                              }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE, UTIL.szJSON_OBJECT_CLOSE).output(out);
+                    break; 
+               case "inventory":
+                    n=0;
+                    sbOut.println(u.JSONOO, sbHeader.toString(), u.JSONCO, dTC(inventoryOpCols()), u.JSONCC, u.JSONRO);
+                         for (String i:SELECTED_ENVS) 
+                              for (String r:SELECTED_REGIONS) { 
+                                   Cache.securitygroupMapInit(cn,i,r);
+                                   Cache.VolumeMapInit(cn,i,r);
+                                   Cache.InstanceBDMOptionMapInit(cn,i,r);
+                                   Cache.InstanceIPOptionMapInit(cn,i,r);
+                                   n=inventoryOpRows(n,cn,sbOut,cn.getList(cn,i,r,filter));
+                              }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE, UTIL.szJSON_OBJECT_CLOSE).output(out);
+                    break; 
+               case "inventoryminus":
+                    n=0;
+                    sbOut.println(u.JSONOO, sbHeader.toString(), u.JSONCO, dTC(inventoryminusOpCols()), u.JSONCC, u.JSONRO);
+                         for (String i:SELECTED_ENVS) 
+                              for (String r:SELECTED_REGIONS) { 
+                                   Cache.securitygroupMapInit(cn,i,r);
+                                   Cache.VolumeMapInit(cn,i,r);
+                                   Cache.InstanceBDMOptionMapInit(cn,i,r);
+                                   Cache.InstanceIPOptionMapInit(cn,i,r);
+                                   n=inventoryminusOpRows(n,cn,sbOut,cn.getList(cn,i,r,filter));
+                              }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE, UTIL.szJSON_OBJECT_CLOSE).output(out);
+                    break; 
+               case "inventoryplus":
+                    n=0;
+                    sbOut.println(u.JSONOO, sbHeader.toString(), u.JSONCO, dTC(inventoryplusOpCols()), u.JSONCC, u.JSONRO);
+                         for (String i:SELECTED_ENVS) 
+                              for (String r:SELECTED_REGIONS) { 
+                                   Cache.securitygroupMapInit(cn,i,r);
+                                   Cache.VolumeMapInit(cn,i,r);
+                                   Cache.InstanceBDMOptionMapInit(cn,i,r);
+                                   Cache.InstanceIPOptionMapInit(cn,i,r);
+                                   n=inventoryplusOpRows(n,cn,sbOut,cn.getList(cn,i,r,filter));
+                              }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE, UTIL.szJSON_OBJECT_CLOSE).output(out);
+                    break; 
+               case "diskstorage":
+               case "diskstoragecount":
+               case "storagecount":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(diskstorageOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         for (String i:SELECTED_ENVS) 
+                              for (String r:SELECTED_REGIONS) {
+                                   AmazonEC2Client conn = cn.Connect(i,r);
+                                   n=diskstorageOpRows(n,sbOut,cn,conn.describeVolumes().getVolumes());
+                              }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "volumes":
+                    InstanceX.setVolumeDataFlag(1);
+                    //     for (String r:SELECTED_REGIONS) { AmazonEC2Client conn = cn.Connect(i,r);
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(volumesOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         for (String i:SELECTED_ENVS) 
+                              for (String r:SELECTED_REGIONS) {
+                                   AmazonEC2Client conn = cn.Connect(i,r);
+                                   n=volumesOpRows(n,sbOut,cn,conn.describeVolumes().getVolumes());
+                              }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    InstanceX.setVolumeDataFlag(0);
+                    break; 
+               case "queuetestadd":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(queueTestAddOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         for (String i:SELECTED_ENVS) {
+                              AmazonSQSClient conn  =   cn.ConnectSQS(i,cn.getRegion());
+                              n=queueTestAddOpRows(n,cn,sbOut,conn.listQueues().getQueueUrls(),spec,0);
+                         }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "queuetestdelete":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(queueTestDeleteOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         for (String i:SELECTED_ENVS) {
+                              AmazonSQSClient conn  =   cn.ConnectSQS(i,cn.getRegion());
+                              n=queueTestDeleteOpRows(n,cn,sbOut,conn.listQueues().getQueueUrls(),spec);
+                         }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "queue":
+                    n=0;
+                    sbOut.println(u.JSONOO, sbHeader.toString(), u.JSONCO, dTC(queueOpCols()), u.JSONCC, u.JSONRO);
+                         for (String i:SELECTED_ENVS) {
+                              AmazonSQSClient conn  =   cn.ConnectSQS(i,cn.getRegion());
+                              if (spec.equals(""))
+                                   n=queueOpRows(n,cn,sbOut,conn.listQueues().getQueueUrls());
+                              else
+                                   n=queueOpRows(n,cn,sbOut,speclist);
+                         }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE, UTIL.szJSON_OBJECT_CLOSE).output(out);
+                    break; 
+               case "groups":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(groupsOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         for (String i:SELECTED_ENVS) {
+                              AmazonIdentityManagementClient conn  = cn.ConnectIAM(i);
+                              n=groupsOpRows(n,cn,sbOut,conn.listGroups().getGroups());
+                         }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "roles":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(rolesOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         for (String i:SELECTED_ENVS) {
+                              AmazonIdentityManagementClient conn  = cn.ConnectIAM(cn.getEnv());
+                              n=rolesOpRows(n,cn,sbOut,conn.listRoles().getRoles());
+                         }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "tags":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(tagsOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         for (String i:SELECTED_ENVS) 
+                              for (String r:SELECTED_REGIONS) 
+                                   n=tagsOpRows(n,cn,sbOut,cn.getList(cn,i,r,filter));
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "instancestorage":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(instanceStorageOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                       for (String i:SELECTED_ENVS) n=instanceStorageOpRows(n,cn,sbOut,cn.getInstanceStorageList(cn,i,aws_reg));
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "sg":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(sgOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         for (String i:SELECTED_ENVS) 
+                              for (String r:SELECTED_REGIONS) { 
+                                   Cache.securitygroupMapInit(cn,i,r);
+                                   n=sgOpRows(n,cn,sbOut,cn.Connect(i,r).describeSecurityGroups().getSecurityGroups());
+                              }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "users":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(usersOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         for (String i:SELECTED_ENVS) {
+                                   //AmazonIdentityManagementClient conn  = cn.ConnectIAM(i);
+                                   //n=usersOpRows(n,cn,aws_reg,sbOut,conn.listUsers().getUsers());
+                                   AmazonIdentityManagementClient conn  = cn.ConnectIAM(i);
+                                   n=usersOpRows(n,cn,"NAN",sbOut,conn.listUsers().getUsers());
+                         }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "onetime":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(singletimeseriesOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         singletimeserieslastdpOpRows(mapQF(qual),sbOut,getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg) );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "lsts":
+                    namespace = "System/Linux";
+               case "sts":
+               case "singletimeseries":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(singletimeseriesOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+
+//private static void singletimeserieslastdpOpRows(int factor, MyStringBuilder sb, List<Datapoint> list)  {
+                         singletimeseriesOpRows(mapQF(qual),sbOut,getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg) );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+if ( 1  == 0 ) {
+sbOut.println(UTIL.szCOMMA);
+sbOut.println(UTIL.szJSON_DATA_OPEN);
+singletimeseriesOpRowsSecondForm(mapQF(qual),sbOut,getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg) );
+sbOut.println(UTIL.szJSON_DATA_CLOSE);
+}
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "fakedata":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(singletimeseriesOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         singletimeseriesFakeDataOpRows(mapQF(qual),sbOut );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "trendall":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(lastCostOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                    for (String i:SELECTED_ENVS) 
+                         for (String r:SELECTED_REGIONS)  
+                              n=lastCostOpRows(n,i,1,sbOut,getCloudWatchBillingData2(cn,i,r,"") );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "trend":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(lastCostOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                    for (String i:SELECTED_ENVS) 
+                         for (String r:SELECTED_REGIONS)  
+                              n=lastCostOpRows(n,i,1,sbOut,getCloudWatchBillingData2(cn,i,r,"AmazonEC2") );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "monthlycost":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(monthlyCostOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                    for (String i:SELECTED_ENVS) {
+                         n=monthlyCostOpRows(n,i,1,sbOut,getCloudWatchBillingData(cn,i,aws_reg,"") );
+                         n=monthlyCostOpRows(n,i,1,sbOut,getCloudWatchBillingData(cn,i,aws_reg,"AmazonEC2") );
+                    }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toString());
+                    break; 
+               case "zook":
+                    n=0;
+                    String ddddd = "";
+                    sbOut.print("[");
+                    sbOut.print("[\"account\",\"charges\"],");
+                    for (String i:ACCOUNTS){
+                         sbOut.println(ddddd);
+                         zookOpRows(i,1,sbOut,getCloudWatchBillingData(cn,i,aws_reg,"") );
+                         ddddd=",";
+                    }
+                    sbOut.println("]");
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "zeek":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         //sbOut.println(dataTableColumns(singletimeseriesOpCols("fee")));
+                         sbOut.println(dataTableColumns(zeekOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                    String dddd = "";
+                    for (String i:ACCOUNTS){
+                         sbOut.println(dddd);
+                         zeekOpRows(i,1,sbOut,getCloudWatchBillingData(cn,i,aws_reg,"") );
+                         dddd=",";
+                    }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "amazonall":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(singletimeseriesOpCols("fee")));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         singletimeserieslastdpOpRows(1,sbOut,getCloudWatchBillingData(cn,aws_env,aws_reg,"") );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "amazonvpc":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(singletimeseriesOpCols("fee")));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         singletimeserieslastdpOpRows(1,sbOut,getCloudWatchBillingData(cn,aws_env,aws_reg,"AmazonVPC") );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "amazondirectconnect":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(singletimeseriesOpCols("fee")));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         singletimeserieslastdpOpRows(1,sbOut,getCloudWatchBillingData(cn,aws_env,aws_reg,"AWSDirectConnect") );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "amazondatatransfer":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(singletimeseriesOpCols("fee")));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         singletimeserieslastdpOpRows(1,sbOut,getCloudWatchBillingData(cn,aws_env,aws_reg,"AWSDataTransfer") );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+
+               case "amazonec2":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(singletimeseriesOpCols("fee")));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         singletimeserieslastdpOpRows(1,sbOut,getCloudWatchBillingData(cn,aws_env,aws_reg,"AmazonEC2") );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "amazons3":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(singletimeseriesOpCols("fee")));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         singletimeserieslastdpOpRows(1,sbOut,getCloudWatchBillingData(cn,aws_env,aws_reg,"AmazonS3") );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "billsummary":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(singletimeseriesOpCols("fee")));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                    for (String i:ACCOUNTS){
+                         String dd = "";
+                         sbOut.println(dd);
+                         singledpOpRows(1,sbOut,getCloudWatchBillingData(cn,i,aws_reg,""),i );
+                         dd=",";
+                    }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "bill":
+                    List<String> servicenames = Arrays.asList("AmazonDynamoDB", "AmazonEC2", "AmazonRedshift", 
+                                                              "AmazonS3","AmazonSimpleDB", "AmazonSNS", "AmazonVPC",
+                                                              "AWSDataTransfer", "AWSDirectConnect", "awskms",
+                                                              "AWSQueueService", "AWSSupportBusiness", "datapipeline");
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(singletimeseriesOpCols("fee")));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                    singledpOpRows(1,sbOut,getCloudWatchBillingData(cn,aws_env,aws_reg,""), aws_env );
+                    for (String i:servicenames){
+                         String dd = ",";
+                         sbOut.println(dd);
+                         singledpOpRows(1,sbOut,getCloudWatchBillingData(cn,aws_env,aws_reg,i),i );
+                         dd=",";
+                    }
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "billing":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(singletimeseriesOpCols("fee")));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         singletimeseriesOpRows(1,sbOut,getCloudWatchBillingData(cn,aws_env,aws_reg,"") );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "cpu1":
+                   hours=1; qual="cpu";
+               case "cpu6":
+                   hours=1; qual="cpu";
+               case "cpu12":
+                   hours=1; qual="cpu";
+               case "cpu24":
+                   hours=24; qual="cpu";
+               case "lmts":
+                    namespace = "System/Linux";
+               case "mts":
+               case "multipletimeseries":
+                    n=0;
+                    sbOut.println(UTIL.szJSON_OBJECT_OPEN);
+                         sbOut.println(sbHeader.toString());
+                    sbOut.println(UTIL.szJSON_COLS_OPEN);
+                         sbOut.println(dataTableColumns(multipletimeseriesOpCols()));
+                    sbOut.println(UTIL.szJSON_COLS_CLOSE);
+                    sbOut.println(UTIL.szJSON_ROWS_OPEN);
+                         multipletimeseriesOpRows(mapQF(qual),sbOut, getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg) );
+                    sbOut.println(UTIL.szJSON_ROWS_CLOSE);
+                    sbOut.println(UTIL.szJSON_OBJECT_CLOSE);
+                    out.println(sbOut.toStringClean());
+                    break; 
+               case "forward":
+                         String quickURL="p1?op=performance&env=" + aws_env;
+                         req.setAttribute("quickURL", quickURL);
+                         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/zed.jsp");
+                         dispatcher.forward(req, resp);
+                    break; 
+
+               default:
+                    break; 
+          }
+
+
+          // USED TO BE HERE ----- out.println("}");
+
+        } catch (Exception e) {
+            System.out.println("Caught Exception: "+ e.getMessage());
+            e.printStackTrace(System.out);
+        }
+    }
+
+private static String cleanString(String sz) {
+     String clean = sz.replaceAll("\r", "").replaceAll("\n", "");
+     return(sz);
+}
+
+private static int mapQF(String sz) {
+     int nRet = 1;
+     int b=1024;
+     int e=3;
+     switch (sz) {
+          case "statuscheck":
+               nRet = -1;
+               break; 
+          case "diskreadbytes":
+          case "diskwritebytes":
+          case "netout":
+          case "netoutmulti":
+          case "netin":
+          case "netinmulti":
+               nRet = 1024*1024;
+               break; 
+          case "diskreadops":
+          case "diskwriteops":
+               nRet = 1;
+               break; 
+     }
+    return (nRet);
+}
+private static String mapQ(String sz) {
+     String szRet = "";
+     switch (sz) {
+               case "statuscheck":
+                    szRet="StatusCheckFailed";
+                     break; 
+               case "cpu":
+               case "cpumulti":
+               case "cpuavg":
+                     szRet="CPUUtilization";
+                     break; 
+               case "netout":
+               case "netoutmulti":
+                     szRet="NetworkOut";
+                     break; 
+               case "netin":
+               case "netinmulti":
+                     szRet="NetworkIn";
+                     break; 
+               case "diskreadbytes":
+               case "diskreadbytesmulti":
+                     szRet="DiskReadBytes";
+                     break; 
+               case "diskwritebytes":
+               case "diskwritebytesmulti":
+                     szRet="DiskWriteBytes";
+                     break; 
+               case "diskreadops":
+               case "diskreadopsmulti":
+                     szRet="DiskReadOps";
+                     break; 
+               case "diskwriteops":
+               case "diskwriteopsmulti":
+                     szRet="DiskWriteOps";
+                     break; 
+               case "system":
+                     szRet=UTIL.M_SYSTEM;
+                     break; 
+               case "status":
+                    szRet=UTIL.M_INSTANCE;
+                     break; 
+               case "mema":
+                     szRet="MemoryAvailable";
+                     break; 
+               case "memz":
+                     szRet="MemoryUtilization";
+                     break; 
+               case "memu":
+                     szRet="MemoryUsed";
+                     break; 
+     }
+    return (szRet);
+}
+
+
+// UTILS
+public static void CSVHeadersDefs(MyPrintWriter out, List <String> list) {
+     String d="";
+     String type="string";
+     String pattern = "00$";
+     Pattern r = Pattern.compile(pattern);
+     Pattern h = Pattern.compile("X$");
+     for (String i:list) {
+          String sz = i;
+          Matcher m = r.matcher(sz);
+          if ( m.find() ) {
+               type="number";
+               sz = sz.replaceAll("00$", "");
+          }
+          out.print(d + sz);
+          d = ",";
+     }
+     out.print("\n");
+}
+// TABLEHEADER
+// TABLECOL
+public static String dTC(List <String> list) {
+     return( dataTableColumns(list) );
+}
+public static String dataTableColumns(List <String> list) {
+     StringBuilder sb = new StringBuilder();
+     Integer ct = 0;
+     String d="";
+     String type="string";
+     String pattern = "00$";
+     Pattern r = Pattern.compile(pattern);
+     Pattern dd = Pattern.compile("11$");
+     Pattern h = Pattern.compile("X$");
+     for (String i:list) {
+          String sz = i;
+          Matcher m = r.matcher(sz);
+          if ( m.find() ) {
+               type="number";
+               sz = sz.replaceAll("00$", "");
+          }
+          if ( dd.matcher(sz).find() ) {
+               type="datetime";
+               sz = sz.replaceAll("11$", "");
+          }
+          String field = String.format("F%02d", ct++);
+          sb.append(d + q3(co(dq("id"),dq(field)),co(UTIL.szDQLABEL,dq(sz)), co(UTIL.szDQTYPE,dq(type))));
+          d = ",\n";
+     }
+     return( sb.toString() );
+}
+public static void tableHeadersDefs(MyPrintWriter out, List <String> list) {
+     String d="";
+     String type="string";
+     String pattern = "00$";
+     Pattern r = Pattern.compile(pattern);
+     Pattern h = Pattern.compile("X$");
+     for (String i:list) {
+          String sz = i;
+          Matcher m = r.matcher(sz);
+          if ( m.find() ) {
+               type="number";
+               sz = sz.replaceAll("00$", "");
+          }
+          //if (i.equals("state")) type="number";
+          out.print(d + q3(co(dq("id"),dq(i.hashCode())),co(UTIL.szDQLABEL,dq(sz)), co(UTIL.szDQTYPE,dq(type))));
+          d = ",\n";
+     }
+     out.println("],");
+     out.println(dq("rows") + ": [");
+}
+
+public static String dq(int n) { 
+     StringBuilder sb = new StringBuilder();
+     return (sb.append(UTIL.DQ).append(n).append(UTIL.DQ).toString());
+}
+public static String dq(Date d) { 
+     StringBuilder sb = new StringBuilder();
+     return (sb.append(UTIL.DQ).append(d).append(UTIL.DQ).toString());
+}
+public static String dq(Double dd) { 
+     StringBuilder sb = new StringBuilder();
+     return (sb.append(UTIL.DQ).append(dd).append(UTIL.DQ).toString());
+}
+public static String dq(long ddd) { 
+     StringBuilder sb = new StringBuilder();
+     return (sb.append(UTIL.DQ).append(ddd).append(UTIL.DQ).toString());
+}
+public static String dqcomma(int n) { 
+     StringBuilder sb = new StringBuilder();
+     return (sb.append(UTIL.DQ).append(n).append(UTIL.DQ).append(UTIL.COMMA).toString());
+}
+public static String dqcomma(Date d) { return "\""+d+"\",";  }
+public static String dqcomma(Double dd) { return "\""+dd+"\",";  }
+public static String dqcomma(long ddd) { return "\""+ddd+"\",";  }
+public static String dqcomma(String sz) { 
+     StringBuilder sb = new StringBuilder();
+     return (sb.append(UTIL.DQ).append(UTIL.nonull(sz)).append("\",").toString());
+}
+public static String dqcolon(String sz) { 
+     StringBuilder sb = new StringBuilder();
+     return (sb.append("\"").append(UTIL.nonull(sz)).append("\": ").toString());
+}
+public static String dq(String sz) { 
+     StringBuilder sb = new StringBuilder();
+     return (sb.append("\"").append(UTIL.nonull(sz)).append("\"").toString());
+}
+public static String sr(String sz) { 
+     StringBuilder sb = new StringBuilder();
+     return (sb.append("[").append(sz).append("]").toString());
+}
+public static String sgco(String sz1, String sz2) { 
+     StringBuilder sb = new StringBuilder();
+     return (sb.append("{").append(sz1).append(":").append(sz2).append("}").toString());
+}
+public static String sgvco(String sz1) { 
+     StringBuilder sb = new StringBuilder();
+     //return (sb.append("{").append(UTIL.szDQV).append(":").append(sz1).append("}").toString());
+     return (sb.append(UTIL.szSQDQVCO).append(sz1).append("}").toString());
+}
+public static String sgvcodq(String sz1) { 
+     StringBuilder sb = new StringBuilder();
+     // return (sb.append("{").append(UTIL.szDQV).append(":\"").append(sz1).append("\"}").toString());
+     return (sb.append(UTIL.szSQDQVCODQ).append(sz1).append("\"}").toString());
+}
+public static String sgvcodq(int sz1) { 
+     StringBuilder sb = new StringBuilder();
+     //return (sb.append("{").append(UTIL.szDQV).append(":\"").append(Integer.toString(sz1)).append("\"}").toString());
+     return (sb.append(UTIL.szSQDQVCODQ).append(Integer.toString(sz1)).append("\"}").toString());
+}
+
+public static String sgvf(String sz) { return "{\"v\": "+sz + ", \"f\": \"" + sz + "\"" + " }"; }
+
+
+public static String co(String sz1, String sz2) { 
+     StringBuilder sb = new StringBuilder();
+     sb.append(sz1).append(":").append(sz2);
+     return sb.toString();
+}
+public static String dqco(String sz1, String sz2) { 
+     StringBuilder sb = new StringBuilder();
+     sb.append(dq(sz1)).append(":").append(dq(sz2));
+     return sb.toString();
+}
+public static String q3(String sz1, String sz2, String sz3) { return "{" + sz1 + "," + sz2 + "," + sz3 + "}";  }
+public static List <String> multipletimeseriesOpCols() {
+     return(Arrays.asList("timestamp","max00","min00","avg00"));
+}
+private static void multipletimeseriesOpRows(int factor, MyStringBuilder sb, List<Datapoint> list)  {
+     String delim="";
+     String c=",";
+     String firstUnalteredTimeStamp = "XXXX";
+     DecimalFormat df = new DecimalFormat("##0.00");
+     for (Datapoint dp : list) {
+          String szTS = dp.getTimestamp().toString();
+          if (szTS.equals("XXXX")) firstUnalteredTimeStamp = szTS;
+          String[] parts = szTS.split(" ");
+          String[] parts2 = parts[parts.length-3].split(":");
+          String szAbrev = parts2[parts2.length-3]+":"+parts2[parts2.length-2];
+          String sz = "";
+          if ( factor == -1 )
+            sz = delim +"{" +  dq("c") + ":" +
+            sr( sgvco(dq(szAbrev))  +c+ 
+              sgvco(dq(df.format(dp.getMaximum()+1))) +c+
+              sgvco(dq(df.format(dp.getMinimum()+1))) +c+
+              sgvco(dq(df.format(dp.getAverage()+1))) 
+            )  + "}";
+          else
+           sz = delim +"{" +  dq("c") + ":" +
+           sr( sgvco(dq(szAbrev))  +c+ 
+              sgvco(dq(df.format(dp.getMaximum()/factor))) +c+
+              sgvco(dq(df.format(dp.getMinimum()/factor))) +c+
+              sgvco(dq(df.format(dp.getAverage()/factor))) 
+            )  + "}";
+
+          sb.append(sz);
+          delim = ",";
+     }
+     // out.println("],");
+     // out.println(dqco("firsttimestamp", getFirstMetricTimeStamp(list)) +",");
+     // out.println(dqco("lasttimestamp", getLastMetricTimeStamp(list)));
+}
+public static List <String> zeekOpCols() {
+     return(Arrays.asList("account","charge00"));
+}
+public static List <String> singletimeseriesOpCols(String name) {
+     return(Arrays.asList("timestamp11",name+"00"));
+}
+public static List <String> singletimeseriesOpCols() {
+     return(Arrays.asList("timestamp11","value00"));
+}
+private static void singledpOpRows(int factor, MyStringBuilder sb, List<Datapoint> list,String name)  {
+     DecimalFormat df = new DecimalFormat("##0.00");
+     Datapoint dp = null;
+     for (Datapoint thisdp : list) dp = thisdp; 
+          Double zerg = 0.0d;
+          String szTS = "";
+          try {
+               zerg = dp.getMaximum();
+               // Tue Feb 03 07:45:00 EST 2015
+               szTS = dp.getTimestamp().toString();
+          } catch (Exception e) {
+          } finally {
+          }
+          String sz = "{" +  dq("c") + ":" +
+          sr( sgvco(dq(name))  +","+ sgvco(dq(df.format(zerg/factor))) )  +""+ "}";
+          sb.append(sz);
+}
+private static void zookOpRows(String env,int factor, MyStringBuilder sb, List<Datapoint> list)  {
+     String delim="";
+     DecimalFormat df = new DecimalFormat("##0.00");
+     Datapoint dp = null;
+     for (Datapoint thisdp : list) dp = thisdp; 
+          Double zerg = 0.0d;
+          String szTS = "";
+          try {
+               zerg = dp.getMaximum();
+               // Tue Feb 03 07:45:00 EST 2015
+               szTS = dp.getTimestamp().toString();
+          } catch (Exception e) {
+          } finally {
+          }
+          String sz = delim + sr( "" + dq(env)  + "," + df.format(zerg/factor) )  + "";
+          sb.append(sz);
+          delim = ",\n";
+}
+private static void zeekOpRows(String env,int factor, MyStringBuilder sb, List<Datapoint> list)  {
+     String delim="";
+     DecimalFormat df = new DecimalFormat("##0.00");
+     Datapoint dp = null;
+     for (Datapoint thisdp : list) dp = thisdp; 
+          Double zerg = 0.0d;
+          String szTS = "";
+          try {
+               zerg = dp.getMaximum();
+               // Tue Feb 03 07:45:00 EST 2015
+               szTS = dp.getTimestamp().toString();
+          } catch (Exception e) {
+          } finally {
+          }
+          String sz = delim +"{" +  dq("c") + ":" +
+          sr( sgvco(dq(env))  +","+ sgvco(dq(df.format(zerg/factor))) )  +""+ "}";
+          sb.append(sz);
+          delim = ",\n";
+}
+private static void singletimeserieslastdpOpRows(int factor, MyStringBuilder sb, List<Datapoint> list)  {
+     String delim="";
+     DecimalFormat df = new DecimalFormat("##0.00");
+     Datapoint dp = null;
+     for (Datapoint thisdp : list) dp = thisdp; 
+          Double zerg = 0.0d;
+          String szTS = "";
+          try {
+               zerg = dp.getMaximum();
+               // Tue Feb 03 07:45:00 EST 2015
+               szTS = dp.getTimestamp().toString();
+          } catch (Exception e) {
+          } finally {
+          }
+          String sz = delim +"{" +  dq("c") + ":" +
+          sr( sgvco(dq("last"))  +","+ sgvco(dq(df.format(zerg/factor))) )  +""+ "}";
+          sb.append(sz);
+          delim = ",\n";
+}
+//SERIESOP
+// OPSERIES
+// var data = [ { x: 0, y: 40 }, { x: 1, y: 49 }, { x: 2, y: 17 }, { x: 3, y: 42 } ];
+//Date now = new java.util.Date();
+private static void singletimeseriesFakeDataOpRows(int factor, MyStringBuilder sb)  {
+    List<String> FAKEDATA = new ArrayList<String>();
+    for (int i=0;i<16;i++) 
+       FAKEDATA.add(Helper.randomNumericString(3));
+     String delim="";
+     int i = 0;
+     for (String szV : FAKEDATA) {
+          Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
+          calendar.setTime( new java.util.Date() );
+          String szDay   = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)); 
+          String szMonth = Integer.toString(calendar.get(Calendar.MONTH)); 
+          String szYear  = Integer.toString(calendar.get(Calendar.YEAR)); 
+          String szHour  = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY)); 
+          //String szMinute  = Integer.toString(calendar.get(Calendar.MINUTE)+(i++)); 
+          String szMinute  = Integer.toString(1+(i++)); 
+          String szSecond  = Integer.toString(calendar.get(Calendar.SECOND)); 
+          String jsonTS = "Date("+szYear+","+szMonth+","+szDay+","+szHour+","+szMinute+","+szSecond+")";
+          String sz = delim +"{" +  dq("c") + ":" + sr( sgvco(dq(jsonTS))  +","+ sgvco(dq(szV)) )  +""+ "}";
+          sb.append(sz);
+          delim = ",";
+     }
+}
+private static void singletimeseriesOpRows(int factor, MyStringBuilder sb, List<Datapoint> list)  {
+     String delim="";
+     DecimalFormat df = new DecimalFormat("##0.00");
+     for (Datapoint dp : list) {
+          Double zerg = dp.getMaximum();
+          // Tue Feb 03 07:45:00 EST 2015
+          String szTS = dp.getTimestamp().toString();
+          String szTime = Long.toString( dp.getTimestamp().getTime() );
+          // TimeStamp is java.util.Date
+          // Date(year, month, day[,hour, minute, second[, millisecond]]) 
+          // where everything after day is optional, and months are zero-based.
+          Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
+          calendar.setTime( dp.getTimestamp() );
+          String szDay   = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)); 
+          String szMonth = Integer.toString(calendar.get(Calendar.MONTH)); 
+          String szYear  = Integer.toString(calendar.get(Calendar.YEAR)); 
+          String szHour  = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY)); 
+          String szMinute  = Integer.toString(calendar.get(Calendar.MINUTE)); 
+          String szSecond  = Integer.toString(calendar.get(Calendar.SECOND)); 
+          String jsonTS = "Date("+szYear+","+szMonth+","+szDay+","+szHour+","+szMinute+","+szSecond+")";
+          String[] parts = szTS.split(" ");
+          String pn=parts[1];
+          if ( parts[1].equals("Jan") ) pn="01-";
+          if ( parts[1].equals("Feb") ) pn="02-";
+          String day = pn + parts[2] + " ";
+          String[] parts2 = parts[parts.length-3].split(":");
+          String szAbrev = day + parts2[parts2.length-3]+":"+parts2[parts2.length-2];
+          //String sz = delim +"{" +  dq("c") + ":" + sr( sgvco(dq(szAbrev))  +","+ sgvco(dq(df.format(zerg/factor))) )  +""+ "}";
+          //String sz = delim +"{" +  dq("c") + ":" + sr( sgvco(dq(szTime))  +","+ sgvco(dq(df.format(zerg/factor))) )  +""+ "}";
+          String sz = delim +"{" +  dq("c") + ":" + sr( sgvco(dq(jsonTS))  +","+ sgvco(dq(df.format(zerg/factor))) )  +""+ "}";
+          sb.append(sz);
+          delim = ",";
+     }
+}
+private static void singletimeseriesOpRowsSecondForm(int factor, MyStringBuilder sb, List<Datapoint> list)  {
+     String delim="";
+     DecimalFormat df = new DecimalFormat("##0.00");
+     long t = 1000L;
+     for (Datapoint dp : list) {
+          Double zerg = dp.getMaximum();
+          long epoch  = dp.getTimestamp().getTime() / t;
+          String sz =  delim + "{"+ dq("x") + ":" + epoch + "," + dq("y") + ":" + df.format(zerg/factor) + "}";
+          sb.append(sz);
+          delim = ",";
+     }
+}
+
+public static List <String> valueOpCols() {
+     return(Arrays.asList("name","value"));
+}
+// OTTO
+public static int valueOpRows(int nn, MyStringBuilder sb, List <String> list) {
+     int ct = 0;
+     String c = ",";
+     String delim="";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     for (String i:list) {
+               ct++;
+               String sz = delim + "{" +  dq("c") + ":";
+               sz =  sz + sr(
+                              u.json("name") +c+ 
+                              u.json(i) 
+                            )  +"}"  ;
+               sb.append(sz);
+               delim= ",\n";
+     }
+     return(ct);
+}
+public static List <String> servicesOpCols() {
+     return(Arrays.asList("name","value"));
+}
+public static List <String> usersOpCols() {
+     return(Arrays.asList("env","username","create","last","arn"));
+}
+// groups
+// public static int usus(AmazonIdentityManagementClient conn
+//                              sgvcodq(sb.toString()) 
+public static int usersOpRows(int nn, DLCConnect cn, String region, MyStringBuilder sb, List <User> list) {
+     int ct = 0;
+     String c = ",";
+     String delim="";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     for (User i:list) {
+               //ListGroupsForUserRequest uur = new ListGroupsForUserRequest(i.getUserName());
+               //List<Group> groups = conn.listGroupsForUser(uur).getGroups();
+               //         Collections.sort(groups, new Comparator<Group>() {
+	       //                    @Override
+	       //                    public int compare(Group i1, Group i2) {
+               //                    return i1.getGroupName().compareTo(i2.getGroupName());
+	       //                    }
+	       //         });
+               //String ud="";
+               //StringBuilder sb = new StringBuilder();
+               //int k=0;
+               //for (Group g:groups) {
+               //      sb.append(ud).append(g.getGroupName());
+               //      ud=" ";
+               //}
+
+               ct++;
+               MyTimeStamp tsCreate = new MyTimeStamp(i.getCreateDate());
+               MyTimeStamp tsLast = new MyTimeStamp(i.getPasswordLastUsed());
+               String jsondata = u.concatter("[", "]", ",", 
+                              u.json(cn.getIAMEnvMapped()),
+                              u.json(i.getUserName()),
+                              u.json(tsCreate.value()),
+                              u.json((i.getPasswordLastUsed() != null) ? tsLast.value() : "="),
+                              u.json(i.getArn()) );
+               sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+               delim= ",\n";
+     }
+     return(nn+list.size());
+}
+// http://docs.awsB.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/sqs/AmazonSQSClient.html#getQueueAttributes%28java.lang.String,%20java.util.List%29
+public static int imim(AmazonEC2Client conn, int nn, String acct, String region, MyPrintWriter out, List <Reservation> list) {
+     int ct = 0;
+     String c = ",";
+     String delim="";
+     String NME="";
+     if (nn >0) delim=",";
+     for (Reservation res:list) {
+       List <Instance> instancelist = res.getInstances();
+       for (Instance inst:instancelist) {
+          List <Tag> t1 =inst.getTags();
+          for (Tag teg:t1)  if ( teg.getKey().equals("Name") )   NME = teg.getValue();
+          DescribeImagesRequest imagereq = new DescribeImagesRequest();
+          List<String> imageIds = Arrays.asList(inst.getImageId());
+          imagereq.setImageIds(imageIds);
+          List<Image> imagelist = conn.describeImages(imagereq).getImages();
+          for (Image i:imagelist) {
+               ct++;
+               String sz = delim + "{" +  dq("c") + ":";
+               sz =  sz + sr( 
+                              sgvcodq(NME) +c+
+                              sgvcodq(i.getImageId()) +c+
+                              sgvcodq(i.getName()) +c+
+                              sgvcodq(i.getDescription())
+                            )  +"}"  ;
+               out.print(sz);
+               delim= ",\n";
+          }
+       }
+     }
+     return(ct);
+}
+
+public static List <String> performanceOpCols() {
+     return(Arrays.asList("IDENTITY","envreg","tag","status","type","id","name","purpose","performance"));
+}
+public static int performanceOpRows(int nn, DLCConnect cn,MyStringBuilder sb ,List <InstanceX> list) {
+     int ct = 0;
+     String c = ",";
+     String delim= "";
+     if (nn >0) delim=",\n";
+     DLCUtil u = new DLCUtil();
+     for (InstanceX ie:list){
+       if ( ie.getStatus().equals("R")) {
+          ct++;
+          String sz = delim + "{" +  dq("c") + ":";
+          sz =  sz + sr( 
+               ie.getIdentityJson() +c+
+               ie.getEnvRegJson() +c+
+               ie.getTagJson() +c+
+               ie.getStatusJson() +c+
+               ie.getInstanceTypeJson() +c+
+               ie.getIdJson() +c+
+               ie.getNameJson() +c+
+               ie.getPurposeJson() +c+
+               u.json("")
+          )  +"}"  ;
+          sb.append(sz);
+          delim= ",\n";
+      }
+     }
+     return(nn+ct);
+}
+public static String  fakeIdentityStrJson(String a,String b,String c,String d,String e)  { return (a+","+ b+","+ c+","+ d+","+ e); }
+    
+public static List <String> testdataOpCols() {
+     String sz="vCPU,mem,strg,net,ebs";
+     return(Arrays.asList("field-1","field-2","field-3","field-4"));
+}
+public static List <String> fakeOpCols() {
+     String sz="vCPU,mem,strg,net,ebs";
+     return(Arrays.asList("IDENTITY","sel","instance","tag","purpose","field-4","field-5","field-6","field-7","name","filed-9",
+     "field-10","field-11","field-12","field-13","field-14","$hour","fielda1","fielda2","field-18","filed-19"));
+}
+public static int testdataOpRows(int nn, DLCConnect cn,MyStringBuilder sb) {
+     int ct = 0;
+     int n = 0;
+     String c = ",";
+     String delim= "";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     int n0 = 4;
+     for (int i=0;i<4;i++){
+          ct++;
+          String sz = delim + "{" +  dq("c") + ":";
+          sz =  sz + sr( 
+               u.json("AA") +c+
+               u.json("BB") +c+
+               u.json("CC") +c+
+               u.json("DD")
+          )  +"}"  ;
+          sb.append(sz);
+          delim= ",\n";
+     }
+     return(nn+ct);
+}
+public static int fakeOpRows(int nn, DLCConnect cn,MyStringBuilder sb) {
+     int ct = 0;
+     int n = 0;
+     String c = ",";
+     String szsz = "";
+     String delim= "";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     int nData = new Random().nextInt(12)+1;
+     if ( nData <=0 ) nData = 1;
+     int n0 = nData;
+     for (int i=0;i<12;i++){
+           szsz = szsz + "<option>" + Helper.randomString( new Random().nextInt(6)+1 ) + "</option>";
+     }
+     for (int i=0;i<nData;i++){
+          ct++;
+          String sz = delim + "{" +  dq("c") + ":";
+          String aa= Helper.randomString( new Random().nextInt(6)+1 );
+          String bb= Helper.randomString( new Random().nextInt(6)+1 );
+          String cc= Helper.randomString( new Random().nextInt(6)+1 );
+          String dd= Helper.randomString( new Random().nextInt(6)+1 );
+          String ee= Helper.randomString( new Random().nextInt(6)+1 );
+          String ff= Helper.randomString( new Random().nextInt(6)+1 );
+          
+          sz =  sz + sr( 
+               u.json(fakeIdentityStrJson(aa,bb,cc,dd,ee)) +c+
+               u.json(u.HTMLselect(szsz)) +c+
+               u.json(randy()) +c+
+               u.json(randy()) +c+
+               u.json(randy()) +c+
+               u.json(randy()) +c+
+               u.json(randy()) +c+
+               u.json(randy()) +c+
+               u.json(randy()) +c+
+               u.json(randy()) +c+
+               u.json(randy()) +c+
+               
+               u.json(randy()) +c+
+               u.json(randy()) +c+
+               u.json(randy()) +c+
+               u.json(randy()) +c+
+               u.json(randy()) +c+
+
+               u.json(Helper.randomDollar( new Random().nextInt(6)+1 ) ) +c+
+               u.json(Helper.randomDollar( new Random().nextInt(6)+1 ) ) +c+
+               u.json(Helper.randomDollar( new Random().nextInt(6)+1 ) ) +c+
+               u.json(Helper.randomString( new Random().nextInt(6)+1 ) ) +c+
+               u.json(Helper.randomString( new Random().nextInt(6)+1 ) )
+          )  +"}"  ;
+          sb.append(sz);
+          delim= ",\n";
+     }
+     return(nn+ct);
+}
+public static String randy() {
+          String ff= Helper.randomString( new Random().nextInt(6)+1 );
+          if ( (new Random().nextInt(10)+1) <= 4) {
+               ff="";
+               if ( (new Random().nextInt(10)+1) <= 5) ff="-"; 
+          }
+          return ff;
+}
+public static List <String> lastCostOpCols() {
+     return(Arrays.asList("env","timestamp","cost","delta","30days@delta"));
+}
+private static int lastCostOpRows(int nn,String env,int factor, MyStringBuilder sb, List<Datapoint> list)  {
+     // DecimalFormat df = new DecimalFormat("##0.00");
+     DecimalFormat df = new DecimalFormat("##0");
+     int ct = 0;
+     String jsondata = "";
+     String delim= "";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     int nFirst = 0;
+     Double ferg = 0.0d;
+     for (Datapoint dp : list) {
+          Double zerg = 0.0d;
+          String szTS = "";
+          try {
+               zerg = dp.getMaximum();
+               if ( nFirst == 0 ) {
+                    ferg =  dp.getMaximum();
+                    nFirst = 1;
+               } else {
+                    if (dp.getMaximum() < ferg)
+                         ferg =  dp.getMaximum();
+               }
+               // Tue Feb 03 07:45:00 EST 2015
+               szTS = dp.getTimestamp().toString();
+               ct++;
+               jsondata = u.concatter("[", "]", ",", 
+                                   u.json(env),
+                                   u.json(dp.getTimestamp().toString()),
+                                   u.json(df.format(zerg)),
+                                   u.json(df.format(zerg - ferg)),
+                                   u.json(df.format( (zerg - ferg)*30 ))
+                                   );
+               sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+               delim= ",\n";
+               ferg =  dp.getMaximum();
+          } catch (Exception e) {
+          } finally {
+          }
+     }
+     return(nn+ct);
+}
+
+public static List <String> monthlyCostOpCols() {
+     return(Arrays.asList("env","cost"));
+}
+private static int monthlyCostOpRows(int nn,String env,int factor, MyStringBuilder sb, List<Datapoint> list)  {
+     // DecimalFormat df = new DecimalFormat("##0.00");
+     DecimalFormat df = new DecimalFormat("##0");
+     int ct = 0;
+     String jsondata = "";
+     String delim= "";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+
+     Datapoint dp = null;
+     for (Datapoint thisdp : list) dp = thisdp; 
+     // for (Datapoint thisdp : list) {
+          Double zerg = 0.0d;
+          String szTS = "";
+          try {
+               zerg = dp.getMaximum();
+               // Tue Feb 03 07:45:00 EST 2015
+               szTS = dp.getTimestamp().toString();
+          } catch (Exception e) {
+          } finally {
+          }
+          ct++;
+          jsondata = u.concatter("[", "]", ",", u.json(env),u.json(df.format(zerg/factor)));
+          sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+          delim= ",\n";
+     // }
+     return(nn+ct);
+}
+public static List <String> inventoryminusOpCols() {
+     String sz="vCPU,mem,strg,net,ebs";
+     return(Arrays.asList("IDENTITY","env","reg","tag","s","type","id","name","purpose","config","strg","launch","dd","$hour","$day","$mon","$strg","$all"));
+}
+public static int inventoryminusOpRows(int nn, DLCConnect cn,MyStringBuilder sb ,List <InstanceX> list) {
+     int ct = 0;
+     String key = "Bar12345Bar12345"; // 128 bit key
+     String initVector = "RandomInitVector"; // 16 bytes IV
+     DLCUtil u = new DLCUtil();
+     String jsondata = "";
+     String delim= "";
+     if (nn >0) delim=",";
+     for (InstanceX ie:list){
+          ct++;
+          jsondata = u.concatter("[", "]", ",", 
+               ie.getIdentityJson(),
+               ie.getMappedEnvJson(),
+               ie.getRegJson(),
+               ie.getTagJson(),
+               ie.getStatusJson(),
+               ie.getInstanceTypeJson(),
+               ie.getIdCleanJson(),
+               ie.getNameJson(),
+               ie.getPurposeJson(),
+               ie.getInstanceBOMJson(),
+               ie.getVolumeSizeJson(), 
+               ie.getLaunchDateJson(),
+               ie.getLaunchDeltaDaysJson(),
+               ie.getPriceJson(),
+               ie.getPrice24Json(),
+               ie.getPrice30DayMonthJson(),
+               u.json(ie.getStorageCostString()), 
+               u.json(ie.getAllCostString()) );
+          sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+          delim= ",\n";
+     }
+     return(nn+ct);
+}
+public static List <String> costOpCols() {
+     String sz="vCPU,mem,strg,net,ebs";
+     return(Arrays.asList("env","reg","tag","id","sta","name","purpose","$hour"));
+}
+public static int costOpRows(int nn, DLCConnect cn,MyStringBuilder sb ,List <InstanceX> list) {
+     int ct = 0;
+     String jsondata = "";
+     String delim= "";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     for (InstanceX ie:list){
+          ct++;
+          jsondata = u.concatter("[", "]", ",", 
+               ie.getMappedEnvJson(),
+               ie.getRegJson(),
+               ie.getStatusJson(),
+               ie.getIdCleanJson(),
+               ie.getTagJson(),
+               ie.getNameJson(),
+               ie.getPurposeJson(),
+               ie.getPriceJson());
+          sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+          delim= ",\n";
+     }
+     return(nn+ct);
+}
+
+public static List <String> S3BucketsOpCols() {
+     return(Arrays.asList("env","bucket-name"));
+}
+public static int S3BucketsOpRows(AmazonS3Client conn, int nn, String env, MyStringBuilder sb, List <Bucket> list) {
+     int ct = 0;
+     String sz = "";
+     String delim= "";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     for (Bucket i:list) {
+          ct++;
+          sz = u.concatter("[", "]", ",",u.json(env),u.json(i.getName()));
+          sb.append(delim).append("{").append(UTIL.DQCDQCO).append(sz).append("}");
+          delim= ",\n";
+     }
+     return(nn+ct);
+}
+public static int S3BucketCountOpRows(AmazonS3Client conn, int nn, String env, MyStringBuilder sb, List <Bucket> list) {
+     int ct = 0;
+     DLCUtil u = new DLCUtil();
+     for (Bucket i:list) {
+          ct++;
+     }
+     String sz = "{" +  dq("c") + ":";
+     sz =  sz + sr(
+                   u.json(env) +","+
+                   u.json(ct)
+                  )  +"}"  ;
+     sb.append(sz);
+     return(ct);
+}
+
+public static List <String> tagOpCols() {
+     String sz="vCPU,mem,strg,net,ebs";
+     return(Arrays.asList("env","reg","tag","count"));
+}
+public static int tagOpRows(int nn, DLCConnect cn,MyStringBuilder sb ,List <InstanceX> list) {
+     Map<String, Integer> map = new HashMap<String, Integer>();
+     int ct = 0;
+     String jsondata = "";
+     DLCUtil u = new DLCUtil();
+     String delim= "";
+     if (nn >0) delim=",";
+     for (InstanceX ie:list) {
+          if (map.get(ie.getTag()) == null ) map.put(ie.getTag(), 0);
+          int n = map.get(ie.getTag()) + 1;
+          map.put(ie.getTag(), n);
+     }
+
+
+     // for (InstanceX ie:list){
+     //     jsondata = concatter("[", "]", ",", ie.getMappedEnvJson(), ie.getRegJson(), ie.getTagJson());
+     //     System.out.println(entry.getKey() + "/" + entry.getValue());
+     for (Map.Entry<String, Integer> entry : map.entrySet()) {
+          ct++;
+          jsondata = u.concatter("[", "]", ",", 
+                     u.json(cn.getEC2EnvMapped()),
+                     u.json(cn.getEC2Reg()),
+                     u.json(entry.getKey()),
+                     u.json(entry.getValue()));
+          sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+          delim= ",\n";
+     }
+     return(nn+ct);
+}
+
+
+public static List <String> beansOpCols() {
+     return(Arrays.asList("env","reg","name","description","createdate", "updatedate"));
+}
+
+public static int beansOpRows(int nn, DLCConnect cn, String acct,String region, MyStringBuilder sb) {
+     AWSElasticBeanstalkClient conn  =   cn.ConnectEBS(acct,region);
+     int ct = 0;
+     String jsondata = "";
+     String delim= "";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     DescribeApplicationsResult dar = conn.describeApplications();
+     List<ApplicationDescription> beanlist = dar.getApplications();
+     for (ApplicationDescription eb:beanlist){
+          ct++;
+          jsondata = u.concatter("[", "]", ",", 
+               u.json(cn.getEBSEnvMapped()),
+               u.json(cn.getEBSReg()),
+               u.json(eb.getApplicationName()),
+               u.json(eb.getDescription()),
+               u.json( (new MyTimeStamp(eb.getDateCreated())).value()),
+               u.json( (new MyTimeStamp(eb.getDateUpdated())).value()));
+          sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+          delim= ",\n";
+     }
+     return(nn+ct);
+}
+
+
+public static List <String> inventoryOpCols() {
+     String sz="vCPU,mem,strg,net,ebs";
+     return(Arrays.asList("IDENTITY","env","reg","tag","s","type","id","name","purpose","config","devices","strg","launch","dd","$hour","$day","$mon","$strg","$all","owner","key","subnet-","ip","vpc","sg","ami-","perf"));
+}
+public static int inventoryOpRows(int nn, DLCConnect cn,MyStringBuilder sb ,List <InstanceX> list) {
+     int ct = 0;
+     String key = "Bar12345Bar12345"; // 128 bit key
+     String initVector = "RandomInitVector"; // 16 bytes IV
+     DLCUtil u = new DLCUtil();
+     String jsondata = "";
+     String delim= "";
+     if (nn >0) delim=",";
+     for (InstanceX ie:list){
+          ct++;
+          jsondata = u.concatter("[", "]", ",", 
+               ie.getIdentityJson(),
+               ie.getMappedEnvJson(),
+               ie.getRegJson(),
+               ie.getTagJson(),
+               ie.getStatusJson(),
+               ie.getInstanceTypeJson(),
+               ie.getIdCleanJson(),
+               ie.getNameJson(),
+               ie.getPurposeJson(),
+               ie.getInstanceBOMJson(),
+               u.json(u.HTMLselect(Cache.getInstanceBDMOptionMap(ie.getId()))),
+               ie.getVolumeSizeJson(), 
+               ie.getLaunchDateJson(),
+               ie.getLaunchDeltaDaysJson(),
+               ie.getPriceJson(),
+               ie.getPrice24Json(),
+               ie.getPrice30DayMonthJson(),
+               u.json(ie.getStorageCostString()), 
+               u.json(ie.getAllCostString()), 
+               ie.getOwnerCleanJson(),
+               ie.getKeyPairJson(),
+               ie.getSubnetIdJson(),
+               u.json(u.HTMLselect(Cache.getInstanceIPOptionMap(ie.getId()))),
+               ie.getVpcIdJson(),
+               u.json(u.HTMLselect(Cache.getSecurityGroupOptionMap( "sg-"+ ie.getSecurityGroupByMode(0) ))),
+               ie.getImageIdJson(),
+               ie.getSecurityGroupByModeJson(0),
+               u.json(""));
+          sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+          delim= ",\n";
+// OTTO
+     }
+     return(nn+ct);
+}
+public static List <String> inventoryplusOpCols() {
+     String sz="vCPU,mem,strg,net,ebs";
+     return(Arrays.asList("IDENTITY","env","reg","tag","s","type","id","name","purpose","dv","stg","stgcst","owner",
+                          "config","prv","pub","vpc","launch","key","$hour","$day","subnet-","ami-","sg-","perf"));
+}
+public static int inventoryplusOpRows(int nn, DLCConnect cn,MyStringBuilder sb ,List <InstanceX> list) {
+     int ct = 0;
+     String jsondata = "";
+     DLCUtil u = new DLCUtil();
+     String delim= "";
+     if (nn >0) delim=",";
+     for (InstanceX ie:list){
+          ct++;
+          jsondata = u.concatter("[", "]", ",", 
+               ie.getIdentityJson(),
+               ie.getMappedEnvJson(),
+               ie.getRegJson(),
+               ie.getTagJson(),
+               ie.getStatusJson(),
+               ie.getInstanceTypeJson(),
+               ie.getIdCleanJson(),
+               ie.getNameJson(),
+               ie.getPurposeJson(),
+               ie.getDeviceVolumesJson(),
+               ie.getVolumeSizeJson(), 
+               u.json(Double.toString(ie.getStorageCost())), 
+               ie.getOwnerCleanJson(),
+               ie.getInstanceBOMJson(),
+               ie.getIpPrivateJson(),
+               ie.getIpPublicJson(),
+               ie.getVpcIdJson(),
+               ie.getLaunchDateJson(),
+               ie.getKeyPairJson(),
+               ie.getPriceJson(),
+               ie.getPrice24Json(),
+               ie.getSubnetIdJson(),
+               ie.getImageIdJson(),
+               ie.getSecurityGroupByModeJson(0),
+               u.json(""));
+          sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+          delim= ",\n";
+     }
+     return(nn+ct);
+}
+/*
+
+               ie.getIdentityJson() +c+
+               ie.getEnvRegJson() +c+
+               ie.getTagJson() +c+
+               ie.getStatusJson() +c+
+               ie.getInstanceTypeJson() +c+
+               ie.getIdCleanJson() +c+
+               ie.getNameJson() +c+
+               ie.getPurposeJson() +c+
+               ie.getOwnerCleanJson() +c+
+               ie.getInstanceBOMJson() +c+
+               ie.getIpPrivateJson() +c+
+               ie.getIpPublicJson() +c+
+               ie.getVpcIdJson() +c+
+               ie.getLaunchDateJson() +c+
+               ie.getKeyPairJson() +c+
+               ie.getPriceJson() +c+
+               ie.getPrice24Json() +c+
+               ie.getSubnetIdJson() +c+
+               ie.getImageIdJson() +c+
+               ie.getSecurityGroupByModeJson(0) +c+
+               u.json("")
+*/
+public static List <String> diskstorageOpCols() {
+                    return(Arrays.asList("gb"));
+}
+public static int diskstorageOpRows(int nn, MyStringBuilder sb, DLCConnect dc, List <Volume> list) {
+     int ct = 0;
+     int n = 0;
+     String c = ",";
+     String delim="";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     for (Volume i:list) n = n + i.getSize();
+               ct++;
+               String sz = delim + "{" +  dq("c") + ":";
+               sz =  sz + sr( 
+                              u.json(n)
+                            )  +"}"  ;
+               sb.append(sz);
+               delim= ",\n";
+     return(ct);
+}
+
+public static List <String> volumesOpCols() {
+                    return(Arrays.asList("env","reg","volid","tag","purpose","type","create","dd","size","iops","$month","az",
+                                         "instance","sta","name","device","snap"));
+}
+public static int volumesOpRows(int nn, MyStringBuilder sb, DLCConnect dc, List <Volume> list) {
+     int ct = 0;
+     String c = ",";
+     String delim="";
+     String szIops = "";
+     String szCost = "";
+     String vid="";
+     String did="";
+     String iid="";
+     String sta="";
+     String istatus="";
+     String nid="";
+     String jsondata="";
+     DLCUtil u = new DLCUtil();
+     DecimalFormat df = new DecimalFormat("##0");
+     if (nn >0) delim=",";
+     for (Volume i:list) {
+               vid="";
+               did="";
+               iid="";
+               nid="";
+               sta="";
+
+                Map<String, String>     tagmap  = new HashMap<String, String>(64);
+                for (Tag teg:i.getTags()) tagmap.put(teg.getKey(), teg.getValue());
+                // Helper.getKeyMap(tagmap,"Owner","-");
+                // Helper.getKeyMap(tagmap,"Name","-");
+                // Helper.getKeyMap(tagmap,"Host_Name","-");
+                // Helper.getKeyMap(tagmap,"Purpose","-");
+                // this.ownerfiltered = this.owner.replaceAll("[AaEeIiOoUuYy]","");
+                // java.util.Date
+                Date createdate = i.getCreateTime();
+                MyTimeStamp createtimestamp = new MyTimeStamp(createdate);
+                // from JDK to Joda
+                DateTime jodadatetimecreate = new DateTime(createdate);
+                DateTime jodadatetimenow    = new DateTime();
+                Duration duration           = new Duration(jodadatetimecreate, jodadatetimenow);
+                long     createdeltahours   = duration.getStandardHours();
+                long     createdeltadays    = duration.getStandardDays();
+
+
+
+
+
+if ( 1 == 0 ) {
+               List <VolumeAttachment> 	vava = i.getAttachments();
+               for (VolumeAttachment va:vava) {
+                    vid = vid + va.getInstanceId();
+                    did = did + va.getDevice();
+                    InstanceQ q = new InstanceQ(dc, va.getInstanceId());
+                    // iid = iid + q.getId();
+                    iid = iid + va.getInstanceId();
+                    istatus = InstanceX.mapInstanceState(q.getInstance().getState().getName());
+                    nid = nid + q.getName();
+               }
+}
+               for (VolumeAttachment va:i.getAttachments()) {
+                    iid = va.getInstanceId();
+                    did = va.getDevice();
+                    if (!(iid.equals(""))) {
+                         InstanceQ q = new InstanceQ(dc, iid);
+                         nid = q.getName();
+                         sta = q.getStatus();
+                    }
+               }
+
+               szIops =  "NA";
+               szIops = (i.getVolumeType().equals("standard")) ? "NA" : Integer.toString(i.getIops());
+               szCost = (i.getVolumeType().equals("standard")) ? 
+                                         df.format(i.getSize()*0.10).toString()
+                                         : 
+                                         df.format((i.getIops()*0.065)+(i.getSize()*0.125)).toString();
+         //  CONCATTER
+         //  sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+         //  String jsondata = u.concatter("[", "]", ",", 
+             ct++;
+             jsondata = u.concatter("[", "]", ",", 
+                              u.json(dc.getEC2EnvMapped()),
+                              u.json(dc.getEC2Reg()),
+                              u.json(i.getVolumeId().replace("vol-","") ),
+                              u.json(Helper.getKeyMap(tagmap,Custom.getTagNameString(),"-")),
+                              u.json(Helper.getKeyMap(tagmap,"Purpose","-")),
+                              u.json(i.getVolumeType()),
+                              u.json(createtimestamp.value().replace("-","")),
+                              u.json(Long.toString(createdeltadays)),
+                              u.json(Integer.toString(i.getSize())),
+                              u.json(szIops),
+                              u.json(szCost),
+                              u.json(i.getAvailabilityZone()),
+                              u.json(iid.replace("i-","")),
+                              u.json(sta),
+                              u.json(nid),
+                              u.json(did),
+                              u.json(i.getSnapshotId().replace("snap-","")) );
+               sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+               delim= ",\n";
+     }
+     return(ct+nn);
+}
+
+public static List <String> sgOpCols() {
+                    return(Arrays.asList("env","reg","id","name","perms"));
+}
+public static int sgOpRows(int nn, DLCConnect cn, MyStringBuilder sb, List <SecurityGroup> list) {
+     DLCUtil util = new DLCUtil();
+     int ct = 0;
+     String c = ",";
+     String delim="";
+     String htmlbr="";
+     String jsondata="";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     for (SecurityGroup i:list) {
+               String PERMS="";
+               String pp = "";
+               pp="<font family='courier'><pre>";
+               List<IpPermission> iplist = i.getIpPermissions();
+if ( 1 == 1) {
+               for (IpPermission j:iplist) {
+                        String protocol = j.getIpProtocol();
+                        Integer fromPort;
+                        Integer toPort;
+                        String szFromPort = "";
+                        String szToPort = "";
+	                try {
+                             szFromPort = (j.getFromPort() == -1) ? "allICMP" : j.getFromPort().toString();
+                             szToPort   = (j.getToPort()   == -1) ? "allICMP" : j.getToPort().toString();
+	                } catch (Exception e) {
+                             szFromPort = "X";
+                             szToPort   = "X";
+	                } finally {
+                        }
+                        switch (protocol) {
+                             case ("udp"):
+                             case ("tcp"):
+                             case ("icmp"):
+                                  break;
+                             default:
+                                  protocol = "PROTOCOL["+protocol+"]"; 
+                                  break;
+                        }
+                       
+                        int k = 1;
+                        pp = pp + htmlbr+util.padder(protocol+":"+szFromPort+":"+szToPort);
+                        htmlbr="<br>";
+                        List<String> ipRanges = j.getIpRanges();
+                        Collections.sort(ipRanges, new Comparator<String>() {
+	                           @Override
+	                           public int compare(String i1, String i2) {
+                                   return i1.compareTo(i2);
+	                           }
+	                });
+                        if ( ipRanges.size() == 0) pp=pp+util.padder("NO RANGES");
+                        for (String s:ipRanges) {
+                             if (((k++) % 3== 0)) pp=pp+"<br>";
+                             if ( s.equals("0.0.0.0/0") ) 
+                                  pp=pp+"<font color=Red>" + util.padder(s) + "</font>";  
+                             else
+                                  pp=pp+util.padder(s);
+                        }
+               }
+               pp=pp+"</pre></font>";
+               ct++;
+               jsondata = u.concatter("[", "]", ",", 
+                              u.json(cn.getEC2EnvMapped()),
+                              u.json(cn.getEC2Reg()) ,
+                              u.json(i.getGroupId()),
+                              u.json(i.getGroupName()),
+                              u.json(pp)  );
+               sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+               delim= ",\n";
+     }}
+     return(nn+ct);
+}
+
+
+public static void AmazonServiceExceptionHandler(AmazonServiceException ase) {
+     System.out.println("Caught: AmazonServiceException, which means your request made it to SQS, but was rejected with an error response for some reason.");
+     System.out.println("Error Message:    " + ase.getMessage());
+     System.out.println("HTTP Status Code: " + ase.getStatusCode());
+     System.out.println("AWS Error Code:   " + ase.getErrorCode());
+     System.out.println("Error Type:       " + ase.getErrorType());
+     System.out.println("Request ID:       " + ase.getRequestId());
+}
+public static void AmazonClientExceptionHandler(AmazonClientException ace) {
+     System.out.println("Caught AmazonClientException, which means the client encountered a serious internal problem trying to communicate with SQS.");
+     System.out.println("Error Message: " + ace.getMessage());
+}
+
+public static List <String> queueTestDeleteOpCols() {
+     return(Arrays.asList("ok"));
+}
+public static int queueTestDeleteOpRows(int nn, DLCConnect cn, MyStringBuilder sb, List <String> list,String spec) {
+     AmazonSQSClient conn  =   cn.ConnectSQS(cn.getEnv(),cn.getRegion());
+     int ct = 0;
+     String c = ",";
+     DLCUtil u = new DLCUtil();
+     for (String i:list) {
+            // *************************************************************************************** 
+            ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(i);
+            List<Message> messages = conn.receiveMessage(receiveMessageRequest).getMessages();
+            for (Message message : messages) {
+                System.out.println("  Message");
+                System.out.println("    MessageId:     " + message.getMessageId());
+                // System.out.println("    ReceiptHandle: " + message.getReceiptHandle());
+                System.out.println("    MD5OfBody:     " + message.getMD5OfBody());
+                System.out.println("    Body:          " + message.getBody());
+                for (Entry<String, String> entry : message.getAttributes().entrySet()) {
+                    System.out.println("  Attribute");
+                    System.out.println("    Name:  " + entry.getKey());
+                    System.out.println("    Value: " + entry.getValue());
+                }
+	        try {
+                     // *************************************************************************************** 
+                     // Delete a message
+                     if ( i.equals(spec)) {
+                          // System.out.println("Deleting a message.");
+                          conn.deleteMessage(new DeleteMessageRequest(i, message.getReceiptHandle()));
+                     }
+
+                }
+                catch (AmazonServiceException ase) { 
+                     AmazonServiceExceptionHandler(ase);
+                } catch (AmazonClientException ace) {
+                     AmazonClientExceptionHandler(ace);
+                }
+            }
+            System.out.println();
+            //  String messageReceiptHandle = messages.get(0).getReceiptHandle();
+            //  conn.deleteMessage(new DeleteMessageRequest(i, messageReceiptHandle));
+     }
+     sb.append( sr( u.json("OK") )  +"}" );
+     return(nn+ct);
+}
+public static List <String> queueTestAddOpCols() {
+     return(Arrays.asList("ok"));
+}
+//OTTO
+public static int queueTestAddOpRows(int nn, DLCConnect cn, MyStringBuilder sb, List <String> list,String spec, int msgct) {
+     AmazonSQSClient conn  =   cn.ConnectSQS(cn.getEnv(),cn.getRegion());
+     int ct = 0;
+     String c = ",";
+     DLCUtil u = new DLCUtil();
+     for (String i:list) {
+               // *************************************************************************************** 
+               // Send a set of message(s)
+               if (i.equals(spec)) {
+                    // int kt = (new Random().nextInt()+1);
+                    int kt = 16;
+                    if (msgct > 0) kt = msgct;
+          	    for (int k=0; k < kt; k++) {
+                         // System.out.println("Sending a message.");
+                         String sz = Helper.randomString(1024*16);
+                         conn.sendMessage(new SendMessageRequest(i, "This is my message text " + sz));
+                    }
+               }
+               // *************************************************************************************** 
+     }
+     sb.append( sr( u.json("OK") )  +"}" );
+     return(nn+ct);
+}
+
+public static List <String> queueOpCols() {
+     return(Arrays.asList("env","reg","qurl","notviz","delayed","retain","arn","maxmsgsize","msgs"));
+}
+
+public static int queueOpRows(int nn, DLCConnect cn, MyStringBuilder sb, List <String> list) {
+     AmazonSQSClient conn  =   cn.ConnectSQS(cn.getEnv(),cn.getRegion());
+     int ct = 0;
+     String c = ",";
+     String delim="";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     for (String i:list) {
+               ct++;
+               List<String> attr = Arrays.asList("All");
+               GetQueueAttributesResult  qr = conn.getQueueAttributes(i, attr); 
+               Map<String,String> mp = qr.getAttributes();
+               String jsondata = u.concatter("[", "]", ",", 
+                              u.json(cn.getMappedEnv()),
+                              u.json(cn.getRegion()),
+                              u.json(i),
+                              u.json(mp.get("ApproximateNumberOfMessagesNotVisible")),
+                              u.json(mp.get("ApproximateNumberOfMessagesDelayed")),
+                              u.json(mp.get("MessageRetentionPeriod")),
+                              u.json(mp.get("QueueArn")),
+                              u.json(mp.get("MaximumMessageSize")),
+                              u.json(mp.get("ApproximateNumberOfMessages")) );
+               sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+               delim= ",\n";
+     }
+     return(nn+ct);
+}
+public static List <String> groupsOpCols() {
+     return(Arrays.asList("env","groupname","arn","createdate","users"));
+}
+public static int groupsOpRows(int nn, DLCConnect cn, MyStringBuilder sb, List <Group> list) {
+     AmazonIdentityManagementClient conn  = cn.ConnectIAM(cn.getIAMEnv());
+     int ct = 0;
+     String c = ",";
+     String delim="";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     for (Group i:list) {
+               ct++;
+               String sz = delim + "{" +  dq("c") + ":";
+               GetGroupRequest ggr = new GetGroupRequest(i.getGroupName());
+               List<User> groupusers = conn.getGroup(ggr).getUsers();
+                        Collections.sort(groupusers, new Comparator<User>() {
+	                           @Override
+	                           public int compare(User i1, User i2) {
+                                   return i1.getUserName().compareTo(i2.getUserName());
+	                           }
+	                });
+               String ud="";
+               StringBuilder sbt = new StringBuilder();
+               for (User ug:groupusers) {
+                     sbt.append(ud).append(ug.getUserName());
+                     ud=", ";
+               }
+               MyTimeStamp ts = new MyTimeStamp(i.getCreateDate());
+               String jsondata = u.concatter("[", "]", ",", 
+                              u.json(cn.getIAMEnvMapped()),
+                              u.json(i.getGroupName()),
+                              u.json(i.getArn()),
+                              u.json(ts.value()),
+                              u.json(sbt.toString())  );
+               sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+               delim= ",\n";
+     }
+     return(nn+ct);
+}
+public static List <String> rolesOpCols() {
+     return(Arrays.asList("env","name","create","arn"));
+}
+
+public static int rolesOpRows(int nn, DLCConnect cn, MyStringBuilder sb, List <Role> list) {
+     int ct = 0;
+     String delim="";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     for (Role i:list) {
+               ct++;
+               String sz = delim + "{" +  dq("c") + ":";
+               MyTimeStamp ts = new MyTimeStamp(i.getCreateDate());
+               String jsondata = u.concatter("[", "]", ",", 
+                              u.json(cn.getIAMEnvMapped()),
+                              u.json(i.getRoleName()),
+                              u.json(ts.value()),
+                              u.json(i.getArn()) );
+               sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+               delim= ",\n";
+     }
+     return(nn+ct);
+}
+
+public static List <String> tagsOpCols() {
+                    return(Arrays.asList("env","reg","instance","name","tags"));
+}
+public static int tagsOpRows(int nn, DLCConnect cn, MyStringBuilder sb, List <InstanceX> list) {
+     int ct = 0;
+     String c = ",";
+     String delim="";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+     String anchor="";
+     String anchor2="JSON";
+          for (InstanceX ie:list){
+               Instance i = ie.getInstance();
+               String szRegion = ie.getRegion();
+               String NME = "";
+               String PRP = "";
+               String SG = "";
+               String BDM="";
+               String  ddlm = "";
+               
+               ddlm = "";
+               List <Tag> t1 =i.getTags();
+                    Collections.sort(t1, new Comparator<Tag>() {
+	            @Override
+	            public int compare(Tag i1, Tag i2) {
+                        return i1.getKey().compareTo(i2.getKey());
+	            }
+	        });
+               ddlm = "";
+               for (Tag teg:t1)  {
+                    NME = NME + escape(ddlm + teg.getKey() + " - " + teg.getValue());
+                    ddlm = "<br>";
+               }
+               ct++;
+               String sz = delim + "{" +  dq("c") + ":";
+               MyTimeStamp ts = new MyTimeStamp(i.getLaunchTime());
+               sz =  sz + sr( 
+                              ie.getMappedEnvJson() +c+
+                              ie.getRegionJson() +c+
+                              u.json(i.getInstanceId()) +c+
+                              ie.getNameJson() +c+
+                              u.json(escape(NME)) 
+                            )  +"}"  ;
+               sb.append(sz);
+               delim= ",\n";
+     }
+     return(nn+ct);
+}
+	/**
+	 * Escape quotes, \, /, \r, \n, \b, \f, \t and other control characters (U+0000 through U+001F).
+	 * @param s
+	 * @return
+	 */
+	public static String escape(String s){
+	if(s==null) return null;
+        StringBuffer sb = new StringBuffer();
+        escape(s, sb);
+        return sb.toString();
+    }
+
+
+
+    /**
+     * @param s - Must not be null.
+     * @param sb
+     */
+    static void escape(String s, StringBuffer sb) {
+    	final int len = s.length();
+		for(int i=0;i<len;i++){
+			char ch=s.charAt(i);
+			switch(ch){
+			case '"':
+				sb.append("\\\"");
+				break;
+			case '\\':
+				sb.append("\\\\");
+				break;
+			case '\b':
+				sb.append("\\b");
+				break;
+			case '\f':
+				sb.append("\\f");
+				break;
+			case '\n':
+				sb.append("\\n");
+				break;
+			case '\r':
+				sb.append("\\r");
+				break;
+			case '\t':
+				sb.append("\\t");
+				break;
+			case '/':
+				sb.append("\\/");
+				break;
+			default:
+                //Reference: http://www.unicode.org/versions/Unicode5.1.0/
+				if((ch>='\u0000' && ch<='\u001F') || (ch>='\u007F' && ch<='\u009F') || (ch>='\u2000' && ch<='\u20FF')){
+					String ss=Integer.toHexString(ch);
+					sb.append("\\u");
+					for(int k=0;k<4-ss.length();k++){
+						sb.append('0');
+					}
+					sb.append(ss.toUpperCase());
+				}
+				else{
+					sb.append(ch);
+				}
+			}
+		}//for
+	}
+public static List <String> instanceStorageOpCols() {
+     return(Arrays.asList("tag","status","type","id","name","dev","vols","total","cost","sizes","ucost","envreg"));
+}
+public static int instanceStorageOpRows(int nn, DLCConnect cn, MyStringBuilder sb, List <InstanceX> list) {
+     long startTime = System.currentTimeMillis();
+     int ct = 0;
+     String c = ",";
+     String delim="";
+     String szNewCol = "{" +  dq("c") + ":";
+     DLCUtil u = new DLCUtil();
+     if (nn >0) delim=",";
+          for (InstanceX ie:list){
+               Instance i = ie.getInstance();
+               String  ddlm = "";
+               ct++;
+               String sz = delim + szNewCol;
+               sz =  sz + sr( 
+                              ie.getTagJson() +c+
+                              ie.getStatusJson() +c+
+                              ie.getInstanceTypeJson() +c+
+                              ie.getIdJson() +c+
+                              ie.getNameJson() +c+
+                              ie.getDevicesJson() +c+
+                              u.json(ie.getDeviceSummaryString()) +c+
+                              u.json(ie.getStorage()) +c+
+                              u.json(ie.getStorageCost()) +c+
+                              u.json(ie.getUnitStorageSummary()) +c+
+                              u.json(ie.getUnitCostStorageSummary()) +c+
+                              ie.getEnvRegJson()
+                            )  +"}"  ;
+               sb.append(sz);
+               delim= ",\n";
+     }
+     long endTime = System.currentTimeMillis();
+     cn.duration = (endTime - startTime);
+     return(nn+ct);
+}
+public static int instanceCount(int nn, MyPrintWriter out, List <InstanceX> list) {
+     int ct = 0;
+     String c = ",";
+     String delim="";
+     int all=0;
+     int pending=0;
+     int running=0;
+     int shuttingdown=0;
+     int terminated=0;
+     int stopping=0;
+     int stopped=0;
+     String env = "";
+     if (nn >0) delim=",\n";
+     all = list.size();
+     for (InstanceX i:list) {
+               env = i.getEnv();
+               switch (i.getStateCode()) {
+               case (0):
+                    pending++;
+                    break;
+               case (16):
+                    running++;
+                    break;
+               case (32):
+                    shuttingdown++;
+                    break;
+               case (48):
+                    terminated++;
+                    break;
+               case (64):
+                    stopping++;
+                    break;
+               case (80):
+                    stopped++;
+                    break;
+               }
+     }
+     ct++;
+     String sz = delim + "{" +  dq("c") + ":";
+     sz =  sz + sr( 
+          sgvcodq(env) +c+
+          sgvcodq(all) +c+
+          sgvcodq(pending) +c+
+          sgvcodq(running) +c+
+          sgvcodq(shuttingdown) +c+
+          sgvcodq(terminated) +c+
+          sgvcodq(stopping) +c+
+          sgvcodq(stopped)
+     )  +"}"  ;
+     out.print(sz);
+     delim= ",\n";
+     return(ct);
+}
+public static List <String> instanceCountOpCols() {
+     return(Arrays.asList("acct","instances","running","string","cpu","mem"));
+}
+public static int instanceCountOpRows(int n, String acct, String region, MyStringBuilder sb, List <Reservation> list) {
+     int j = 0;
+     int ct = 0;
+     int tct = n;
+     int cpu = 0;
+     int cpu_running = 0;
+     Double mem = 0.0;
+     int ctrunning = 0;
+     String delim="";
+     DLCUtil u = new DLCUtil();
+     MyStringBuilder sbRet = new MyStringBuilder();
+     for (Reservation res:list){
+          List <Instance> instancelist = res.getInstances();
+          for (Instance i:instancelist) {
+                ct++;
+                if (i.getState().getCode() == 16) ctrunning++;
+                // System.out.println(i.getInstanceType());
+                j = Integer.parseInt(InstanceX.getCPUCountString(i.getInstanceType()));
+                cpu = cpu + j;
+                if (i.getState().getCode() == 16) cpu_running = cpu_running + j;
+                mem = mem + Double.parseDouble(InstanceX.getMEMCountString(i.getInstanceType()));
+          }
+     }
+     sbRet.append(acct);
+     sbRet.append(": ");
+     sbRet.append(ctrunning);
+     sbRet.append("/");
+     sbRet.append(ct);
+     sbRet.append("   ");
+     if (tct > 0 ) delim = ",\n";
+     tct++;
+     String jsondata = u.concatter("[", "]", ",", 
+                   u.json(acct),
+                   u.json(ct),
+                   u.json(ctrunning),
+                   u.json(sbRet.toString()),
+                   u.json(Integer.toString(cpu)),
+                   u.json(Integer.toString(cpu_running)),
+                   u.json(Integer.toString( (int) Math.ceil(mem) )) );
+     sb.append(delim).append("{").append(UTIL.DQCDQCO).append(jsondata).append("}");
+     return(tct);
+}
+// @getCloudWatchData2 GCW CW 
+private static void addDimension(List<Dimension> list, String name, String value) {
+     Dimension d = new Dimension();
+     d.setName(name);
+     d.setValue(value);
+     list.add(d); 
+}
+
+//GETCLOUDWATCHBILLINGDATA
+private static List<Datapoint> getCloudWatchBillingData2(DLCConnect cn,String aws_env, String aws_reg, String thisDim)  {
+     int ct = 0;
+     String delim = "";
+     Custom custom = new Custom();
+     List<String> stats = Arrays.asList("Average","Maximum","Minimum");
+     // List<String> stats = Arrays.asList("Maximum");
+     int hours =  24*2;
+     int period = 60*60;
+     if (hours <=0) hours = 24;
+     if (period <=0) period = 60;
+     long offsetInMilliseconds = 1000 * 60 * 60 * hours;
+     List<Dimension> dimensionList = new ArrayList<Dimension>();
+          if (! thisDim.equals("")) addDimension(dimensionList,"ServiceName",thisDim);
+          addDimension(dimensionList,"LinkedAccount",custom.getAccountNumber(aws_env));
+          addDimension(dimensionList,"Currency","USD");
+     GetMetricStatisticsRequest request = new GetMetricStatisticsRequest();
+     request.setNamespace("AWS/Billing");
+     request.setMetricName("EstimatedCharges");
+     request.setStatistics(stats);
+     request.setDimensions(dimensionList);
+     AmazonCloudWatchClient cloudWatch = null;
+     cloudWatch = cn.ConnectCloudWatch( custom.getConsolidatedBillingEnv(aws_env), aws_reg);
+     List<Datapoint> list = new ArrayList<Datapoint>();
+     //Joda Time
+     DateTime dateTime = new DateTime();
+     int HN = 0;
+     int N = 1;
+
+
+          request.setPeriod(60*60*24);
+          // START TIME
+          //DateTime startTime = (new DateTime()).minusHours(24);
+          MutableDateTime startTime = new MutableDateTime();
+          startTime.setZone(DateTimeZone.UTC);
+          startTime.addMonths(0);
+          //startTime.setDayOfMonth(1);
+          startTime.setMillisOfDay(0);
+          startTime.addHours(-1 * (24 * 7) );
+          request.setStartTime(startTime.toDate());
+          // END TIME
+          //DateTime endTime = (new DateTime()).minusHours(0);
+          MutableDateTime endTime = new MutableDateTime();
+          endTime.setZone(DateTimeZone.UTC);
+          endTime.addMonths(0);
+          //endTime.setDayOfMonth(1);
+          endTime.setMillisOfDay(0);
+          endTime.addHours(0);
+          request.setEndTime( endTime.toDate());
+          GetMetricStatisticsResult r = cloudWatch.getMetricStatistics(request);
+          list.addAll(r.getDatapoints()); 
+
+                    Collections.sort(list, new Comparator<Datapoint>() {
+	            @Override
+	            public int compare(Datapoint i1, Datapoint i2) {
+                        return i1.getTimestamp().compareTo(i2.getTimestamp());
+	            }
+	        });
+          // int nFirst = 0;
+          //Double nLast = 0.0;
+          //for (Datapoint dp:list)  {
+          //if ( nFirst == 0 ) {
+          //    nLast = dp.getMaximum();
+          //    nFirst = 1;
+          //}
+          //StringBuilder sb = new StringBuilder();
+          //Double j = dp.getMaximum() - nLast;
+          //sb.append(j.intValue());
+          //System.out.println( dp.getTimestamp()
+          //               + ", " + dp.getMaximum().toString() 
+          //               + ", " + sb.toString()
+          //);
+          //nLast = dp.getMaximum();
+     // }
+     return (list);
+}
+private static List<Datapoint> getCloudWatchBillingData(DLCConnect cn,String aws_env, String aws_reg, String thisDim)  {
+     int ct = 0;
+     String delim = "";
+     Custom custom = new Custom();
+     List<String> stats = Arrays.asList("Average","Maximum","Minimum");
+     // List<String> stats = Arrays.asList("Maximum");
+     int hours =  24*2;
+     int period = 60*60;
+     if (hours <=0) hours = 24;
+     if (period <=0) period = 60;
+     long offsetInMilliseconds = 1000 * 60 * 60 * hours;
+     List<Dimension> dimensionList = new ArrayList<Dimension>();
+          if (! thisDim.equals("")) addDimension(dimensionList,"ServiceName",thisDim);
+          addDimension(dimensionList,"LinkedAccount",custom.getAccountNumber(aws_env));
+          addDimension(dimensionList,"Currency","USD");
+     GetMetricStatisticsRequest request = new GetMetricStatisticsRequest();
+     request.setNamespace("AWS/Billing");
+     request.setPeriod(period);
+     request.setMetricName("EstimatedCharges");
+     request.setStatistics(stats);
+     request.setDimensions(dimensionList);
+     AmazonCloudWatchClient cloudWatch = null;
+     cloudWatch = cn.ConnectCloudWatch( custom.getConsolidatedBillingEnv(aws_env), aws_reg);
+     List<Datapoint> list = new ArrayList<Datapoint>();
+     //Joda Time
+     DateTime dateTime = new DateTime();
+     int HN = 0;
+     int N = 1;
+     if ( hours > 24 ) {
+          N = hours / 24; 
+          hours = 24;
+     }
+     for (int i=0;i<N;i++) {
+          // END TIME
+          // Typically Now, HN == ZERO
+          request.setEndTime( (new DateTime()).minusHours(HN).toDate());
+
+          // START TIME
+          // A Time in the Past
+          request.setStartTime( (new DateTime()).minusHours(HN+hours).toDate());
+       		     // System.out.println(Integer.toString(HN));
+       		     // System.out.println(">> "+thisDim+"  "+aws_env);
+       		     // System.out.println((new DateTime()).minusHours(HN+hours).toDate().toString());
+       		     // System.out.println((new DateTime()).minusHours(HN).toDate().toString());
+       		     // System.out.println("");
+
+          GetMetricStatisticsResult r = cloudWatch.getMetricStatistics(request);
+          list.addAll(r.getDatapoints()); 
+          HN = HN + hours;
+     }
+                    Collections.sort(list, new Comparator<Datapoint>() {
+	            @Override
+	            public int compare(Datapoint i1, Datapoint i2) {
+                        return i1.getTimestamp().compareTo(i2.getTimestamp());
+	            }
+	        });
+     return (list);
+}
+//
+// @getCloudWatchData GCW CW 
+// GETCLOUDWATCHDATA
+private static List<Datapoint> getCloudWatchData(DLCConnect cn,String ns,String metric,int offset,int hours,int p, String nodeId,String aws_env, String aws_reg)  {
+     int ct = 0;
+     if (p == 1) p = 60;
+
+     String namespace = "AWS/EC2";
+     if (!ns.equals("")) namespace=ns;
+     List<String> stats = Arrays.asList("Average","Maximum","Minimum");
+     List<Datapoint> list = new ArrayList<Datapoint>();
+
+     Dimension instanceDimension = new Dimension();
+          instanceDimension.setName("InstanceId");
+          instanceDimension.setValue(nodeId);
+     GetMetricStatisticsRequest request = new GetMetricStatisticsRequest();
+          request.setNamespace(namespace);
+          request.setPeriod(p);
+          request.setMetricName(metric);
+          request.setStatistics(stats);
+          request.setDimensions(Arrays.asList(instanceDimension));
+
+     AmazonCloudWatchClient cloudWatch = cn.ConnectCloudWatch(aws_env, aws_reg);
+
+     int HN = offset;
+     int HE = hours;
+     int N = 1;
+     if ( hours > 24 ) {
+          N = hours / 24; 
+          HE = 24;
+     }
+     for (int i=0;i<N;i++) {
+          //Joda Time
+          // Typically Now
+          Date end = new DateTime().minusHours(HN).toDate();
+          request.setEndTime(end);
+          // A Time in the Past
+          Date start = new DateTime().minusHours(HN+HE).toDate();
+          request.setStartTime(start);
+          GetMetricStatisticsResult r = cloudWatch.getMetricStatistics(request);
+          list.addAll(r.getDatapoints()); 
+          HN = HN + HE;
+     }
+
+     Collections.sort(list, new Comparator<Datapoint>() {
+          @Override
+          public int compare(Datapoint i1, Datapoint i2) {
+               return i1.getTimestamp().compareTo(i2.getTimestamp());
+          }
+     });
+
+     return (list);
+}
+
+
+private static String getFirstMetricTimeStamp(List<Datapoint> list)  {
+     String firstUnalteredTimeStamp = "XXXX";
+     for (Datapoint dp:list) if (firstUnalteredTimeStamp.equals("XXXX")) firstUnalteredTimeStamp = dp.getTimestamp().toString();
+     return(firstUnalteredTimeStamp);
+}
+private static String getLastMetricTimeStamp(List<Datapoint> list)  {
+     String lastUnalteredTimeStamp = "XXXX";
+     for (Datapoint dp:list) lastUnalteredTimeStamp = dp.getTimestamp().toString();
+     return(lastUnalteredTimeStamp);
+}
+private static void processCloudWatchData(List<Datapoint> list,MyPrintWriter out)  {
+     Double up = 0.0;
+     Double dn = 0.0;
+     DecimalFormat df = new DecimalFormat("##0.0");
+     for (Datapoint dp : list) {
+          Double zerg = dp.getMaximum();
+          if ( zerg == 0 ) up++;
+          if ( zerg > 0 ) dn++;
+     }
+     String sz = "";
+     sz =  "{" +  dq("c") + ":" + sr( sgco(dq("v"),dq("up")) +","+ sgco(dq("v"),Helper.dx(df.format(up))) )   +"},";
+    out.println(sz);
+     sz = "{" +  dq("c") + ":" + sr( sgco(dq("v"),dq("down")) +","+ sgco(dq("v"),Helper.dx(df.format(dn))) )   +"}";
+    out.println(sz);
+}
+
+
+
+private static String myDateStringFormat(String sz) {
+     // Unmodified: Thu Oct 23 09:22:12 EDT 2014
+     StringBuilder sb = new StringBuilder();
+     String[] p = sz.split(" ");
+     return sz;
+     //return sb.append(p[1]).append(" ").append(p[2]).append(" ").append(p[3]).toString();
+}
+
+}

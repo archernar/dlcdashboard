@@ -1,0 +1,59 @@
+
+public static int gridline(MyPrintWriter out, List <String> list) {
+     int ct = 0;
+     String c = ",";
+     String delim="";
+     delim="";
+     StringBuilder sb = new StringBuilder();
+     sb.append("{").append(dq("c")).append(":"); 
+     for (String i:list) {
+          ct++;
+          sb.append(delim).append(sgvcodq(i));     
+          delim=",";
+     }
+     sb.append("}");
+     out.print( sr(sb.toString()) );
+     return(ct);
+}
+
+private static void outputCloudWatchMetrics(int factor, List<Datapoint> list,MyPrintWriter out)  {
+     String delim="";
+     DecimalFormat df = new DecimalFormat("##0.0");
+     for (Datapoint dp : list) {
+          Double zerg = dp.getMaximum();
+          String szTS = dp.getTimestamp().toString();
+          String[] parts = szTS.split(" ");
+          String[] parts2 = parts[parts.length-3].split(":");
+          String szAbrev = parts2[parts2.length-3]+":"+parts2[parts2.length-2];
+          String sz = delim +"{" +  dq("c") + ":" +
+          sr( sgvco(dq(szAbrev))  +","+ sgvco(dq(df.format(zerg/factor))) )  +""+ "}";
+          out.print(sz);
+          delim = ",\n";
+     }
+}
+
+
+private static void outputCloudWatchMultiMetrics(int factor, List<Datapoint> list, MyStringBuilder sb)  {
+     String delim="";
+     String c=",";
+     String firstUnalteredTimeStamp = "XXXX";
+     DecimalFormat df = new DecimalFormat("##0.0");
+     for (Datapoint dp : list) {
+          String szTS = dp.getTimestamp().toString();
+          if (szTS.equals("XXXX")) firstUnalteredTimeStamp = szTS;
+          String[] parts = szTS.split(" ");
+          String[] parts2 = parts[parts.length-3].split(":");
+          String szAbrev = parts2[parts2.length-3]+":"+parts2[parts2.length-2];
+          String sz = delim +"{" +  dq("c") + ":" +
+          sr( sgvco(dq(szAbrev))  +c+ 
+              sgvco(dq(df.format(dp.getMaximum()/factor))) +c+
+              sgvco(dq(df.format(dp.getMinimum()/factor))) +c+
+              sgvco(dq(df.format(dp.getAverage()/factor))) 
+            )  + "}";
+          sb.append(sz);
+          delim = ",\n";
+     }
+     sb.append("],");
+     sb.append(dqco("firsttimestamp", getFirstMetricTimeStamp(list)) +",");
+     sb.append(dqco("lasttimestamp", getLastMetricTimeStamp(list)));
+}

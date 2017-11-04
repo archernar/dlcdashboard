@@ -1,0 +1,828 @@
+#!/usr/bin/ksh
+Tmp="/tmp/$$"
+TmpDir="/tmp/dir$$"
+trap 'rm -f "$Tmp" >/dev/null 2>&1' 0
+trap "exit 2" 1 2 3 13 15
+rm $Tmp  >/dev/null 2>&1
+if [ ! -e ".fig" ]; then
+       print ".fig not found"
+       exit 1
+else
+       print ".fig found"
+#       cp /usr/local/tools/fig ./binn/fig 
+#       cp ./.fig ./binn/.fig 
+fi
+
+
+# http://zackperdue.com/tutorials/super-useful-need-to-know-git-commands
+# tar cvf /home/mestes/tom.tar tom >/dev/null 2>&1
+AWSSDK=aws-java-sdk-1.6.7
+AWSSDKJAR=/home/mestes/$AWSSDK/lib/$AWSSDK.jar
+SETUPFILE=.fig
+cryp() {
+                    print "encrypt"
+                    EPOCHTIME=`date --rfc-3339=seconds |gawk '{print $1 "." $2}'`
+                    UNIQUEKEY=`openssl rand -base64 40`
+                    NAME=$1
+                    openssl aes-256-cbc -nosalt -k $UNIQUEKEY -in $NAME  -out /tmp/$NAME.$EPOCHTIME.re
+                    print $UNIQUEKEY > /tmp/$NAME.$EPOCHTIME.key
+                    openssl aes-256-cbc -nosalt -k FRI33iop -in /tmp/$NAME.$EPOCHTIME.key -out /tmp/$NAME.$EPOCHTIME.rek
+                    KEY=`base64 < /tmp/$NAME.$EPOCHTIME.rek`
+                    mv /tmp/$NAME.$EPOCHTIME.re /tmp/$NAME.$EPOCHTIME.$KEY.re
+                    rm -f /tmp/$NAME.$EPOCHTIME.key 2>&1 > /dev/null
+                    rm -f /tmp/$NAME.$EPOCHTIME.rek 2>&1 > /dev/null
+}
+
+usage(){
+     print "Usage: fig [-e][-t][-l][-j][-f][-s][-b][-c][-g][-h][-k][-w][-x]"
+     print "       -e  edit $JAVAFILE"
+     print "       -w  edit $WP"
+     print "       -t  edit $CSS"
+     print "       -j  compile and deploy"
+     print "       -c  compile only"
+     print "       -f  edit .fig file"
+     print "       -x  edit servlet descriptors"
+     print "       -k  create tomcat application directories"
+     print "       -t  TBD"
+     print "       -l  list files"
+     print "       -s  set JAVAFILE variable in .fig"
+     print "       -b  set BINDJARS variable in .fig"
+     print "       -g  git operations"
+     print "       -p  generate and print CLASSPATH"
+     print "       -a compile - compile only"
+     print "       -a dist    - build distro"
+     print "       -h  display usage"
+}
+
+if [ -f .fig ]; then
+     FONE=`$AWKBIN -v w=FILEONE     -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     FTWO=`$AWKBIN -v w=FILETWO     -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     FTHREE=`$AWKBIN -v w=FILETHREE -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     FFOUR=`$AWKBIN -v w=FILEFOUR   -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     FFIVE=`$AWKBIN -v w=FILEFIVE   -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     SERVLET=`$AWKBIN -v w=SERVLET  -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     JF=`$AWKBIN -v w=JAVAFILE -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     CSS=`$AWKBIN -v w=CSS -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     WP=`$AWKBIN -v w=WEBFILE -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     JV=`$AWKBIN -v w=JAVAVERSION -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     BJ=`$AWKBIN -v w=BINDJARS -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     JARLIB=`$AWKBIN -v w=JARLIB -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     CLASSES=`$AWKBIN -v w=CLASSES -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     SERVER=`$AWKBIN -v w=SERVER -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     ARG0=`$AWKBIN -v w=ARG0 -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     ARG1=`$AWKBIN -v w=ARG1 -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     ARG2=`$AWKBIN -v w=ARG2 -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     ARG3=`$AWKBIN -v w=ARG3 -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     ARG4=`$AWKBIN -v w=ARG4 -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     ARG5=`$AWKBIN -v w=ARG5 -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     PRE=`$AWKBIN -v w=PRE -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     EXTRAS=`$AWKBIN -v w=EXTRAS -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+     CMDARGS=`$AWKBIN -v w=CMDARGS -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w){z=z d $2;d=",";}}END{if (z!="") print z}' .fig`
+else
+     print "\n.fig does not exist!\n"
+     usage
+     exit 0
+fi
+DEBUG=0
+
+APPL=`$AWKBIN -v w=APPL -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+WARNAME=`$AWKBIN -v w=WARNAME -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+BUCKET=`$AWKBIN -v w=BUCKET -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+XBUCKET=`$AWKBIN -v w=XBUCKET -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+ENVNAME=`$AWKBIN -v w=ENVNAME -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+
+KEY=$WARNAME-`cat lastbuild`.war
+LABEL=`cat lastbuild`
+
+
+awsebs="aws --output json --profile EBS elasticbeanstalk "
+# cp /usr/local/tools/fig .
+# ##################################################################
+# Option Description of git Output
+# %H Commit hash
+# %h Abbreviated commit hash
+# %T Tree hash
+# %t Abbreviated tree hash
+# %P Parent hashes
+# %p Abbreviated parent hashes
+# %an Author name
+# %ae Author e-mail
+# %ad Author date (format respects the date= option)
+# %ar Author date, relative
+# %cn Committer name
+# %ce Committer email
+# %cd Committer date
+# %cr Committer date, relative
+# %s Subject
+# The oneline and format options are particul
+# git log --pretty=format:"%h - %an, %ar : %s"
+# 
+# ##################################################################
+while getopts "a:b:cdefg:hijk:lmp:rstuv:wxz:" arg
+do
+	case $arg in
+            a)
+               if [ $OPTARG = "jsfunctions" ] ; then 
+               cat js/*js.js | egrep "^[ ]*function" | sed "s/^[ ]*//" | egrep -v "^function[(]" | sed "s/[ ]*[{].*$//" | sed "s/^function[ ]*//" | sort
+               fi
+               if [ $OPTARG = "ls" ] ; then 
+                    ls -lh src 
+               fi
+               if [ $OPTARG = "lsw" ] ; then 
+                    ls -lh web 
+               fi
+               if [ $OPTARG = "cert" ] ; then
+                    openssl genrsa 2048 > /tmp/privatekey.pem
+                    openssl req -new -key /tmp/privatekey.pem -out /tmp/csr.pem
+                    openssl x509 -req -days 365 -in /tmp/csr.pem -signkey /tmp/privatekey.pem -out /tmp/server.crt
+               fi
+               if [ $OPTARG = "postcert" ] ; then
+                    ls
+                    #aws iam --profile DTCCLABADMIN upload-server-certificate / --server-certificate-name rsk04184C001 --certificate-body file://server.crt --private-key file://privatekey.pem
+               fi
+               if [ $OPTARG = "ebsstatus" ] ; then
+                    #aws --output json --profile EBS elasticbeanstalk describe-application-versions --application-name $APPL
+                    #aws --output json --profile EBS elasticbeanstalk describe-application-versions
+                    aws --output json --profile EBS elasticbeanstalk describe-environments --application-name $APPL
+               fi
+
+               if [ $OPTARG = "ebsupload" ] ; then
+                    aws --profile EBS s3 cp /home/mestes/dist/$KEY s3://$BUCKET/$KEY
+               fi
+               if [ $OPTARG = "ebsupdate" ] ; then
+                    print $KEY
+                    $awsebs create-application-version --application-name $APPL --version-label $LABEL --source-bundle S3Bucket=$BUCKET,S3Key=$KEY
+                    $awsebs update-environment --environment-name $ENVNAME --version-label $LABEL
+
+                    fi
+               if [ $OPTARG = "ebsgit" ] ; then
+                    git commit -a -m"Update, Commit All"
+                    git push -u origin master
+                    aws --profile EBS s3 cp /home/mestes/dist/$KEY s3://$BUCKET/$KEY
+                    $awsebs create-application-version --application-name $APPL --version-label $LABEL --source-bundle S3Bucket=$BUCKET,S3Key=$KEY
+                    $awsebs update-environment --environment-name $ENVNAME --version-label $LABEL
+                    $awsebs describe-environments --application-name $APPL
+               fi
+               if [ $OPTARG = "ebseast" ] ; then
+                    APPL=dlcdashboard
+                    BUCKET=elasticbeanstalk-us-east-1-407137133832
+                    KEY=$APPL-`cat lastbuild`.war
+                    LABEL=`cat lastbuild`
+                    ENVNAME=dlcdasheast
+                    print "+=====================================================================================================+"
+                    print "distro:       /home/mestes/dist/$KEY"
+                    print "s3 dest:      s3://$BUCKET/$KEY"
+                    print "env name:     $ENVNAME"
+                    print "bucket:       $BUCKET"
+                    print "key:          $KEY"
+                    print "application:  $APPL"
+                    print "label:        $LABEL"
+                    print "+=====================================================================================================+"
+                    aws --profile EBS s3 cp /home/mestes/dist/$KEY s3://$BUCKET/$KEY
+                    $awsebs create-application-version --application-name $APPL --version-label $LABEL --source-bundle S3Bucket=$BUCKET,S3Key=$KEY
+                    $awsebs update-environment --environment-name $ENVNAME --version-label $LABEL
+                    $awsebs describe-environments --application-name $APPL
+               fi
+               if [ $OPTARG = "ebs" ] ; then
+                    print "+=====================================================================================================+"
+                    print "distro:       /home/mestes/dist/$KEY"
+                    print "s3 dest:      s3://$BUCKET/$KEY"
+                    print "env name:     $ENVNAME"
+                    print "bucket:       $BUCKET"
+                    print "key:          $KEY"
+                    print "application:  $APPL"
+                    print "label:        $LABEL"
+                    print "cmd:          $awsebs"
+                    print $ENVNAME
+                    print $APPL
+                    print $LABEL
+                    print "+=====================================================================================================+"
+                    aws --profile EBS s3 cp /home/mestes/dist/$KEY s3://$BUCKET/$KEY
+                    $awsebs create-application-version --application-name $APPL --version-label $LABEL --source-bundle S3Bucket=$BUCKET,S3Key=$KEY
+                    $awsebs update-environment --environment-name $ENVNAME --version-label $LABEL
+                    $awsebs describe-environments --application-name $APPL
+                    fi
+
+               if [ $OPTARG = "cryp" ] ; then
+                    cryp test.txt
+               fi
+
+               if [ $OPTARG = "crunch" ] ; then
+                    NAME=tom.tar
+                    tar cvf /tmp/$NAME /home/mestes/scm/tom
+                    print "encrypt"
+                    EPOCHTIME=`date --rfc-3339=seconds |gawk '{print $1 "." $2}'`
+                    UNIQUEKEY=`openssl rand -base64 40`
+                    openssl aes-256-cbc -nosalt -k $UNIQUEKEY -in /tmp/$NAME  -out /tmp/$NAME.$EPOCHTIME.re
+                    print $UNIQUEKEY > /tmp/$NAME.$EPOCHTIME.key
+                    openssl aes-256-cbc -nosalt -k FRI33iop -in /tmp/$NAME.$EPOCHTIME.key -out /tmp/$NAME.$EPOCHTIME.rek
+                    rm -f /tmp/$NAME.$EPOCHTIME.key 2>&1 > /dev/null
+                    rm -f /tmp/$NAME                2>&1 > /dev/null
+
+               fi
+
+               if [ $OPTARG = "tart" ] ; then
+                    DSTAMP=`date '+%F%H%M%S' | sed 's/-//g'`
+                    print $DSTAMP
+                    print $LABEL
+                    FULLNAME=${DSTAMP}_${LABEL}
+                    print $FULLNAME
+               fi
+               if [ $OPTARG = "tar" ] ; then
+                    # ant clean
+                    if [ -a /tmp/home.tar.gz ] ; then
+                         mv /tmp/home.tar.gz  /tmp/home.tar.gz.last
+                    fi
+                    if [ -a /tmp/tom.tar.gz ] ; then
+                         mv /tmp/tom.tar.gz  /tmp/tom.tar.gz.last
+                    fi
+                    if [ -a /tmp/tools.tar.gz ] ; then
+                         mv /tmp/tools.tar.gz  /tmp/tools.tar.gz.last
+                    fi
+                    if [ -a /tmp/alamo.tar ] ; then
+                         mv /tmp/alamo.tar.gz  /tmp/alamo.tar.gz.last
+                    fi
+                    rm -f /tmp/home.tar
+                    rm -f /tmp/tom.tar
+                    rm -f /tmp/tools.tar
+                    rm -f /tmp/alamo.tar
+
+                    tar cf /tmp/home.tar /home/mestes/.kshrc
+                    tar rf /tmp/home.tar /home/mestes/.profile
+                    tar rf /tmp/home.tar /home/mestes/.aws/config
+                    tar rf /tmp/home.tar /etc/fstab
+                    tar rf /tmp/home.tar /etc/exports
+                    tar rf /tmp/home.tar /etc/hosts.allow
+                    tar rf /tmp/home.tar /etc/hosts.deny
+                    tar cf /tmp/tom.tar /home/mestes/scm/tom
+                    tar cf /tmp/alamo.tar /home/mestes/alamo
+                    tar cf /tmp/tools.tar /usr/local/tools 
+
+
+                    ls -lh /tmp/home.tar  
+                    ls -lh /tmp/tom.tar  
+                    ls -lh /tmp/tools.tar  
+                    ls -lh /tmp/alamo.tar
+                    gzip -v /tmp/home.tar
+                    gzip -v /tmp/tom.tar
+                    gzip -v /tmp/tools.tar
+                    gzip -v /tmp/alamo.tar
+                    ls -lh /tmp/home.tar.gz
+                    ls -lh /tmp/tom.tar.gz
+                    ls -lh /tmp/tools.tar.gz
+                    ls -lh /tmp/alamo.tar.gz
+                    DSTAMP=`date '+%F%H%M%S' | sed 's/-//g'`
+                    LABEL=`cat lastbuild`
+                    FULLNAME=${DSTAMP}__${LABEL}
+                    mv /tmp/home.tar.gz       ~/backups/home__${FULLNAME}.tar.gz
+                    mv /tmp/tom.tar.gz         ~/backups/tom__${FULLNAME}.tar.gz
+                    mv /tmp/tools.tar.gz     ~/backups/tools__${FULLNAME}.tar.gz
+                    mv /tmp/alamo.tar.gz     ~/backups/alamo__${FULLNAME}.tar.gz
+                    ls -lh  ~/backups/*__$DSTAMP*
+                    # http://serverfault.com/questions/50585/whats-the-best-way-to-check-if-a-volume-is-mounted-in-a-bash-script
+                    if grep -qs '/etc/air' /proc/mounts; then
+                         echo "/etc/air is mounted."
+                         echo "copying..."
+                         cp ~/backups/*__$DSTAMP* /etc/air/backups
+                         ls -lh /etc/air/backups/*__$DSTAMP*
+                    else
+                         echo "/etc/air is not mounted."
+                    fi
+
+               fi
+               if [ $OPTARG = "oo" ] ; then 
+                    DSTAMP=`date '+%F%H%M%S' | sed 's/-//g'`
+                    echo $DSTAMP
+               fi
+               if [ $OPTARG = "one" ] ; then 
+                    vi $FONE 
+               fi
+               if [ $OPTARG = "two" ] ; then 
+                    vi $FTWO 
+               fi
+               if [ $OPTARG = "three" ] ; then 
+                    vi $FTHREE 
+               fi
+               if [ $OPTARG = "four" ] ; then 
+                    vi $FFOUR 
+               fi
+               if [ $OPTARG = "five" ] ; then 
+                    vi $FFIVE 
+               fi
+               if [ $OPTARG = "css" ] ; then
+                    vi web/$CSS
+               fi
+               if [ $OPTARG = "compile" ] ; then
+                    ant compile
+               fi
+               if [ $OPTARG = "djfjfjfist" ] ; then
+                    mkdir $TmpDir
+                    cp build.xml $TmpDir
+                    cp build.properties $TmpDir
+                    cp .fig $TmpDir
+                    cp -R src $TmpDir
+                    cp -R web $TmpDir
+                    tar cvf backup.tar $TmpDir
+                    gzip backup.tar
+                    rm -rf $TmpDir
+               fi
+               if [ $OPTARG = "version" ] ; then
+                    cat lastbuild
+               fi
+               if [ $OPTARG = "inc" ] ; then
+                    ant increment 
+               fi
+               if [ $OPTARG = "increment" ] ; then
+                    ant increment 
+               fi
+               if [ $OPTARG = "upversion" ] ; then
+                    ant increment 
+               fi
+               if [ $OPTARG = "dist" ] ; then
+                    ant dist 
+               fi
+               if [ $OPTARG = "static" ] ; then
+                    cp web/*.html build
+                    cp web/*.css  build
+                    ant remove
+                    ant install
+               fi
+               if [ $OPTARG = "edit" ] ; then
+                     shift $(($OPTIND - 1))
+                     if [ $2 != "" ] ; then
+                          vi +$2 $1
+                     else
+                          vi $1
+                     fi
+               fi
+               if [ $OPTARG = "src" ] ; then
+                     shift $(($OPTIND - 1))
+                     if [ $2 != "" ] ; then
+                          vi +$2 src/$1
+                     else
+                          vi src/$1
+                     fi
+               fi
+               if [ $OPTARG = "web" ] ; then
+                     shift $(($OPTIND - 1))
+                     if [ $2 != "" ] ; then
+                          vi +$2 web/$1
+                     else
+                          vi web/$1
+                     fi
+               fi
+               exit 0
+               ;;
+            x)
+                if [ $SERVLET = "yes" ] ; then
+                     vi -p web/WEB-INF/web.xml build.xml build.properties
+                fi
+                exit 0
+                ;; 
+            k)
+                SERVLETNAME=$OPTARG
+                cp /usr/local/tools/build.properties .
+                cp /usr/local/tools/build.xml .
+                mkdir docs
+                mkdir src
+                mkdir web
+                cp /usr/local/tools/styles.css web
+                mkdir web/WEB-INF
+                print "<web-app>"                                              > /tmp/web.xml
+                print "     <servlet>"                                        >> /tmp/web.xml
+                print "          <servlet-name>$SERVLETNAME</servlet-name>"   >> /tmp/web.xml
+                print "          <servlet-class>$SERVLETNAME</servlet-class>" >> /tmp/web.xml
+                print "     </servlet>"                                       >> /tmp/web.xml
+                print "     <servlet-mapping>"                                >> /tmp/web.xml
+                print "          <servlet-name>$SERVLETNAME</servlet-name>"   >> /tmp/web.xml
+                print "          <url-pattern>/p1</url-pattern>"              >> /tmp/web.xml
+                print "     </servlet-mapping>"                               >> /tmp/web.xml
+                print "</web-app>"                                            >> /tmp/web.xml
+                mv /tmp/web.xml web/WEB-INF
+                cat /tmp/web.xml
+                cp /usr/local/tools/servlet.java src/$SERVLETNAME.java
+                exit 0
+                ;;
+            u)
+                if [ $SERVLET = "yes" ] ; then
+                     if [ $2 != "" ] ; then
+                          vi +$2 web/myutils.js
+                     else
+                          vi web/myutils.js
+                     fi
+                fi
+                exit 0
+                ;;
+            w)
+                if [ $SERVLET = "yes" ] ; then
+                     if [ $2 != "" ] ; then
+                          vi +$2 web/$WP
+                     else
+                          vi web/$WP
+                     fi
+                fi
+                exit 0
+                ;;
+            v)
+                if [ $2 != "" ] ; then
+                     vi +$2 $1
+                else
+                     vi $1
+                fi
+                exit 0
+                ;;
+            e)
+                if [ $SERVLET = "yes" ] ; then
+                     if [ $2 != "" ] ; then
+                          vi +$2 src/$JF.java
+                     else
+                          vi src/$JF.java
+                     fi
+                else
+                     if [ $2 != "" ] ; then
+                          vi +$2 $JF.java
+                     else
+                          vi $JF.java
+                     fi
+                fi
+                exit 0
+                ;;
+            t)
+                if [ $SERVLET = "yes" ] ; then
+                     if [ $2 != "" ] ; then
+                          vi +$2 web/$CSS
+                     else
+                          vi web/$CSS
+                     fi
+                else
+                     if [ $2 != "" ] ; then
+                          vi +$2 $CSS
+                     else
+                          vi $CSS
+                     fi
+                fi
+                exit 0
+                ;;
+            d)
+                rm -f *.class  2>&1 > /dev/null
+                rm -f *.tar    2>&1 > /dev/null
+                rm -f *.tar.gz 2>&1 > /dev/null
+                rm -f *.jar    2>&1 > /dev/null
+                rm -f $JF.deploy    2>&1 > /dev/null
+                rm -f figs olives deployme altcp.txt classpath.txt serv scpto mm zed fed qed      2>&1 > /dev/null
+                exit 0
+                ;;
+	    l)
+                print "\n***** JARS in "$JARLIB;cd $JARLIB;ls -l;cd .. 
+                print "\n***** JARS";ls -l *.jar;
+                print "\n***** JAVA";ls -l *.java;
+                print "\n***** CLASSES";ls -l *.class;
+		exit 0
+		;;
+            i)
+                if [ $SERVLET = "yes" ] ; then
+                          git add src
+                          git add web
+                          git add docs
+                          git add build.xml 
+                          git add build.properties 
+                          git add .fig
+                          git commit -a -m'Update'
+		          exit 0
+                fi
+		;;
+            c)
+                ant compile
+		exit 0
+                ;;
+            r)
+                git add build.number
+                git add lastbuild
+                git add src/BuildNumber.java
+                git add web/monitor.html
+                git tag -a `cat lastbuild` -m `cat lastbuild`
+                git commit -a -m `cat lastbuild`
+                git push -u origin master
+		exit 0
+                ;;
+            m)
+                touch web/$WP
+                touch web/*
+                if [ $SERVLET = "yes" ] ; then
+                     ant warbuild
+                fi
+                exit 0
+                ;;
+            j)
+                # touch src/$JF.java
+                # rm -rf build
+                # mkdir build
+                touch web/$WP
+                touch web/*
+                if [ $SERVLET = "yes" ] ; then
+                     if [ 0 -eq 1 ] ; then
+                          ant clean
+                     fi
+                     ant fullbuild
+                else
+                     CLASSPATH=$CLASSES
+                     FL=`find $JARLIB -type f | egrep "jar$" `
+                     for cf in $FL; do
+                          CLASSPATH=$CLASSPATH:$cf
+                     done
+                     export CLASSPATH
+                     javac -verbose -source $JV $JF.java
+                fi
+                exit 0
+                ;;
+            p)
+                WORD=$OPTARG
+                print "The JARLIB is set to ["$JARLIB"]"
+                FL=`find $JARLIB -type f | egrep "jar$" `
+                DELIM=""
+                if [ $WORD = "c" ] ; then
+                     for cf in $FL; do
+                          XXXXXPATH=$XXXXXPATH$DELIM$cf
+                          DELIM=":"
+                     done
+                     print $XXXXXPATH
+                fi
+                if [ $WORD = "n" ] ; then
+                     for cf in $FL; do
+                          print $cf
+                     done
+                fi
+                exit 0
+                ;;
+            f)
+                vi .fig
+                exit 1
+                ;;
+            s)
+                gawk -v sz=$OPTARG -v w=JAVAFILE -F= '{b=""; \
+                                                       gsub(re,b,$1); \
+                                                       gsub(re,b,$2); \
+                                                       if ($1==w) print $1"="sz;else print $1"="$2; \
+                                                      }' .fig > $Tmp 
+                # cp .fig /tmp/.fig.sav
+                # cp $Tmp .fig
+                exit 1
+                ;;
+            b)
+                gawk -v sz=$OPTARG -v w=BINDJARS -F= '{b=""; \
+                                                       gsub(re,b,$1); \
+                                                       gsub(re,b,$2); \
+                                                       if ($1==w) print $1"="sz;else print $1"="$2; \
+                                                      }' .fig > $Tmp 
+                cp .fig /tmp/.fig.sav
+                cp $Tmp .fig
+                exit 0
+                ;;
+            z)
+                print $OPTARGRG
+                git commit -a -m"$OPTARG"
+                exit 0
+                ;;
+            g)
+
+	             case $OPTARG in
+                     text)
+                          print $COMMENT
+                          exit 0
+                          ;;
+                     list)
+                          print "git push -u origin master"
+                          print "git commit -m\"Update\" <filename>"
+                          exit 0
+                          ;;
+                     all)
+                          git commit -a -m"Update, Commit All"
+                          git push -u origin master
+                          exit 0
+                          ;;
+                     commit)
+                          git commit -a -m"Update, Commit All"
+                          exit 0
+                          ;;
+                     push)
+                          git push -u origin master
+                          exit 0
+                          ;;
+                     updateorigin)
+                          git push -u origin master
+                          exit 0
+                          ;;
+                     log)
+                          git log --pretty=format:"%s %h - %an, %ar : %s"
+                          exit 0
+                          ;;
+                     add)
+                          print "git add"
+                          git add $JF.java
+                          exit 0
+                          ;;
+                     commit)
+                          print "git commit"
+                          git commit -m"Update" $JF.java
+                          exit 0
+                          ;;
+                     init)
+                          git init --separate-git-dir=/home/mestes/dev/gitbase/$JF
+                          exit 0
+                          ;;
+	             *)
+	    	          print "bad git command"
+		          exit 1
+		          ;;
+                     esac
+                     exit 0
+                     ;;
+            h)
+                usage
+                exit 0
+                ;;
+	    *)
+	    	usage
+		exit 0
+		;;
+	esac
+done
+shift $(($OPTIND - 1))
+
+# ########################################################################################
+# New Classpath
+# ########################################################################################
+rm -f $Tmp  2>&1 > /dev/null
+rm -f classpath.txt  2>&1 > /dev/null
+FILELIST=`find $JARLIB -type f | sed "s#^.#$(pwd)#" | egrep "jar$"`
+# FILELIST=`find $JARLIB -type f | egrep "jar$" `
+for file in $FILELIST; do
+    print $file >> $Tmp
+done
+export CLASSPATH=`gawk '
+function put(sz,fn) {print sz > fn;close(fn);}
+BEGIN {
+     sz="\n\n#  " "./" "\n"
+     cp="./"
+     while(( getline line < ".files") > 0 ) {
+          n=split(line,a," ");
+          if (n==1) AA[a[1]]=""
+          if (n==2) AA[a[1]]=a[2]
+          BB[a[1]]=a[1]
+     }
+     close(".files")
+}
+{
+    if (BB[$1] =="") {
+         print $1 " NO"  >> ".files" 
+         close(".files")
+    }
+    if (BB[$1] !="") {
+         if (AA[$1] =="") {
+              sz=sz "#  " $1 "\n" 
+              cp=cp ":" $1
+              nnnn=split($1,CCCC,"/")
+              cpcp=cpcp ((cpcp=="") ? "export LOCALJARS=\"localjars\"\nexport CLASSPATH=./:" : ":") "$LOCALJARS/" CCCC[nnnn]
+         }
+    }
+
+}
+END {put(cpcp,"altcp.txt");print sz > "classpath.txt";close("classpath.txt");print cp}
+' $Tmp`
+# ########################################################################################
+# old Classpath
+# ########################################################################################
+if [ 0 -eq 1 ] ; then
+print "Classpath"
+CLASSPATH=./:./cl
+# print "#  "$CLASSPATH > classpath.txt
+FLIST=`find $JARLIB -type f | egrep "jar$" `
+for file in $FLIST; do
+    CLASSPATH=$CLASSPATH:$file
+done
+print $CLASSPATH | indent
+export CLASSPATH
+fi
+# ########################################################################################
+# Source File
+# ########################################################################################
+print "Setup"
+if [ $# -eq 1 ] ; then
+     JF=$1
+     gawk -v sz=$JF -v w=JAVAFILE -F= '{b=""; \
+                                        gsub(re,b,$1); \
+                                        gsub(re,b,$2); \
+                                        if ($1==w) print $1"="sz;else print $1"="$2; \
+                                       }' .fig > $Tmp 
+     # cp .fig /tmp/.fig.sav
+     # cp $Tmp .fig
+     exit 0
+fi
+if [ ! -f $JF.java ]; then
+	print "Error $JF does not exist!" | indent
+        exit 1
+fi
+print "Config "$SETUPFILE | indent
+print "Source "$JF        | indent
+print "Java   "$JV        | indent
+print "Libs   "$JARLIB    | indent
+# ########################################################################################
+# Manifest
+# ########################################################################################
+print "Manifest"
+print "Main-Class: " $JF      > mm
+print -n "Class-Path: "     >> mm
+print $CLASSPATH | gawk '{n=split($0,a,":"); for (i=1;i<=n;i++) print " " a[i] " "}'    >> mm
+rm -f localjars/*
+rm -f localjars.tar
+rm -f localjars.tar.gz
+print $CLASSPATH | gawk '{n=split($0,a,":"); for (i=0;i<=n;i++) if (a[i] ~ "jar$") system("cp "  a[i] " localjars")}'
+print $CLASSPATH | gawk '{n=split($0,a,":"); for (i=0;i<=n;i++) if (a[i] ~ "jar$") print a[i]}' | indent
+
+tar cf localjars.tar localjars/*
+#for file in $FLIST; do
+    #print " "$file                   >> mm 
+#    printf " "$file                  >> mm 
+#done
+printf "\n\n"                         >> mm
+# ########################################################################################
+# Clean
+# ########################################################################################
+print "Clean"
+rm -fr deploy/*
+rm -f $JF.deploy.tar     2>&1 > /dev/null
+rm -f $JF.deploy.tar.gz  2>&1 > /dev/null
+rm -f olives.jar  2>&1 > /dev/null
+rm -f figss.jar   2>&1 > /dev/null
+rm -f $JF.jar     2>&1 > /dev/null
+
+# ########################################################################################
+# Compile
+# ########################################################################################
+print "Compile"
+javac -g -source $JV -d . $JF.java 2>&1 > $Tmp
+if [ $? -eq 0 ] ; then
+          ls -lh *.class | gawk '{printf("%-18s %s\n",$9,$5)}' | indent
+          # cat $Tmp
+else
+          print "Error, Exiting" | indent
+          exit 1
+fi
+     
+RET=$?
+if [ $RET -eq 0 ] ; then
+     # ###################################################################################
+     # Jar
+     # ###################################################################################
+     print "Jar"
+          # jar cmf mm fig.jar *.class $JARLIB/*.jar
+          jar cmf mm olive.jar *.class | indent
+          jar cmf mm $JF.jar   *.class | indent
+          ls -lh *.jar | gawk '{printf("%-24s %s\n",$9,$5)}' | indent
+          print "command line arguments"
+          print $CMDARGS | indent
+          print "figs and olives"
+          print "#!/usr/bin/ksh" > olives
+          figlet fig | gawk '{print "#  " $0}' >> olives
+          date | gawk '{print "#  " $0}' >> olives
+          print "\n" >> olives
+          cat altcp.txt >> olives
+          print "\n\njava -jar ./olive.jar $ARG0 $ARG1 $ARG2 $ARG3 $ARG4 $ARG5" >> olives
+               print "\n\n\n\n" >> olives
+               print "export ALTCLASSPATH="$CLASSPATH >> olives
+               cat classpath.txt >> olives
+          chmod 700 olives
+          ls -lh olives | gawk '{printf("%-24s %s\n",$9,$5)}' | indent
+          print "#!/usr/bin/ksh" > figs
+          figlet fig | gawk '{print "#  " $0}' >> figs
+          date | gawk '{print "#  " $0}' >> figs
+          print "\n" >> figs
+          cat altcp.txt >> figs
+          print "\n\njava $JF $ARG0 $ARG1 $ARG2 $ARG3 $ARG4 $ARG5" >> figs
+               print "\n\n\n\n" >> figs
+               print "export ALTCLASSPATH="$CLASSPATH >> figs
+               cat classpath.txt >> figs
+          chmod 700 figs
+          ls -lh figs | gawk '{printf("%-24s %s\n",$9,$5)}' | indent
+          cp -r localjars deploy
+          cp figs deploy
+          cp olives deploy
+          cp olive.jar deploy
+          cp $JF.jar deploy
+          cp *.class deploy
+          cp $JF.java deploy
+          tar cf $JF.deploy.tar deploy
+          print "tar xvf $JF.deploy.tar" > untar;chmod 777 untar
+          tar -r -f $JF.deploy.tar untar
+          gzip -c -f $JF.deploy.tar > $JF.deploy.tar.gz
+          ls -lh $JF.deploy.tar | gawk '{printf("%-24s %s\n",$9,$5)}' | indent
+          ls -lh $JF.deploy.tar.gz | gawk '{printf("%-24s %s\n",$9,$5)}' | indent
+          print $SERVER".scpto $JF.deploy.tar" > scpto
+          chmod 777 scpto
+          print $SERVER".scpto $JF.deploy.tar" > $JF.deploy
+          print $SERVER".scpto $JF.deploy.tar" > deployme
+          chmod 777 $JF.deploy
+          chmod 777 deployme
+          print $SERVER".ssh" > serv
+          chmod 777 serv
+fi

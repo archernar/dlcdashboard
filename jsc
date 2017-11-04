@@ -1,0 +1,82 @@
+#!/usr/bin/ksh
+Tmp="/tmp/jsc$$"
+trap 'rm -f "$Tmp" >/dev/null 2>&1' 0
+trap "exit 2" 1 2 3 13 15
+
+rm -f web/2015*.js             2>&1 > /dev/null
+rm -f web/2016*.js             2>&1 > /dev/null
+rm -f build/2016*.js             2>&1 > /dev/null
+rm -f web/2015*.css            2>&1 > /dev/null
+rm -f web/2016*.css            2>&1 > /dev/null
+rm -f build/2016*.css            2>&1 > /dev/null
+touch web/monitor.html
+cat js/options.js              >  web/dlc.src
+cat js/jsapi                   >> web/dlc.src
+cat js/jquery-1.11.3.min.js    >> web/dlc.src
+cat js/jquery-ui-1.11.2.min.js >> web/dlc.src
+cat js/jquery.tablesorter.js   >> web/dlc.src
+cat js/myJqueryPluginsjs.js    >> web/dlc.src
+cat js/stringjs.js             >> web/dlc.src
+cat js/gaugejs.js              >> web/dlc.src
+cat js/tickerjs.js              >> web/dlc.src
+cat js/utilsjs.js   >> web/dlc.src
+cat js/setupjs.js   >> web/dlc.src
+cat js/tablejs.js   >> web/dlc.src
+cat js/vtablejs.js  >> web/dlc.src
+cat js/chartjs.js   >> web/dlc.src
+cat js/buttonjs.js  >> web/dlc.src
+cat js/dialogjs.js  >> web/dlc.src
+cat js/manpagejs.js >> web/dlc.src
+cat js/splashjs.js  >> web/dlc.src
+cat js/mainjs.js    >> web/dlc.src
+
+
+# Build monitor.html
+# SETUP PART
+     READYFILE=js/readyMonitorjs.js
+     OUTPUTFILE=web/monitor.html
+     DSTAMP=`date '+%F%H%M%S__%s%N' | sed 's/-//g'`
+# CSS PART
+     cat web/altstyle.css             >  web/$DSTAMP.css
+     cat web/smoothness.css          >> web/$DSTAMP.css
+     cat web/x.css                   >> web/$DSTAMP.css
+# HTML PART
+     cp  web/dlc.src           web/protodlc.src
+     cat $READYFILE         >> web/protodlc.src
+     cat web/protodlc.src | sed -e "s///" >  $Tmp
+     cat $Tmp  > web/$DSTAMP.js
+# FINAL  PART
+     cat web/monitor.src  | sed -e "s/THEDLCJSFILE09876/$DSTAMP/" | sed -e "s/THEDLCCSSFILE09876/$DSTAMP/" >  $OUTPUTFILE
+     ls -l web/$DSTAMP.js
+     ls -l web/$DSTAMP.css
+     ls -l $OUTPUTFILE
+# CLEAN UP PART
+     rm -f web/protodlc.src     2>&1 > /dev/null
+
+
+# Build gauges.html
+# SETUP PART
+     READYFILE=js/readyGaugesjs.js
+     OUTPUTFILE=web/gauges.html
+     DSTAMP=`date '+%F%H%M%S__%s%N' | sed 's/-//g'`
+# CSS PART
+     cat web/style.css  >  web/$DSTAMP.css
+# HTML PART
+     cp  web/dlc.src           web/protodlc.src
+     cat $READYFILE         >> web/protodlc.src
+     cat web/protodlc.src | sed -e "s///" >  $Tmp
+     cat $Tmp  > web/$DSTAMP.js
+# FINAL  PART
+     cat web/clientarea.src  | sed -e "s/THEDLCJSFILE09876/$DSTAMP/" | sed -e "s/THEDLCCSSFILE09876/$DSTAMP/" >  $OUTPUTFILE
+     ls -l web/$DSTAMP.js
+     ls -l web/$DSTAMP.css
+     ls -l $OUTPUTFILE
+# CLEAN UP PART
+     rm -f web/protodlc.src     2>&1 > /dev/null
+
+# FINAL CLEAN UP PART
+     rm -f web/dlc.src          2>&1 > /dev/null
+
+# cat css/bootstrap-theme.css  >>  web/$DSTAMP.css
+# gawk -f /usr/local/tools/includerslash.awk web/monitor.src > web/monitor.html 
+#yui-compressor --type js $Tmp  >  web/$DSTAMP.js

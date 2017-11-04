@@ -1,0 +1,22 @@
+
+D=/home/mestes/aws-java-sdk-1.10.50
+find $D -type f | gawk '
+/jar$/ {
+number++
+print "<property name=\"A" number "\" value=\"" $0 "\"/>"
+n=split($0,a,"/")
+f =a[n]
+d = a[n]
+sub(/[.]jar$/, "", d)
+sz =sz "CLASSPATH=$CLASSPATH:$ADK/" a[n-2] "/" d "/" f "\n"
+}
+
+END {
+     print sz
+}
+'
+#find $D -type f | sed "s#^.#$($D)#" | gawk '
+
+
+
+#/third-party/jackson-databind-2.5.3/jackson-databind-2.5.3.jar

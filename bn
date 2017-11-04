@@ -1,0 +1,9 @@
+#!/usr/bin/ksh
+
+df | gawk -v buildnumber=$1 -f buildnumber.awk > src/BuildNumber.java 
+
+
+print $1 > lastbuild
+
+
+figlet $1

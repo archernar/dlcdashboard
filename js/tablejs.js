@@ -68,10 +68,10 @@ function resetselectpick() {
           // CALLED WITHIN IDENTITY
           if (picked($parenti)) {
                unpick($parenti);
-               $parenti.children('td').css({ 'background-color': '#dfe3ee' });
+               $parenti.children('td').css({ 'background-color': '#ffffff' });
           } else {
                pick($parenti);
-               $parenti.children('td').css({ 'background-color': 'Magenta' });
+               $parenti.children('td').css({ 'background-color': '#DCDCDC' });
           }
           selectpick();
      }
@@ -182,7 +182,7 @@ function resetselectpick() {
                          var currentFontSize = $element.css('font-size');
                          var currentFontSizeNum = parseFloat(currentFontSize, 10);
                          var newFontSize = Math.floor(currentFontSizeNum * 0.8);
-                         $element.css('font-size', newFontSize);
+                         // $element.css('font-size', newFontSize);
                          break;
                     case "CUTTEXT":
                          $("#"+op).html = "<br><br>" + $("#"+op).html;
@@ -303,7 +303,7 @@ function resetselectpick() {
           h = -1;
           n = data.cols.length;
           pushpop_empty();
-          //html[++h] = "<table width='100%' id='";
+          //html[++h] = "<table border=1 width='100%' id='";
           html[++h] = "<table id='";
           html[++h] = tableid;
           html[++h] = "' class='gridtable'>";

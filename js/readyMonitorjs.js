@@ -108,7 +108,7 @@ setCookie("FIRTH", JSON.stringify(firth), 12);
      var meup="";
      what="p1?op=version";
      $.getJSON( what, function( data ) { 
-          $("#version").html("DLCDashboard").css({'color':'White','font-size':'110%','font-weight':'bold'});
+          $("#version").html("DLCDashboard");
      });
 
      var sel="";

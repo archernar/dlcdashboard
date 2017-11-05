@@ -193,9 +193,9 @@ function myBText(w,g2,cls,text) {
 }
 // MYBIMPL
 function myBimpl(w,g2,cls,title,cookie, s) {
-     var xcls="booton";
+     // var xcls="booton";
      // cls = "bootonsmall";
-     if ( cls == "bootonsmall" ) xcls =cls;
+     //if ( cls == "bootonsmall" ) xcls =cls;
      var sz = "";
      var i = 0;
      var cookiedex = cookie+"DEX";
@@ -205,7 +205,7 @@ function myBimpl(w,g2,cls,title,cookie, s) {
      z2=g2;
 
      var guid = randomStr();
-     sz="<table width="+w+"><tr><td width='100%' align='middle' class='"+xcls+"' id='"+guid+"'></td></tr></table>";
+     sz="<table width="+w+"><tr><td width='100%' align='middle' class='"+cls+"' id='"+guid+"'></td></tr></table>";
      $("#"+z2).append(sz);
      var $guid = $("#"+guid);
      var szTitle = ""; 
@@ -223,7 +223,7 @@ function myBimpl(w,g2,cls,title,cookie, s) {
      }
      //var z= parseInt($('#'+guid).css('font-size')) ;
      var z= parseInt($guid.css('font-size')) ;
-     $guid.css({'color': 'White'});
+     // $guid.css({'color': 'White'});
         if (isOnOff(s)) {
              $guid.append(title).attr("thistitle",title).css('padding-top','1px').css('padding-bottom','1px');
                if ( (temp % 2) == 0) 

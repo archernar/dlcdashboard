@@ -486,7 +486,7 @@ var QueueMonitorInterval;
      var g2 = addSettingsElement(g1);
      var guid = randomStr();
      var guid1 = randomStr();
-     $("#"+g2).append("<table width=65><tr><td width='100%' align='middle' class='bootonselect' id='"+guid+"'></td></tr></table>");
+     $("#"+g2).append("<table width=65><tr><td width='100%' align='middle' class='booton' id='"+guid+"'></td></tr></table>");
      if (getCookie("CMDSET") == "" ) setCookie("CMDSET","inv",12);
      // setCookie("CMDSET","inv",12);
      var szsz="";

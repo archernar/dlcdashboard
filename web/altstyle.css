@@ -1,6 +1,6 @@
 body {
         font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
-        margin:0px;
+        margin:12px;
 	padding: 0px;
         color: Black;
 	background-color: White;
@@ -10,15 +10,40 @@ body {
         border-right: 0px solid Black;
         border-bottom: 0px solid Black;
 }
-.xxxxxxxtextarea {
- background-color: yellow;
- xfont-size: 4em;
- xfont-weight: bold;
- xfont-family: Verdana, Arial, Helvetica, sans-serif;
- font: 26px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
- border: 1px solid black;
+.table {
+     color:            Black;
+     background-color: White;
+     border-color:     White;
 }
-
+.td {
+     color:            Black;
+     background-color: White;
+     border-color:     White;
+}
+.white {
+        font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        margin: 0px;
+        padding: 0px;
+        color: Black;
+        background-color: White;
+	border-collapse: collapse;
+        border-top: 0px solid White;
+        border-left: 0px solid White;
+        border-right: 0px solid White;
+        border-bottom: 0px solid White;
+}
+.grape {
+        font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        margin: 0px;
+        padding: 0px;
+        color: Black;
+        background-color: #F5F5F5;
+	border-collapse: collapse;
+        border-top: 0px solid White;
+        border-left: 0px solid White;
+        border-right: 0px solid White;
+        border-bottom: 0px solid White;
+}
 .large {
         font: 16px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
         margin: 0px;
@@ -42,32 +67,6 @@ body {
         border-left:   1px solid Black;
         border-right:  1px solid Black;
         border-bottom: 1px solid Black;
-}
-.white {
-        font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
-        margin: 0px;
-        padding: 0px;
-        color: Black;
-        xbackground-color:White;
-        ybackground-color: #5B74A8;
-        background-color: #DFE3EE;
-	border-collapse: collapse;
-        border-top: 0px solid White;
-        border-left: 0px solid White;
-        border-right: 0px solid White;
-        border-bottom: 0px solid White;
-}
-.black0x0 {
-        font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
-        margin: 0px;
-        padding: 0px;
-        color: White;
-        background-color:Black;
-	border-collapse: collapse;
-        border-top: 0px solid Black;
-        border-left: 0px solid Black;
-        border-right: 0px solid Black;
-        border-bottom: 0px solid Black;
 }
 .black {
         font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
@@ -125,80 +124,54 @@ td {
 }
 a, a:link,a:visited,a:hover { color: Black; text-decoration: underline; }
 
-.bootonselect {
+.booton,
+.booton:link,
+.booton:active,
+.booton:visited {
   font-size:11px;
-  color: #fff;
-  background-color: #5B74A8;
+  color: Black;
+  background-color: #e7e7e7;
   text-align: middle;
   vertical-align: middle;
-  font-weight: bold;
-  border: 1px solid White;
-  padding: 4px;
-  text-transform:uppercase;
-}
- 
-.bootonselect:hover {
-  color: #FFF;
-  background: #900;
-  text-align: middle;
-  vertical-align: middle;
-  border: 1px solid White;
-  cursor: pointer; /* cursor: hand; for IE5 */
-}
-
-.bootonsmall {
-  font-size:8px;
-  color: #fff;
-  background-color: #5B74A8;
-  text-align: middle;
-  vertical-align: middle;
-  font-weight: bold;
-  border: 1px solid White;
-  text-transform:uppercase;
-}
-.bootonsmall:hover {
-  color: #FFF;
-  background: #900;
-  text-align: middle;
-  vertical-align: middle;
-  cursor: pointer; /* cursor: hand; for IE5 */
-}
-
-.antibooton {
-  font-size:10px;
-  color: White;
-  background-color: Black;
-  text-align: right;
-  vertical-align: middle;
-  font-weight: bold;
-  border: 0px solid White;
-  text-transform:none;
-}
-.booton {
-  font-size:11px;
-  color: #fff;
-  background-color: #5B74A8;
-  text-align: middle;
-  vertical-align: middle;
-  font-weight: bold;
-  border: 1px solid White;
+  font-weight: normal;
+  border: 2px solid Black;
   text-transform:uppercase;
 }
  
 .booton:hover {
-  color: #FFF;
-  background: #900;
+  color: #e7e7e7;
+  background-color: #000000;
   text-align: middle;
   vertical-align: middle;
   cursor: pointer; /* cursor: hand; for IE5 */
 }
 
+.bootonsmall,
+.bootonsmall:link,
+.bootonsmall:active,
+.bootonsmall:visited {
+  font-size:8px;
+  color: Black;
+  background-color: #e7e7e7;
+  text-align: middle;
+  vertical-align: middle;
+  font-weight: normal;
+  border: 2px solid Black;
+  text-transform:uppercase;
+}
+ 
+.bootonsmall:hover {
+  color: #e7e7e7;
+  background-color: #000000;
+  text-align: middle;
+  vertical-align: middle;
+  cursor: pointer; /* cursor: hand; for IE5 */
+}
 .manpage {
 	color: Black;
         font: bold 12px Courier;
 	text-align:left;
 }
-
 .searchbar {
     font-size: 10px;
     text-align:center;
@@ -211,7 +184,7 @@ a, a:link,a:visited,a:hover { color: Black; text-decoration: underline; }
 }
 .searchbartext {
     font-size: 10px;
-    text-align:left;
+  text-align:left;
     vertical-align:middle;
     padding: 0px 0px 4px 0px;
     margin: 0px 0px 0px 0px;
@@ -266,57 +239,28 @@ The four links states are:
 }
 
 
-table.gridtable {
-     font:             bold 11px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
-     color:            Black;
-     border-collapse:  collapse;
+table.gridtable,
+table.td {
+     font-size:11px;
+     color: Black;
+     background-color: White;
+     font-weight: normal;
+     border-color:     #696969;
+     xborder-collapse:  collapse;
      border-style:     solid;
      border-width:     1px;
-     background-color: #dfe3ee;
-     border-color:     #f7f7f7;
+     padding:          0px;
+     text-align:       left;
 }
 table.gridtable th {
-     color:            White;
-     border-collapse:  collapse;
+     font-size:11px;
+     color: White;
+     background-color: #696969;
+     border-color:     Black;
      border-style:     solid;
      border-width:     1px;
-     padding:          2px;
+     padding:          0px;
      text-align:       left;
-     background-color: #3b5998;
-     border-color:     #f7f7f7;
-}
-table.gridtable td {
-     border-collapse:  collapse;
-     border-style:     solid;
-     border-width:     1px;
-     background-color: #dfe3ee;
-     border-color:     #f7f7f7;
-     padding:          1px;
-     text-align:       left;
-}
-table.gridtable xxxselect {
-   margin: 0px;
-   border: 0px solid #111;
-   background: transparent;
-   xwidth: 150px;
-   width: 100%;
-   padding: 0px 20px 0px 0px;
-   xpadding: 5px 35px 5px 5px;
-   font-size: 11px;
-   color: Black;
-   font-weight: bold;
-   border: 1px solid #ccc;
-   xheight: 34px;
-   -webkit-appearance: none;
-   -moz-appearance: none;
-   appearance: none;
-   xxbackground: url('favicon.ico') 96% / 15% no-repeat #dfe3ee;
-   xbackground: url(http://www.stackoverflow.com/favicon.ico) 96% / 15% no-repeat #dfe3ee;
-   xbackground-image: url('favicon.ico');
-   xbackground-repeat: no-repeat;
-   xbackground-attachment: fixed;
-   xbackground-position: 30% 20%;
-   background: #dfe3ee;
 }
 table.gridtable select {
    width: 100px;

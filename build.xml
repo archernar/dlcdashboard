@@ -327,30 +327,13 @@
 <!--
      BUILD
 -->
-<target name="build" depends="prepare,static,setversion,compile,war,remove,install" description="Build Application">
+<target name="build" depends="increment,prepare,static,setversion,compile,war,remove,install" description="Build Application">
 </target>
-<target name="buildwar" depends="prepare,static,setversion,compile,war" description="Build Application war ">
+<target name="buildwar" depends="increment,prepare,static,setversion,compile,war" description="Build Application war ">
 </target>
-<target name="buildsmall" depends="prepare,static,war,install" description="Build Application Short Version">
+<target name="buildsmall" depends="increment,prepare,static,war,install" description="Build Application Short Version">
 </target>
 <!-- ==================== Compile Target ================================== -->
-
-<!--
-  FULLBUILD
--->
-  <target name="fullbuild" depends="increment,build" description="Full build and install">
-    <mkdir    dir="${build.home}/WEB-INF/classes"/>
-  </target>
-  <target name="warbuild" depends="increment,buildwar" description="build war">
-    <mkdir    dir="${build.home}/WEB-INF/classes"/>
-  </target>
-  <target name="fullbuildnoremove" depends="increment,build" description="Full build and install">
-    <mkdir    dir="${build.home}/WEB-INF/classes"/>
-  </target>
-  <target name="noremove" depends="increment,build" description="Full build and install">
-    <mkdir    dir="${build.home}/WEB-INF/classes"/>
-  </target>
-
 
 <!--
   COMPILETARGET

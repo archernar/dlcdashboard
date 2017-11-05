@@ -36,6 +36,11 @@ cat js/mainjs.js    >> web/dlc.src
      READYFILE=js/readyMonitorjs.js
      OUTPUTFILE=web/monitor.html
      DSTAMP=`date '+%F%H%M%S__%s%N' | sed 's/-//g'`
+     rm -f web/2017*.css
+     rm -f web/2017*.js
+     rm -f build/2017*.css
+     rm -f build/2017*.js
+
 # CSS PART
      cat web/altstyle.css             >  web/$DSTAMP.css
      cat web/smoothness.css          >> web/$DSTAMP.css

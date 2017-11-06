@@ -304,7 +304,7 @@ function resetselectpick() {
           n = data.cols.length;
           pushpop_empty();
           //html[++h] = "<table border=1 width='100%' id='";
-          html[++h] = "<table id='";
+          html[++h] = "<table width='100%' id='";
           html[++h] = tableid;
           html[++h] = "' class='gridtable'>";
           html[++h] = "<thead>";

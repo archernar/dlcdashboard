@@ -19,6 +19,7 @@ var QueueMonitorInterval;
       }
       function resetClientArea() {
            $("#client_area").empty();
+           $("#client_menu_area").empty();
            $("#sub_menu_area").empty();
            $("#temp_area").empty();
            $("#temp_area").hide();
@@ -55,6 +56,7 @@ var QueueMonitorInterval;
           var szComment = "";
           resetClientArea();
           resetMessageArea();
+          resetSearchBar();
           var nControl = -1; 
           var $ca = $("#client_area");
           $("#"+sz).parent().parent().find('td').css({ 'color': 'White' });
@@ -547,9 +549,12 @@ var QueueMonitorInterval;
 
         var $sel = $("#searchbar");
         $sel.empty();
+     }
 
-
-        var sel = openSettingsBar("searchbar");
+     function resetSearchBar() {
+        //var sel = openSettingsBar("searchbar");
+        $("#client_menu_area").empty();
+        var sel = openSettingsBar("client_menu_area");
         myBC(35,sel,"booton","ALL","",["ALL"], function () { $("#"+GlobalTableId +" tr").show(); netcost(); });
         myBText(35,sel,"antibooton","Filter:");
         $("#"+ addSettingsElement(sel)).append("<input size=16 type='text' class='searchbartext'  id='regextext'  value=''>");

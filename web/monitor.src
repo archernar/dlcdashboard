@@ -32,6 +32,7 @@
         <div class='grape' id='searchbar'></div>
       	<div class='grape' id="temp_area"></div>
       	<div class='grape' id="input_area"></div>
+      	<div class='white' id="client_menu_area"></div>
       	<div class='white' id="client_area"></div>
    </td>
    </tr>

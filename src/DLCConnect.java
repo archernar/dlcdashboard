@@ -46,7 +46,7 @@ import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 import com.amazonaws.services.redshift.AmazonRedshiftClient;
 import com.amazonaws.services.rds.AmazonRDSClient;
 public class DLCConnect {
-    private DLCUtil dlcutil = new DLCUtil(true);
+    private DLCUtil dlcutil = new DLCUtil(false);
     String env;
     String key;
     String phrase;

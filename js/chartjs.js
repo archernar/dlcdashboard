@@ -102,9 +102,10 @@ function chartjsDoTableChart(what,where,description,control,cls) {
                 }
            }
            if ( ctype == "CPU" ) {
-                options.width =  $client_area.innerWidth;
+                options.chartArea.backgroundColor     =  "#F5F5F5";
+                options.backgroundColor               =  "#F5F5F5";
                 options.width =  $("#"+where).innerWidth;
-                options.chartArea.width = '90%';
+                options.chartArea.width = '87%';
                 options.vAxis.viewWindowMode = 'pretty';
                 if (cfgYAxis == -1) {
                      ctype_actual=mapChartType(getCookie("CPUCT")); 

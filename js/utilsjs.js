@@ -107,6 +107,53 @@ function serviceUrl(e,op,q,n,r,p,h,o) {
      return(sz);
 }
 
+function table2by1(g1,g2) {
+    var tguid = "";
+    var sz = "<table border=0 width='100%' CELLSPACING=0 CELLPADDING=0>"
+    sz = sz + "<tr>";
+    sz = sz + "<td id='" + g1 + "'></td>";
+    sz = sz + "</tr><tr>";
+    sz = sz + "<td id='" + g2 + "'></td>";
+    sz = sz + "</tr></table>";
+    return(sz);
+}
+function table3by1(g1,g2,g3) {
+    var tguid = "";
+    var sz = "<table border=0 width='100%' CELLSPACING=0 CELLPADDING=0>"
+    sz = sz + "<tr>";
+    sz = sz + "<td id='" + g1 + "'></td>";
+    sz = sz + "</tr><tr>";
+    sz = sz + "<td id='" + g2 + "'></td>";
+    sz = sz + "</tr><tr>";
+    sz = sz + "<td id='" + g3 + "'></td>";
+    sz = sz + "</tr></table>";
+    return(sz);
+}
+function table4by1(g1,g2,g3,g4) {
+    var tguid = "";
+    var sz = "<table border=0 width='100%' CELLSPACING=0 CELLPADDING=0>"
+    sz = sz + "<tr>";
+    sz = sz + "<td id='" + g1 + "'></td>";
+    sz = sz + "</tr><tr>";
+    sz = sz + "<td id='" + g2 + "'></td>";
+    sz = sz + "</tr><tr>";
+    sz = sz + "<td id='" + g3 + "'></td>";
+    sz = sz + "</tr><tr>";
+    sz = sz + "<td id='" + g4 + "'></td>";
+    sz = sz + "</tr></table>";
+    return(sz);
+}
+function table2by2(g1,g2,g3,g4) {
+    var sz = "<table border=0 width='100%' CELLSPACING=0 CELLPADDING=0>"
+    sz = sz + "<tr>";
+    sz = sz + "<td id='" + g1 + "'></td>";
+    sz = sz + "<td id='" + g2 + "'></td>";
+    sz = sz + "</tr><tr>";
+    sz = sz + "<td id='" + g3 + "'></td>";
+    sz = sz + "<td id='" + g4 + "'></td>";
+    sz = sz + "</tr></table>";
+    return(sz);
+}
 function tableWXQ(n,x) {
     var i = 0;
     var guid = "";
@@ -331,6 +378,12 @@ function addSettingsVElement$($guid) {
 function addSettingsVElement(guid) {
      var g1 = randomStr();
      $("#"+guid).append("<tr><td id='"+g1+"' align='middle'></td></tr>");
+     return(g1);
+}
+function openSettingsBar100(guid) {
+     var g1 = randomStr();
+     var sz = "<table border=0 cellpadding=0 cellspacing=0><tr id='"+g1+"'>";
+     $("#"+guid).append(sz);
      return(g1);
 }
 function openSettingsBar(guid) {

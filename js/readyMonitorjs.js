@@ -108,7 +108,7 @@ setCookie("FIRTH", JSON.stringify(firth), 12);
      var meup="";
      what="p1?op=version";
      $.getJSON( what, function( data ) { 
-          $("#version").html("DLCDashboard");
+          $("#version").html("DLCDashboard").css({'color':'Black','font-size':'300%','font-weight':'bold'});
      });
 
      var sel="";
@@ -122,7 +122,6 @@ setCookie("FIRTH", JSON.stringify(firth), 12);
 
      //BUTTONS
 if ( 1==1) {
-     resetNoteBar(0);
      var temp="";
 if ( 1 == 1 ) {
         var sel;
@@ -160,13 +159,14 @@ if ( 1 == 1 ) {
              }
         });
 
-        myBC(100,sel,"booton",SELECTEDITEMS+" SLCT","",["SLCT"], function(e) { doCpuTableChart(); });
+        myBC(55,sel,"booton",SELECTEDITEMS+" SLCT","",["SLCT"], function(e) { doCpuTableChart(); });
 
 
 
         closeSettingsBar("banner_menu");
         $sel         = $("#banner_menu")
 
+     resetNoteBar(0);
 
         var GlobalBannerInterval;
         setCookie("LOCK", "UNLOCKED", 12);

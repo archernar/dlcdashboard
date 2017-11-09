@@ -20,6 +20,7 @@ var QueueMonitorInterval;
       function resetClientArea() {
            $("#client_area").empty();
            $("#client_menu_area").empty();
+           $("#chart_area").empty();
            $("#sub_menu_area").empty();
            $("#temp_area").empty();
            $("#temp_area").hide();
@@ -99,7 +100,7 @@ var QueueMonitorInterval;
              default:
                guid  = randomStr();
                guid2  = randomStr();
-               $ca.DLC("div",guid2).append("<br>").DLC("div",guid);
+               $ca.DLC("div",guid2).DLC("div",guid);
                what="p1?env="+sz+"&op="+radioOp+"&loc="+reg;
                switch (sz) {
                case "XALL": 
@@ -123,7 +124,7 @@ var QueueMonitorInterval;
                      // ****************************************
                      url = serviceUrl2(sz,radioOp,"","",reg,"","","",filter);
                      doTableChartRepeat(sz,url,guid ,"Instance List",nControl);
-                     netcost();
+                     //netcost();
                     }
                     break;
                }
@@ -215,7 +216,9 @@ var QueueMonitorInterval;
         //$("#client_area").append(sbString());
         $("#temp_area").empty().show();
         booton($("#temp_area"),"hide", function () { $("#temp_area").empty().hide(); });
-        $("#temp_area").append(sbString());
+        //$("#temp_area").append(sbString());
+        $("#client_menu_area").empty();
+        $("#client_menu_area").append(sbString());
 // PT
         for (i=0;i<NODESET.length;i++) {
              node = NODESET[i];
@@ -229,6 +232,7 @@ var QueueMonitorInterval;
              if (getCookie("CPUOO") == "On" ){
                 url = serviceUrl(env,datamode,"cpu",node,reg,p,dh,offset);
                 gp = panes[nextedpane++];
+                gp = "client_menu_area";
                 snapPerf( "CPU",gp,url,env,reg,node,PT,chartjsTitleLong("cpu", h,node,name,purpose,h,p,offset) );
              }
              if (getCookie("MEMA") == "On" ){
@@ -302,6 +306,33 @@ var QueueMonitorInterval;
         }, 200000);
      }
 
+     function snapCpuPerfNow(env,reg,node,name,purpose,hours,period) {
+          var url = "";
+          hours  = getCookie("DHRS",1);
+          period = getCookieDefault("PER",60);
+          var datamode = getCookieDefault("DMOD","sts");
+          var offset=getCookie("OSET");
+          $.ajaxSetup({ async: false });
+          // url = serviceUrl(env,datamode,"cpu",node,reg,period,hours,offset);
+          // snapPerf( "CPU","chart_area",url,env,reg,node,"Percent",chartjsTitle("CPU Utilization",hours,node,name,purpose) );
+          var g1  = randomStr();
+          var g2  = randomStr();
+          var g3  = randomStr();
+          var g4  = randomStr();
+          $("#chart_area").empty().append( table4by1(g1,g2,g3,g4) );
+               url = serviceUrl(env,datamode,"cpu",node,reg,period,1,offset);
+               snapPerf( "CPU",g1,url,env,reg,node,"Percent",chartjsTitle("CPU 1 Hour",1,node,name,purpose) );
+
+                    url = serviceUrl(env,datamode,"cpu",node,reg,period,24,offset);
+                    snapPerf( "CPU",g2,url,env,reg,node,"Percent",chartjsTitle("CPU 1 Day",24,node,name,purpose) );
+
+                         url = serviceUrl(env,datamode,"cpu",node,reg,period,168,offset);
+                         snapPerf( "CPU",g3,url,env,reg,node,"Percent",chartjsTitle("CPU 7 Day",168,node,name,purpose) );
+
+                              url = serviceUrl(env,datamode,"cpu",node,reg,period,240,offset);
+                              snapPerf( "CPU",g4,url,env,reg,node,"Percent",chartjsTitle("CPU 10 Day",240,node,name,purpose) );
+     }
+
      function snapCpuPerf(env,reg,node,name,purpose,hours,period) {
           var $ca = $("#client_area");
           var MB = "MegaBytes";
@@ -359,7 +390,7 @@ var QueueMonitorInterval;
           var $ta = $("#temp_area");
           $ta.DLC("div",guid);
           booton($ta,"hide", function () { $("#temp_area").empty().hide(); });
-          $ta.append(sbString());
+          $ta.empty().append(sbString());
 
 
           $.ajaxSetup({ async: false });
@@ -445,9 +476,9 @@ var QueueMonitorInterval;
      if(typeof GlobalBannerInterval !== "undefined") clearInterval(GlobalBannerInterval);
      $("#ticker").hide();
 
-     $("#notebar").empty();
      $("#logger_area").empty();
-     var g1 = openSettingsBar("notebar");
+     // var g1 = openSettingsBar("notebar");
+     var g1 = openSettingsBar("banner_menu");
      var g2 = "";
      var ACCOUNTSET = [];
 
@@ -523,60 +554,68 @@ var QueueMonitorInterval;
      //myB(0,g1,cls,"sort","SORTKEY",["name","purpose","type","sys","id","envreg"]);
      myB(0,g1,cls,"chrts","EXP",["One","Two","Three","Four"]);
      // THIS IS GOOD myB2(0,g1,cls,"","EXP",["One","Two","Three","Four"],"","EXP2",["a","b","c"]);
+     closeSettingsBar("banner_menu");
+     g1 = openSettingsBar("banner_menu");
      cls="uitoggle confirm";
-     var g2 = addSettingsElement(g1);
-     myBimpl(40,g2,"bootonsmall","sta","STATUS",["Off","On"]);
+     var g2 = "";
+     g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","cpu","CPUOO",["Off","On"]);
      g2 = addSettingsElement(g1);
+     myBimpl(40,g2,"bootonsmall","sta","STATUS",["Off","On"]);
+     g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","nti","NIB",["Off","On"]);
+     g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","nto","NOB",["Off","On"]);
      g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","drr","DRB",["Off","On"]);
+     g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","dww","DWB",["Off","On"]);
      g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","dro","DRO",["Off","On"]);
+     g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","dwo","DWO",["Off","On"]);
      g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","mma","MEMA",["Off","On"]);
+     g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","mmu","MEMU",["Off","On"]);
      g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","mmz","MEMZ",["Off","On"]);
+     g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","bil","BCHT",["Off","On"]);
      g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","dsk","DISKMET",["Off","On"]);
+     g2 = addSettingsElement(g1);
      myBimpl(40,g2,"bootonsmall","upd","UPDT",["Off","On"]);
-     closeSettingsBar("notebar");
-
-        var $sel = $("#searchbar");
-        $sel.empty();
+     closeSettingsBar("banner_menu");
+     var $sel = $("#searchbar");
+     $sel.empty();
      }
 
      function resetSearchBar() {
-        //var sel = openSettingsBar("searchbar");
         $("#client_menu_area").empty();
         var sel = openSettingsBar("client_menu_area");
-        myBC(35,sel,"booton","ALL","",["ALL"], function () { $("#"+GlobalTableId +" tr").show(); netcost(); });
-        myBText(35,sel,"antibooton","Filter:");
+        // maybe put back in ???? myBC(35,sel,"booton","ALL","",["ALL"], function () { $("#"+GlobalTableId +" tr").show(); netcost(); });
+        myBText(35,sel,"booton","Filter:");
         $("#"+ addSettingsElement(sel)).append("<input size=16 type='text' class='searchbartext'  id='regextext'  value=''>");
         myBC(25,sel,"booton","X","",["X"], function () { $("#regextext").val(""); });
 
 
-        myBText(35,sel,"antibooton","Apply:");
-        myBC(40,sel,"booton","INST","",["INST"], function () { filterTableByRow(GlobalTableId, "instance",$("#regextext").val()); netcost(); });
-        myBC(40,sel,"booton","NAME","",["NAME"], function () { filterTableByRow(GlobalTableId, "name",$("#regextext").val()); netcost(); });
-        myBC(40,sel,"booton","PURP","",["PURP"], function () { filterTableByRow(GlobalTableId, "purpose",$("#regextext").val()); renumberTable(); netcost(); });
-        myBC(40,sel,"booton","TAG","",["TAG"], function () { filterTableByRow(GlobalTableId, "tag",$("#regextext").val()); renumberTable(); netcost(); });
-        myBC(40,sel,"booton","OWN","",["OWN"], function () { filterTableByRow(GlobalTableId, "owner",$("#regextext").val()); netcost(); });
+        myBText(35,sel,"bootonlabel","Apply:");
+        myBC(40,sel,"booton","INST","",["INST"], function () { filterTableByRow(GlobalTableId, "instance",$("#regextext").val()); });
+        myBC(40,sel,"booton","NAME","",["NAME"], function () { filterTableByRow(GlobalTableId, "name",$("#regextext").val());  });
+        myBC(40,sel,"booton","PURP","",["PURP"], function () { filterTableByRow(GlobalTableId, "purpose",$("#regextext").val()); renumberTable();  });
+        myBC(40,sel,"booton","TAG","",["TAG"], function () { filterTableByRow(GlobalTableId, "tag",$("#regextext").val()); renumberTable(); });
+        myBC(40,sel,"booton","OWN","",["OWN"], function () { filterTableByRow(GlobalTableId, "owner",$("#regextext").val()); });
         myBC(40,sel,"booton","RENUM","",["RENUM"], function () { renumberTable(); });
         myBC(40,sel,"booton","CSV","",["CSV"], function () { window.open("p1?op=csv"); });
           // doTableChartRepeat(env,"p1?env="+env+"&op=performancenode&node="+node+"&filter=&loc="+reg ,guid,"t",0);
 
-        myBText(35,sel,"antibooton","Spc:");
-        myBC(30,sel,"booton","NI","",["NI"], function () { filterTableByRow(GlobalTableId, "instance", "^$"); netcost(); });
-        myBC(30,sel,"booton","NT","",["NT"], function () { filterTableByRow(GlobalTableId, "tag",      "^-$"); netcost(); });
-        myBC(30,sel,"booton","NP","",["NP"], function () { filterTableByRow(GlobalTableId, "purpose",  "^-$"); netcost(); });
+        myBText(35,sel,"bootonlabel","Spc:");
+        myBC(30,sel,"booton","NI","",["NI"], function () { filterTableByRow(GlobalTableId, "instance", "^$");  });
+        myBC(30,sel,"booton","NT","",["NT"], function () { filterTableByRow(GlobalTableId, "tag",      "^-$"); });
+        myBC(30,sel,"booton","NP","",["NP"], function () { filterTableByRow(GlobalTableId, "purpose",  "^-$"); });
         
-        myBText(35,sel,"antibooton","Pick:");
+        myBText(35,sel,"bootonlabel","Pick:");
         myBC(35,sel,"booton","ALL","",["ALL"], function () { 
              var $sel = $("#"+GlobalTableId).find('tr');
              $sel.attr("picked","N");
@@ -594,20 +633,18 @@ var QueueMonitorInterval;
              selectpick();
         });
 
-        myBText(35,sel,"antibooton","State:");
+        myBText(35,sel,"bootonlabel","State:");
         myBC(35,sel,"booton","RUN","",["RUN"], function () { 
              $("#"+GlobalTableId +" tr").hide();
              $("#"+GlobalTableId +" tr[status='HEADER']").show();
              $("#"+GlobalTableId +" tr[status='GREEN']").show();
              renumberTable();
-             netcost();
         });
         myBC(35,sel,"booton","STOP","",["STOP"], function () { 
              $("#"+GlobalTableId +" tr").hide();
              $("#"+GlobalTableId +" tr[status='HEADER']").show();
              $("#"+GlobalTableId +" tr[status='RED']").show();
              renumberTable();
-             netcost();
         });
         myBC(35,sel,"booton","BOTH","",["BOTH"], function () { 
              $("#"+GlobalTableId +" tr").hide();
@@ -615,9 +652,8 @@ var QueueMonitorInterval;
              $("#"+GlobalTableId +" tr[status='RED']").show();
              $("#"+GlobalTableId +" tr[status='GREEN']").show();
              renumberTable();
-             netcost();
         });
-        closeSettingsBar("searchbar");
+        closeSettingsBar("client_menu_area");
 
         $("#ckcasesensitive").prop('checked', true);
      }

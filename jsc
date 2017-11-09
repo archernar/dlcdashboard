@@ -84,4 +84,4 @@ cat js/mainjs.js    >> web/dlc.src
 
 # cat css/bootstrap-theme.css  >>  web/$DSTAMP.css
 # gawk -f /usr/local/tools/includerslash.awk web/monitor.src > web/monitor.html 
-#yui-compressor --type js $Tmp  >  web/$DSTAMP.js
+yui-compressor --type js $Tmp  >  web/$DSTAMP.js

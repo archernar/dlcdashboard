@@ -3145,7 +3145,7 @@ private List<Datapoint> getCloudWatchData(DLCConnect cn,String ns,String metric,
           request.setStartTime(start);
           GetMetricStatisticsResult r = cloudWatch.getMetricStatistics(request);
           list.addAll(r.getDatapoints()); 
-          UTIL.sysOut(r.getDatapoints().toString() ); 
+          //UTIL.sysOut(r.getDatapoints().toString() ); 
           HN = HN + HE;
      }
 

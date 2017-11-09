@@ -217,10 +217,10 @@ function resetselectpick() {
                               $("#"+op).parent().children('td').css({ 'background-color': '#b2b5bc' });
                          break;
                     case "perf":
-                         $("#"+op).html(jsfunc7("snapCpuPerf",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"gph"));
+                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"gph"));
                          break;
                     case "performance":
-                         $("#"+op).html(jsfunc7("snapCpuPerf",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"gph"));
+                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"gph"));
                          break;
                }
           }

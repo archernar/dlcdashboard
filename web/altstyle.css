@@ -25,9 +25,11 @@ body {
         margin: 0px;
         padding: 0px;
         color: Black;
+        text-align: left;
+        vertical-align: top;
         background-color: White;
 	border-collapse: collapse;
-        border-top: 0px solid White;
+        border-top: 0px solid Green;
         border-left: 0px solid White;
         border-right: 0px solid White;
         border-bottom: 0px solid White;
@@ -124,6 +126,16 @@ td {
 }
 a, a:link,a:visited,a:hover { color: Black; text-decoration: underline; }
 
+.bootonlaibel {
+  font-size:11px;
+  color: Black;
+  background-color: #e7e7e7;
+  text-align: left;
+  vertical-align: middle;
+  font-weight: normal;
+  border: 0px solid Black;
+  text-transform:uppercase;
+}
 .booton,
 .booton:link,
 .booton:active,

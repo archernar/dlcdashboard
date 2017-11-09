@@ -14,7 +14,7 @@ public class DLCCrypt{
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
 
             byte[] encrypted = cipher.doFinal(value.getBytes());
-            (new DLCUtil(true)).sysOut("encrypted string: " + Base64.encodeBase64String(encrypted));
+            (new DLCUtil(false)).sysOut("encrypted string: " + Base64.encodeBase64String(encrypted));
 
             return Base64.encodeBase64String(encrypted);
         } catch (Exception ex) {
@@ -33,7 +33,7 @@ public class DLCCrypt{
             cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
 
             byte[] original = cipher.doFinal(Base64.decodeBase64(encrypted));
-            (new DLCUtil(true)).sysOut( new String(original) );
+            (new DLCUtil(false)).sysOut( new String(original) );
 
             return new String(original);
         } catch (Exception ex) {

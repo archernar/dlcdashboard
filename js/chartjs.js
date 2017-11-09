@@ -102,10 +102,19 @@ function chartjsDoTableChart(what,where,description,control,cls) {
                 }
            }
            if ( ctype == "CPU" ) {
-                options.chartArea.backgroundColor     =  "#F5F5F5";
-                options.backgroundColor               =  "#F5F5F5";
+           options.legend.textStyle.fontSize          =  10;
+           options.vAxis.textStyle.fontSize           =  10;
+           options.vAxis.titleTextStyle.fontSize      =  10;
                 options.width =  $("#"+where).innerWidth;
-                options.chartArea.width = '87%';
+                options.height = 160
+                options.backgroundColor               =  "#F5F5F5";
+                options.chartArea.left = 50;
+                options.chartArea.top = 30;
+                options.chartArea.width = '90%';
+                options.chartArea.height = 80;
+                options.chartArea.backgroundColor     =  "#F5F5F5";
+
+
                 options.vAxis.viewWindowMode = 'pretty';
                 if (cfgYAxis == -1) {
                      ctype_actual=mapChartType(getCookie("CPUCT")); 

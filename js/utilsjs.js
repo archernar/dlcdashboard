@@ -129,9 +129,9 @@ function table3by1(g1,g2,g3) {
     sz = sz + "</tr></table>";
     return(sz);
 }
-function table4by1(g1,g2,g3,g4) {
+function table4by1(w,g1,g2,g3,g4) {
     var tguid = "";
-    var sz = "<table border=0 width='100%' CELLSPACING=0 CELLPADDING=0>"
+    var sz = "<table border=1 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
     sz = sz + "<tr>";
     sz = sz + "<td id='" + g1 + "'></td>";
     sz = sz + "</tr><tr>";
@@ -143,15 +143,12 @@ function table4by1(g1,g2,g3,g4) {
     sz = sz + "</tr></table>";
     return(sz);
 }
-function table2by2(g1,g2,g3,g4) {
-    var sz = "<table border=0 width='100%' CELLSPACING=0 CELLPADDING=0>"
-    sz = sz + "<tr>";
-    sz = sz + "<td id='" + g1 + "'></td>";
-    sz = sz + "<td id='" + g2 + "'></td>";
-    sz = sz + "</tr><tr>";
-    sz = sz + "<td id='" + g3 + "'></td>";
-    sz = sz + "<td id='" + g4 + "'></td>";
-    sz = sz + "</tr></table>";
+function table2by2(w,g1,g2,g3,g4) {
+    var tguid = "";
+    var sz = "<table border=1 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
+    sz = sz + "<tr><td width='50%' id='" + g1 + "'></td><td id='" + g2 + "'></td></tr>";
+    sz = sz + "<tr><td width='50%' id='" + g3 + "'></td><td id='" + g4 + "'></td></tr>";
+    sz = sz + "</table>";
     return(sz);
 }
 function tableWXQ(n,x) {

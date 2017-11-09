@@ -319,7 +319,7 @@ var QueueMonitorInterval;
           var g2  = randomStr();
           var g3  = randomStr();
           var g4  = randomStr();
-          $("#chart_area").empty().append( table4by1(g1,g2,g3,g4) );
+          $("#chart_area").empty().append( table2by2("100%",g1,g2,g3,g4) );
                url = serviceUrl(env,datamode,"cpu",node,reg,period,1,offset);
                snapPerf( "CPU",g1,url,env,reg,node,"Percent",chartjsTitle("CPU 1 Hour",1,node,name,purpose) );
 

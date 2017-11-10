@@ -108,9 +108,9 @@ function chartjsDoTableChart(what,where,description,control,cls) {
                 options.width =  $("#"+where).innerWidth;
                 options.height = 160
                 options.backgroundColor               =  "#F5F5F5";
-                options.chartArea.left = 50;
+                options.chartArea.left = 70;
                 options.chartArea.top = 30;
-                options.chartArea.width = '90%';
+                options.chartArea.width = options.width;
                 options.chartArea.height = 80;
                 options.chartArea.backgroundColor     =  "#F5F5F5";
 
@@ -222,6 +222,12 @@ function chartjsDoTableChart(what,where,description,control,cls) {
           var szRet="";
           var spc = ", ";
           szRet = szRet + sz + spc + name + spc + node + spc + purpose 
+          return(szRet);
+     }
+     function chartjsTitle2(sz,n,node,name,purpose,env, url) {
+          var szRet="";
+          var spc = ", ";
+          szRet = szRet + sz + spc + env + spc + name + spc + node + spc + purpose + spc + "<A href='" + url + "'>data</A>"; 
           return(szRet);
      }
 

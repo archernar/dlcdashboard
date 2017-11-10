@@ -60,9 +60,10 @@ var QueueMonitorInterval;
           resetSearchBar();
           var nControl = -1; 
           var $ca = $("#client_area");
-          $("#"+sz).parent().parent().find('td').css({ 'color': 'White' });
-          $("#"+sz).css({ 'color': 'Black' });
-          $("#"+sz).css({ 'background-color': 'Black' });
+          var $sz = $("#"+sz);
+          $sz.parent().parent().find('td').css({ 'color': 'White' });
+          $sz.css({ 'color': 'Black' });
+          $sz.css({ 'background-color': 'Black' });
           document.getElementById("client_area").innerHTML = "";
           switch ( getCommand() )  {
              case "raw": radioOp="inventoryraw"; break; 
@@ -213,12 +214,9 @@ var QueueMonitorInterval;
         }
 
 
-        //$("#client_area").append(sbString());
         $("#temp_area").empty().show();
         booton($("#temp_area"),"hide", function () { $("#temp_area").empty().hide(); });
-        //$("#temp_area").append(sbString());
-        $("#client_menu_area").empty();
-        $("#client_menu_area").append(sbString());
+        $("#client_menu_area").empty().append(sbString());
 // PT
         for (i=0;i<NODESET.length;i++) {
              node = NODESET[i];
@@ -319,18 +317,26 @@ var QueueMonitorInterval;
           var g2  = randomStr();
           var g3  = randomStr();
           var g4  = randomStr();
-          $("#chart_area").empty().append( table2by2("100%",g1,g2,g3,g4) );
+   
+          switch ( getCookie("EXP"))  {
+             case "One":
+                  $("#chart_area").empty().append( table2by2("100%",g1,g2,g3,g4) );
+                  break; 
+             default:
+                  $("#chart_area").empty().append( table4by1("100%",g1,g2,g3,g4) );
+                  break; 
+          }
                url = serviceUrl(env,datamode,"cpu",node,reg,period,1,offset);
-               snapPerf( "CPU",g1,url,env,reg,node,"Percent",chartjsTitle("CPU 1 Hour",1,node,name,purpose) );
+               snapPerf( "CPU",g1,url,env,reg,node,"Percent",chartjsTitle2("CPU 1 Hour",1,node,name,purpose,env,url) );
 
                     url = serviceUrl(env,datamode,"cpu",node,reg,period,24,offset);
-                    snapPerf( "CPU",g2,url,env,reg,node,"Percent",chartjsTitle("CPU 1 Day",24,node,name,purpose) );
+                    snapPerf( "CPU",g2,url,env,reg,node,"Percent",chartjsTitle2("CPU 1 Day",24,node,name,purpose,env,url) );
 
                          url = serviceUrl(env,datamode,"cpu",node,reg,period,168,offset);
-                         snapPerf( "CPU",g3,url,env,reg,node,"Percent",chartjsTitle("CPU 7 Day",168,node,name,purpose) );
+                         snapPerf( "CPU",g3,url,env,reg,node,"Percent",chartjsTitle2("CPU 7 Day",168,node,name,purpose, env, url) );
 
                               url = serviceUrl(env,datamode,"cpu",node,reg,period,240,offset);
-                              snapPerf( "CPU",g4,url,env,reg,node,"Percent",chartjsTitle("CPU 10 Day",240,node,name,purpose) );
+                              snapPerf( "CPU",g4,url,env,reg,node,"Percent",chartjsTitle2("CPU 10 Day",240,node,name,purpose, env, url) );
      }
 
      function snapCpuPerf(env,reg,node,name,purpose,hours,period) {

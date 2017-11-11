@@ -101,7 +101,7 @@ function chartjsDoTableChart(what,where,description,control,cls) {
                      ctype_actual="Column";
                 }
            }
-           if ( ctype == "CPU" ) {
+           if ( ( ctype.toUpperCase() == "CPU" ) || ( ctype.toUpperCase() == "NETOUT" ) ) {
            options.legend.textStyle.fontSize          =  10;
            options.vAxis.textStyle.fontSize           =  10;
            options.vAxis.titleTextStyle.fontSize      =  10;
@@ -227,7 +227,7 @@ function chartjsDoTableChart(what,where,description,control,cls) {
      function chartjsTitle2(sz,n,node,name,purpose,env, url) {
           var szRet="";
           var spc = ", ";
-          szRet = szRet + sz + spc + env + spc + name + spc + node + spc + purpose + spc + "<A href='" + url + "'>data</A>"; 
+          szRet = szRet + sz + spc + env + spc + name + spc + node + spc + purpose; 
           return(szRet);
      }
 

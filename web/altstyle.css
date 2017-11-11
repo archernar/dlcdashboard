@@ -15,6 +15,10 @@ body {
      background-color: White;
      border-color:     White;
 }
+.th {
+  text-align: middle;
+  vertical-align: middle;
+}
 .td {
      color:            Black;
      background-color: White;

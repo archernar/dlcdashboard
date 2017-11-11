@@ -143,11 +143,35 @@ function table4by1(w,g1,g2,g3,g4) {
     sz = sz + "</tr></table>";
     return(sz);
 }
+function table4by1withheaders(w,g1,g2,g3,g4,g1h,g2h,g3h,g4h) {
+    var tguid = "";
+    var sz = "<table border=0 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
+    sz = sz + "<tr><th align='middle' id='" + g1h + "'></th></tr>";
+    sz = sz + "<tr><td id='" + g1 + "'></td></tr>";
+    sz = sz + "<tr><th align='middle' id='" + g2h + "'></th></tr>";
+    sz = sz + "<tr><td id='" + g2 + "'></td></tr>";
+    sz = sz + "<tr><th align='middle' id='" + g3h + "'></th></tr>";
+    sz = sz + "<tr><td id='" + g3 + "'></td></tr>";
+    sz = sz + "<tr><th align='middle' id='" + g4h + "'></th></tr>";
+    sz = sz + "<tr><td id='" + g4 + "'></td></tr>";
+    sz = sz + "</table>";
+    return(sz);
+}
 function table2by2(w,g1,g2,g3,g4) {
     var tguid = "";
     var sz = "<table border=1 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
     sz = sz + "<tr><td width='50%' id='" + g1 + "'></td><td id='" + g2 + "'></td></tr>";
     sz = sz + "<tr><td width='50%' id='" + g3 + "'></td><td id='" + g4 + "'></td></tr>";
+    sz = sz + "</table>";
+    return(sz);
+}
+function table2by2withheaders(w,g1,g2,g3,g4,g1h,g2h,g3h,g4h) {
+    var tguid = "";
+    var sz = "<table border=0 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
+    sz = sz + "<tr><th align='middle' width='50%' id='" + g1h + "'></th><th align='middle' id='" + g2h + "'></th></tr>";
+    sz = sz + "<tr><td width='50%' id='" + g1 + "'></td><td id='"  + g2 + "'></td></tr>";
+    sz = sz + "<tr><th align='middle' width='50%' id='" + g3h + "'></th><th align='middle' id='" + g4h + "'></th></tr>";
+    sz = sz + "<tr><td width='50%' id='" + g3 + "'></td><td id='"  + g4 + "'></td></tr>";
     sz = sz + "</table>";
     return(sz);
 }
@@ -198,17 +222,27 @@ function tableBy(n) {
     sz = sz + "<td valign=top id='" + g2 + "'></td></tr></table>";
     return(sz);
 }
-function tuple7(op1,op2,op3,op4,op5,op6,op7) { 
+function tuple7(op1,op2,op3,op4,op5,op6,op7,op8) { 
          var c=","; var js = dq(op1) +c+ dq(op2) +c+ 
-                             dq(op3) +c+ dq(op4) +c+ dq(op5) +c+ dq(op6) +c+ dq(op7);
+                             dq(op3) +c+ dq(op4) +c+ dq(op5) +c+ dq(op6) +c+ dq(op7) +c+ dq(op8);
          return(js); 
 }
 function jsfunc7(name,op1,op2,op3,op4,op5,op6,op7,label) {
      var js = "<A href='javascript:" + name + 
-              paren(tuple7(op1,op2,op3,op4,op5,op6,op7)) + ";'>" + label + "</A>";
+              paren(tuple7(op1,op2,op3,op4,op5,op6,op7,label)) + ";'>" + label + "</A>";
      return(js);
 }
 
+  function mapYAxisLabel(sz) {
+     var szRet = "MegaBytes";;
+     switch (sz.toUpperCase()) {
+               case "CPUUTILIZATION":
+               case "CPU":
+                   szRet= "Percent";
+                   break;
+     }
+    return (szRet);
+  }
   function mapChartType(sz) {
      var szRet = sz;
      switch (sz.toUpperCase()) {
@@ -400,6 +434,9 @@ function addSettingsElement(guid) {
      return(g1);
 }
 
+function appendAnchor(sel,url,label) {
+     $("#"+sel).append("<A target='_blank' href='" +url+ "'>" +label+ "</A>");
+}
 function appendAnchorWithGuid(sel,cls,prefix) {
      var guid = randomStr();
      $(sel).append(prefix + "<A class='" + cls + "' id='" +guid + "'></A>");

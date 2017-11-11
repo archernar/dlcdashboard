@@ -320,6 +320,9 @@ public AmazonCloudWatchClient ConnectCloudWatch(String aws_env, String aws_reg) 
               case "E1":
                    cw.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_EAST_1));
                    break; 
+              case "E2":
+                   cw.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_EAST_2));
+                   break; 
               case "W1":
                    cw.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_WEST_1));
                    break; 
@@ -466,6 +469,9 @@ public AmazonEC2Client EC2SetRegionNoCache(AmazonEC2Client ec2, String aws_reg) 
                case "E1":
                     ec2.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_EAST_1));
                     break; 
+               case "E2":
+                    ec2.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_EAST_2));
+                    break; 
                case "W1":
                     ec2.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_WEST_1));
                     break; 
@@ -544,6 +550,9 @@ if ( 1 == 1) {
      switch (aws_reg) {
                case "E1":
                     ec2.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_EAST_1));
+                    break; 
+               case "E2":
+                    ec2.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_EAST_2));
                     break; 
                case "W1":
                     ec2.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_WEST_1));

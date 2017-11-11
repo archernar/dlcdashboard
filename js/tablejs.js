@@ -216,11 +216,20 @@ function resetselectpick() {
                          if ($("#"+op).html() == "W2")
                               $("#"+op).parent().children('td').css({ 'background-color': '#b2b5bc' });
                          break;
+                    case "netin":
+                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"netin"));
+                         break;
+                    case "netout":
+                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"netout"));
+                         break;
+                    case "cpu":
+                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"cpu"));
+                         break;
                     case "perf":
-                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"gph"));
+                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"cpu"));
                          break;
                     case "performance":
-                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"gph"));
+                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"cpu"));
                          break;
                }
           }
@@ -394,7 +403,6 @@ function resetselectpick() {
                               case "vpc": 
                               case "pub": 
                               case "prv": 
-                              case "cpu": 
                               case "mem": 
                                    break;
                               case "devices": 
@@ -419,9 +427,10 @@ function resetselectpick() {
                                    identity = f;
                                    pushpop.push(guid +c+ tt +c+ identity);
                                    break;
+                              case "netin": 
+                              case "netout": 
+                              case "cpu": 
                               case "perf": 
-                                   pushpop.push(guid +c+ tt +c+ identity);
-                                   break;
                               case "performance": 
                                    pushpop.push(guid +c+ tt +c+ identity);
                                    break;

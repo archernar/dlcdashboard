@@ -114,7 +114,7 @@ public class s3u extends HttpServlet {
     private static final DLCConst CONST = new DLCConst();
 
     //private static final List<String> ACTIVE_REGIONS = Arrays.asList("E1","W1","W2","A1","U1","U2");
-    private static final List<String> ACTIVE_REGIONS = Arrays.asList("E1","W1","W2");
+    private static final List<String> ACTIVE_REGIONS = Arrays.asList("E1","E2","W1","W2");
 
     int entry = 0;
     long startTime = 0;
@@ -1195,34 +1195,46 @@ private int mapQF(String sz) {
 private String mapQ(String sz) {
      String szRet = "";
      switch (sz) {
+               case "StatusCheckFailed":
+               case "statuscheckfailed":
                case "statuscheck":
-                    szRet="StatusCheckFailed";
+                     szRet="StatusCheckFailed";
                      break; 
+               case "CPUUtilization":
+               case "cpuutilization":
                case "cpu":
                case "cpumulti":
                case "cpuavg":
                      szRet="CPUUtilization";
                      break; 
+               case "NetworkOut":
+               case "networkout":
                case "netout":
                case "netoutmulti":
                      szRet="NetworkOut";
                      break; 
+               case "NetworkIn":
+               case "networkin":
                case "netin":
                case "netinmulti":
                      szRet="NetworkIn";
                      break; 
+               case "DiskReadBytes":
                case "diskreadbytes":
                case "diskreadbytesmulti":
                      szRet="DiskReadBytes";
                      break; 
+               case "DiskWriteBytes":
                case "diskwritebytes":
                case "diskwritebytesmulti":
                      szRet="DiskWriteBytes";
                      break; 
+               case "DiskReadOps":
                case "diskreadops":
                case "diskreadopsmulti":
                      szRet="DiskReadOps";
                      break; 
+               case "DiskWriteOps":
                case "diskwriteops":
                case "diskwriteopsmulti":
                      szRet="DiskWriteOps";
@@ -1233,12 +1245,15 @@ private String mapQ(String sz) {
                case "status":
                     szRet=CONST.M_INSTANCE;
                      break; 
+               case "MemoryAvailable":
                case "mema":
                      szRet="MemoryAvailable";
                      break; 
+               case "MemoryUtilization":
                case "memz":
                      szRet="MemoryUtilization";
                      break; 
+               case "MemoryUsed":
                case "memu":
                      szRet="MemoryUsed";
                      break; 
@@ -2184,7 +2199,7 @@ public int inventoryRedshiftOpRows(int nn, DLCConnect cn,MyStringBuilder sb ,Lis
 public List <String> inventoryOpCols() {
      String sz="vCPU,mem,strg,net,ebs";
      return(Arrays.asList("IDENTITY","env","reg","tag","s","type","$hour","ami-","launch","dd","id","name","purpose","config",
-"owner","devices","network","sg","perf"));
+"owner","devices","network","sg","cpu","netin","netout"));
 }
 public int inventoryOpRows(HttpServletRequest req, int nn, DLCConnect cn,MyStringBuilder sb ,List <InstanceX> list) {
      int ct = 0;
@@ -2225,7 +2240,10 @@ public int inventoryOpRows(HttpServletRequest req, int nn, DLCConnect cn,MyStrin
                UTIL.json(UTIL.HTMLselect(Cache.getInstanceIPOptionMap(ie.getId()))),
                UTIL.json(UTIL.HTMLselect(Cache.getSecurityGroupOptionMap( "sg-"+ ie.getSecurityGroupByMode(0) ))),
                ie.getSecurityGroupByModeJson(0),
-               UTIL.json(""));
+               UTIL.json(""),
+               UTIL.json(""),
+               UTIL.json("")
+                   );
           csvdata = csvdata + "\n" + UTIL.concatter("", "", ",", 
                ie.getMappedEnv(),
                ie.getReg(),
@@ -2248,7 +2266,7 @@ public int inventoryOpRows(HttpServletRequest req, int nn, DLCConnect cn,MyStrin
 public List <String> inventoryplusOpCols() {
      String sz="vCPU,mem,strg,net,ebs";
      return(Arrays.asList("IDENTITY","env","reg","tag","s","type","id","name","purpose","dv","stg","stgcst","owner",
-                          "config","prv","pub","vpc","launch","key","$hour","$day","$all","subnet-","ami-","sg-","perf"));
+                          "config","prv","pub","vpc","launch","key","$hour","$day","$all","subnet-","ami-","sg-","cpu"));
 }
 public int inventoryplusOpRows(int nn, DLCConnect cn,MyStringBuilder sb ,List <InstanceX> list) {
      int ct = 0;

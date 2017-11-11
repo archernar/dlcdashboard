@@ -304,39 +304,79 @@ var QueueMonitorInterval;
         }, 200000);
      }
 
-     function snapCpuPerfNow(env,reg,node,name,purpose,hours,period) {
+     function snapCpuPerfNow(env,reg,node,name,purpose,hours,period,met) {
+         // console.log("met= " + met);
           var url = "";
           hours  = getCookie("DHRS",1);
           period = getCookieDefault("PER",60);
           var datamode = getCookieDefault("DMOD","sts");
           var offset=getCookie("OSET");
           $.ajaxSetup({ async: false });
-          // url = serviceUrl(env,datamode,"cpu",node,reg,period,hours,offset);
-          // snapPerf( "CPU","chart_area",url,env,reg,node,"Percent",chartjsTitle("CPU Utilization",hours,node,name,purpose) );
           var g1  = randomStr();
           var g2  = randomStr();
           var g3  = randomStr();
           var g4  = randomStr();
-   
+          var g1h  = randomStr();
+          var g2h  = randomStr();
+          var g3h  = randomStr();
+          var g4h  = randomStr();
+          var url1  = serviceUrl(env,datamode,met,node,reg,period,1,offset);
+          var url2  = serviceUrl(env,datamode,met,node,reg,period,24,offset);
+          var url3  = serviceUrl(env,datamode,met,node,reg,period,168,offset);
+          var url4  = serviceUrl(env,datamode,met,node,reg,period,240,offset);
           switch ( getCookie("EXP"))  {
              case "One":
-                  $("#chart_area").empty().append( table2by2("100%",g1,g2,g3,g4) );
+                  $("#chart_area").empty().append( table2by2withheaders("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
                   break; 
              default:
-                  $("#chart_area").empty().append( table4by1("100%",g1,g2,g3,g4) );
+                  $("#chart_area").empty().append( table4by1withheaders("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
                   break; 
           }
-               url = serviceUrl(env,datamode,"cpu",node,reg,period,1,offset);
-               snapPerf( "CPU",g1,url,env,reg,node,"Percent",chartjsTitle2("CPU 1 Hour",1,node,name,purpose,env,url) );
-
-                    url = serviceUrl(env,datamode,"cpu",node,reg,period,24,offset);
-                    snapPerf( "CPU",g2,url,env,reg,node,"Percent",chartjsTitle2("CPU 1 Day",24,node,name,purpose,env,url) );
-
-                         url = serviceUrl(env,datamode,"cpu",node,reg,period,168,offset);
-                         snapPerf( "CPU",g3,url,env,reg,node,"Percent",chartjsTitle2("CPU 7 Day",168,node,name,purpose, env, url) );
-
-                              url = serviceUrl(env,datamode,"cpu",node,reg,period,240,offset);
-                              snapPerf( "CPU",g4,url,env,reg,node,"Percent",chartjsTitle2("CPU 10 Day",240,node,name,purpose, env, url) );
+               appendAnchor(g1h, url1, "json data");
+               appendAnchor(g2h, url2, "json data");
+               appendAnchor(g3h, url3, "json data");
+               appendAnchor(g4h, url4, "json data");
+               var yaxislabel = mapYAxisLabel(met);
+               snapPerf( met,g1,url1,env,reg,node,yaxislabel,chartjsTitle2(met+" 1 Hour",1,node,name,purpose,env,url1) );
+                    snapPerf( met,g2,url2,env,reg,node,yaxislabel,chartjsTitle2(met+" 1 Day",24,node,name,purpose,env,url2) );
+                         snapPerf( met,g3,url3,env,reg,node,yaxislabel,chartjsTitle2(met+" 7 Day",168,node,name,purpose, env, url3) );
+                              snapPerf( met,g4,url4,env,reg,node,yaxislabel,chartjsTitle2(met+" 10 Day",240,node,name,purpose, env, url4) );
+     }
+     function snapCpuPerfNowXXXX(env,reg,node,name,purpose,hours,period) {
+          var url = "";
+          hours  = getCookie("DHRS",1);
+          period = getCookieDefault("PER",60);
+          var datamode = getCookieDefault("DMOD","sts");
+          var offset=getCookie("OSET");
+          $.ajaxSetup({ async: false });
+          var g1  = randomStr();
+          var g2  = randomStr();
+          var g3  = randomStr();
+          var g4  = randomStr();
+          var g1h  = randomStr();
+          var g2h  = randomStr();
+          var g3h  = randomStr();
+          var g4h  = randomStr();
+          var url1  = serviceUrl(env,datamode,"cpu",node,reg,period,1,offset);
+          var url2  = serviceUrl(env,datamode,"cpu",node,reg,period,24,offset);
+          var url3  = serviceUrl(env,datamode,"cpu",node,reg,period,168,offset);
+          var url4  = serviceUrl(env,datamode,"cpu",node,reg,period,240,offset);
+          switch ( getCookie("EXP"))  {
+             case "One":
+                  $("#chart_area").empty().append( table2by2withheaders("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
+                  break; 
+             default:
+                  $("#chart_area").empty().append( table4by1withheaders("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
+                  break; 
+          }
+               appendAnchor(g1h, url1, "json data");
+               appendAnchor(g2h, url2, "json data");
+               appendAnchor(g3h, url3, "json data");
+               appendAnchor(g4h, url4, "json data");
+               snapPerf( "CPU",g1,url1,env,reg,node,"Percent",chartjsTitle2("CPU 1 Hour",1,node,name,purpose,env,url1) );
+                    snapPerf( "CPU",g2,url2,env,reg,node,"Percent",chartjsTitle2("CPU 1 Day",24,node,name,purpose,env,url2) );
+                         snapPerf( "CPU",g3,url3,env,reg,node,"Percent",chartjsTitle2("CPU 7 Day",168,node,name,purpose, env, url3) );
+                              snapPerf( "CPU",g4,url4,env,reg,node,"Percent",chartjsTitle2("CPU 10 Day",240,node,name,purpose, env, url4) );
      }
 
      function snapCpuPerf(env,reg,node,name,purpose,hours,period) {
@@ -465,6 +505,7 @@ var QueueMonitorInterval;
      }
      // SNAPPERF 
      function snapPerf(cht,guid,url,env,reg,node,vlabel,label)        { 
+          cht = cht.toUpperCase();
           chartjsDoChart(cht,url,guid,vlabel,node,label);
                 // ****************************************
                 // *** Auto Update Code
@@ -547,7 +588,7 @@ var QueueMonitorInterval;
      });
      //myB(0,g1,cls,"cmd","CMDSET",cmds);
      // myB(0,g1,cls,"region","REGL",["ALL","E1","W1","W2","A1","A2","A3","U1","U2","S1"]);
-     myB(0,g1,cls,"regn","REGL",["E1","W1","W2","ALL"]);
+     myB(0,g1,cls,"regn","REGL",["E1","E2","W1","W2","ALL"]);
      myB(0,g1,cls,"mode","DMOD",["sts","mts"]);
      myB(0,g1,cls,"zoom","ZOOM",["0","50","100","200","300","400","-25","-50","-100"]);
      myB(0,g1,cls,"hrs","DHRS",["24","48","72","96","120","144","240","1","2","4","6","12","18" ]);

@@ -271,7 +271,10 @@ public boolean regex(String sz, String regexpattern) {
      String szRet = "";
      switch (sz) {
                case "E1":
-                   szRet= "US East (N. Virginia) Region";
+                   szRet= "US East 1 (N. Virginia) Region";
+                   break;
+               case "E2":
+                   szRet= "US East 2 (Ohio) Region";
                    break;
                case "W1":
                    szRet="West (N. California) Region";

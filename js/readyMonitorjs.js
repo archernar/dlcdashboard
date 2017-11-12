@@ -61,7 +61,7 @@ function netcost() {
                        msg = msg + " " + all.toString()    + " CS";
                        msg = msg + " " + cpu.toString()    + " CPUs";
                        msg = msg + " " + memory.toString() + " GBs";
-                       $("#message_area").html(msg).css({'color':'White','font-size':'100%','font-weight':'bold'});
+                       $("#tail_area").html(msg).css({'color':'White','font-size':'100%','font-weight':'bold'});
                        msg = "";
                        msg = msg + "$" + formatFloatZero(hr)       + "/h<br>" 
                        msg = msg + "$" + formatFloatZero(dy)       + "/d<br>" 
@@ -85,7 +85,7 @@ function netcost() {
                        });
                        mm = t.toFixed(2); 
                        msg = "Volumes: monthly: " + mm.toString();
-                       $("#message_area").html(msg); 
+                       $("#tail_area").html(msg); 
                   }
              }
 }
@@ -93,23 +93,27 @@ var TestInterval;
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+function resetTail()  {
+     $("#tail_area").empty().html(getMoniker());
+}
+
 function readyMonitor() {
 setCookie("FIRTH", JSON.stringify(firth), 12);
 
      var $client_area = $("#client_area");
-     var $temp_area   = $("#temp_area").empty().hide();
      var $screen      = $("#screen")
      var $banner      = $("#banner")
      var $footer      = $("#footer").addClass("footer");
-     $("#message_area").attr("width", Math.floor(screen.width/4));
+     $("#tail_area").attr("width", Math.floor(screen.width/4));
      $("#ticker").hide();
      $.ajaxSetup({ async: false });
      setCookie("ZOOM", 0, 12);
      var meup="";
-     what="p1?op=version";
-     $.getJSON( what, function( data ) { 
-          $("#version").html("DLCDashboard").css({'color':'Black','font-size':'300%','font-weight':'bold'});
-     });
+     // what="p1?op=version";
+     // $.getJSON( what, function( data ) { 
+     //      $("#tail_area").html("DLCDashboard").css({'color':'Black','font-size':'300%','font-weight':'bold'});
+     // });
+     $("#tail_area").html(getMoniker());
 
      var sel="";
      var env="";
@@ -129,13 +133,14 @@ if ( 1 == 1 ) {
         var $sel;
         var a;
         var b;
-        sel = openSettingsBar("banner_menu");
+        sel = openSettingsBar("fixed_menu_area");
         // myBC(55,sel,"booton","SETUP","",["SETUP"],  function () { resetClientArea(); queueTestSetupScreen(); });
         myBC(85,sel,"booton","","BHID",["HIDE MENU","SHOW MENU"], function(e) { hider(); } );
-        myBC(55,sel,"booton","HELP","",["HELP"],function(e) { var $s = $("#client_area").empty(); $("#temp_area").empty().hide();splashHelp($s,"");});
+        myBC(55,sel,"booton","HELP","",["HELP"],function(e) { var $s = $("#client_area").empty(); splashHelp($s,"");});
         myBC(55,sel,"booton","RESET","",["RESET"],  function(e) {
                   resetClientArea();
-                  resetNoteBar(1); 
+                  resetVariableMenu(1); 
+                  resetTail(); 
                   resetselectpick(); 
                   var $ca = $("#client_area");
                   $ca.empty(); 
@@ -147,7 +152,7 @@ if ( 1 == 1 ) {
 
 // https://stackoverflow.com/questions/1203876/how-to-pass-a-variable-by-value-to-an-anonymous-javascript-function
 // there is need hee to create proper closure and local scope, thus the function in function.  functions create scope and closure.
-//  HOLD myBC(55,"banner_menu","booton",data.rows[i].c[1].v,"",[data.rows[i].c[1].v], function() { DAC(this.title); });
+//  HOLD myBC(55,"xxxx","booton",data.rows[i].c[1].v,"",[data.rows[i].c[1].v], function() { DAC(this.title); });
 //
         myBC(55,sel,"booton","ALL","",["ALL"], (function(mylocalvariable) { return function() { DAC(mylocalvariable); } }) ("ALL") ); 
         $.getJSON("p1?op=accounts", function( data ) { 
@@ -163,10 +168,10 @@ if ( 1 == 1 ) {
 
 
 
-        closeSettingsBar("banner_menu");
-        $sel         = $("#banner_menu")
+        closeSettingsBar("fixed_menu_area");
+        $sel         = $("#fixed_menu_area")
 
-     resetNoteBar(0);
+     resetVariableMenu(0);
 
         var GlobalBannerInterval;
         setCookie("LOCK", "UNLOCKED", 12);
@@ -175,13 +180,11 @@ if ( 1 == 1 ) {
 
      var guid = randomStr();
      var $sel = $("#menu_area");
-     $sel = $("#banner_menu");
 
      $client_area.empty();
      splashHelp($client_area, "");
 
      guid  = randomStr();
-     $("#menu_area").append("<tr><td id='"+guid+"'><hr></td></tr>");
      $.ajaxSetup({ async: true });
      var $lastrowsNo = "";
 
@@ -190,7 +193,6 @@ if ( 1 == 1 ) {
 // url = serviceUrl(env,datamode,"cpu",iid,reg,p,dh,offset);
 // snapPerf( "CPU",gp,url,env,reg,node,PT,chartjsTitleLong("cpu", h,node,name,purpose,h,p,offset) );
 // alert(iid);
-        $sel         = $("#searchbar");
         var sz = "";
 
 

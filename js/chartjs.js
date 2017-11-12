@@ -101,10 +101,14 @@ function chartjsDoTableChart(what,where,description,control,cls) {
                      ctype_actual="Column";
                 }
            }
-           if ( ( ctype.toUpperCase() == "CPU" ) || ( ctype.toUpperCase() == "NETOUT" ) ) {
-           options.legend.textStyle.fontSize          =  10;
-           options.vAxis.textStyle.fontSize           =  10;
-           options.vAxis.titleTextStyle.fontSize      =  10;
+           if ( 
+                   ( ctype.toUpperCase() == "CPU" )     || 
+                   ( ctype.toUpperCase() == "NETOUT" )  || 
+                   ( ctype.toUpperCase() == "NETIN" ) 
+              ) {
+                options.legend.textStyle.fontSize          =  10;
+                options.vAxis.textStyle.fontSize           =  10;
+                options.vAxis.titleTextStyle.fontSize      =  10;
                 options.width =  $("#"+where).innerWidth;
                 options.height = 160
                 options.backgroundColor               =  "#F5F5F5";
@@ -113,8 +117,6 @@ function chartjsDoTableChart(what,where,description,control,cls) {
                 options.chartArea.width = options.width;
                 options.chartArea.height = 80;
                 options.chartArea.backgroundColor     =  "#F5F5F5";
-
-
                 options.vAxis.viewWindowMode = 'pretty';
                 if (cfgYAxis == -1) {
                      ctype_actual=mapChartType(getCookie("CPUCT")); 

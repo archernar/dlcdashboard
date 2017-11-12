@@ -16,16 +16,6 @@ function namedbooton($sel,name,func) {
         return(name);
 }
 
-function menuCallBack() {
-     if (getCookie("MENU") == "hide") { 
-          $("#left_area").show();
-          $("#searchbar").show();
-     }
-     else {
-          $("#left_area").hide();
-          $("#searchbar").hide();
-     }
-}
 var GlobalHiderId = "";
 var GlobalGaugeHiderId = "";
 function gaugehider() {
@@ -45,16 +35,10 @@ function hider() {
      var sz = getCookie("BHID");
      //if ($sel.html().toUpperCase() == "SHOW MENU") { 
      if (sz.toUpperCase() == "SHOW MENU") { 
-          $("#searchbar").hide();
-          $("#notebar").hide();
-          $("#menu_area").hide();
-          $("#vertical_area").hide();
+          $("#variable_menu_area").hide();
      }
      else {
-          $("#searchbar").show();
-          $("#notebar").show();
-          $("#menu_area").show();
-          $("#vertical_area").show();
+          $("#variable_menu_area").show();
      }
 }
 
@@ -85,16 +69,7 @@ function myBC(sty,g1,cls,title,cookie, s, callback) {
      });
      return(guid);
 }
-function myBCallBack(sty,g1,cls,title,cookie, s, callback) {
-     var g2 = addSettingsElement(g1);
-     var guid = myBimpl(sty,g2,cls,title,cookie, s);
-     setCookie(cookie, s[0], 12);
-     $("#"+guid).on("click", function(e) {
-          e.preventDefault();
-          callback()
-     });
-     menuCallBack();
-}
+
 function myB(sty,g1,cls,title,cookie, s) {
      var g2 = addSettingsElement(g1);
      myBimpl(sty,g2,cls,title,cookie, s);
@@ -369,7 +344,7 @@ function mySimpleButton(w,g2,cls,title,cookie, s) {
 }( jQuery ));
 
 // Example Call
-// var $ia = $("#input_area").empty().show().textcontroldialog("MESSAGE SIZE","MSGSZ",
+// var $ia = $("#xxxx").empty().show().textcontroldialog("MESSAGE SIZE","MSGSZ",
 //                                           function() {return(options.msgsz);},
 //                                           function(s) {options.msgsz=s;});
 

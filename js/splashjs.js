@@ -109,6 +109,12 @@ if ( 1==1 ) {
      }
 
 
+     function getMoniker() {
+        var v = "";
+        $.ajaxSetup({ async: false });
+        $.getJSON("p1?op=version", function( data ) { v=data.rows[0].c[1].v; });
+        return "DLCDashboard " + v + " All Rights Reserved";
+     }
 
      function splashHelp($sel, sz) {
         var sz = "";
@@ -120,12 +126,9 @@ if ( 1==1 ) {
         var guid3 = randomStr();
         $.ajaxSetup({ async: false });
         $.getJSON("p1?op=version", function( data ) { v=data.rows[0].c[1].v; });
-        sz = sz + "<center><table cellspacing=2 cellpadding=2 border=1>";
-        // sz = sz + "<tr><td valign='middle' align='middle' id='" + guid3 + "'></td></tr>";
+        sz = sz + "<center><table cellspacing=2 cellpadding=2 border=0>";
         sz = sz + "<tr><td><pre class='manpage'>" + getManPageString() + "</pre></td></tr>";
         sz = sz + "</table></center>";
         $sel.append(sz);
-        $sel.append( "<div id='"+guid1+"'>DLCDashboard " + v + " All Rights Reserved</div>");
-        $("#"+guid1).addClass("middlesmall");
      }
 

@@ -88,8 +88,7 @@ function serviceUrl2(e,op,q,n,r,p,h,o,f) {
      var le = undies(sz.length,"&le=");
      sz = sz + le;
      var szURL = "<a href='" + sz + "'>"+ sz + "</a>";
-     $("#logger_area").empty();
-     $("#logger_area").append(szURL);
+     $("#tail_area").empty().append(szURL);
      return(sz);
 }
 function serviceUrl(e,op,q,n,r,p,h,o) {
@@ -102,8 +101,7 @@ function serviceUrl(e,op,q,n,r,p,h,o) {
      var cry = undies(getCCry("ACN1",""),"&cry=");
      var sz = "p1?env="+e+"&op="+op+uq+un+ur+up+uh+uo+cry;
      var szURL = "<a href='" + sz + "'>"+ sz + "</a>";
-     $("#logger_area").empty();
-     $("#logger_area").append(szURL);
+     $("#tail_area").empty().append(szURL);
      return(sz);
 }
 

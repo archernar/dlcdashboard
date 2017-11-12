@@ -22,10 +22,8 @@
 
 <body>
    <table border=1  width='100%'>
-   <tr>
-   <td class='grape' align='left'  id='banner_menu'></td>
-   <td class='grape' align='left'  id='version' width='50%'></td>
-   </tr>
+       <tr><td class='grape' align='left'  id='fixed_menu_area'></td></tr>
+       <tr><td class='grape' align='left'  id='variable_menu_area'></td></tr>
    <tr>
    <td class='grape' align='left' valign='top'  colspan=30>
       	<div class='white' id="chart_area"></div>
@@ -36,15 +34,13 @@
    </table>
 
    <table id='footer'><tr><td width='30%'>&nbsp;</td><td width='70%' align='right'></td></tr></table>
-        <div class='grape' id='notebar'></div>
-        <div class='grape' id='searchbar'></div>
-      	<div class='grape' id="temp_area"></div>
-      	<div class='grape' id="input_area"></div>
-   <div id='message_area'></div>
-   <div id="logger_area"></div><br>
-   <div id="client_bar"></div><br>
-   <div id="work_area"></div>
+   <div class='white' id="tail_area"></div>
 
+   
+   
+   
+   
+<div id="work_area"></div>
 </body>
 </html>
 

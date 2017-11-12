@@ -110,7 +110,6 @@ function resetselectpick() {
                          $op.attr("spec",$op.html() );
                          $op.on("click", function(e) {
                               var guid = randomStr();
-                              $("#temp_area").empty().show().append( "<center><div id='"+guid+"'></div></center>");
                               options = { gOp:"queue", 
                                           gWidth:400, gValues:1, gIndex1:8, gIndex2:0, gCeil:25000, gUnits:"Msgs",
                                           gTitleFont: "bold 10px Arial", gDisplayTitle:1,

@@ -32,6 +32,37 @@ function resetselectpick() {
           setCookie('NODENAMESET_C', "", 12);
           setCookie('PURPOSESET_C', "", 12);
      }
+     function selectallrunning() {
+          var rc = 0;
+          var sz = "";
+          var szjs = "";
+          resetselectpick();
+          SELECTEDITEMS = 0;
+          i// var $sel = $("#"+GlobalTableId + " > tbody  > tr");
+          var $sel = $("#"+GlobalTableId +" tr[status='GREEN']");
+          $sel.each(function() {
+                    $(this).children('td').css({ 'background-color': '#DCDCDC' });
+                    rc++;
+                    sz = sz + $(this).attr("node");
+                    SELECTEDITEMS++;
+                    NODESET[NODESET.length] = $(this).attr("node");
+                    ENVSET[ENVSET.length] = $(this).attr("env");
+                    REGSET[REGSET.length] = $(this).attr("reg");
+                    NODENAMESET[NODENAMESET.length] = $(this).attr("nodename");
+                    PURPOSESET[PURPOSESET.length] = $(this).attr("purpose");
+          });
+
+          sz = JSON.stringify(NODESET);
+          setCookie('NODESET_C', sz, 12);
+          sz = getCookieDefault('NODESET_C',"");
+          szjs = JSON.parse(sz);
+
+          setCookie('ENVSET_C', JSON.stringify(ENVSET), 12);
+          setCookie('REGSET_C', JSON.stringify(REGSET), 12);
+          setCookie('NODENAMESET_C', JSON.stringify(NODENAMESET), 12);
+          setCookie('PURPOSESET_C', JSON.stringify(PURPOSESET), 12);
+          $("#"+selectedbutton).html( SELECTEDITEMS + " SELECTED"); 
+     }
      function selectpick() {
           var rc = 0;
           var sz = "";

@@ -149,6 +149,9 @@ if ( 1 == 1 ) {
         myBC(55,sel,"booton","GAUGES","",["GAUGES"], function () { resetClientArea(); splashGauges(); });
         myBC(85,sel,"booton","NET COST","",["NET COST"], function () { netcost(); });
         myBC(55,sel,"booton","PRINT","",["PRINT"],  function () { if (window.print) window.print(); });
+        // myBC(55,sel,"booton",SELECTEDITEMS+" SLCT","",["SLCT"], function(e) { doCpuTableChart(); });
+        // myBC(55,sel,"booton","GRAPH","",["SLCT"], function(e) { $("#chart_area").empty(); doCpuTableChart(); });
+
 
 // https://stackoverflow.com/questions/1203876/how-to-pass-a-variable-by-value-to-an-anonymous-javascript-function
 // there is need hee to create proper closure and local scope, thus the function in function.  functions create scope and closure.
@@ -164,7 +167,6 @@ if ( 1 == 1 ) {
              }
         });
 
-        myBC(55,sel,"booton",SELECTEDITEMS+" SLCT","",["SLCT"], function(e) { doCpuTableChart(); });
 
 
 

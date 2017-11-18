@@ -80,8 +80,6 @@ public class DLCConnect {
         super();
         dlcutil.assert_on(); 
         dlcutil.assertion(!phrase.equals(""),"phrase is a EMPTY STRING"); 
-
-
         Custom custom = new Custom();
         String sz = "";
         this.duration = 0L;
@@ -90,20 +88,6 @@ public class DLCConnect {
         this.env = env;
         this.key = key;
         this.sec = sec;
-        this.accountNumber = custom.getEnvAccountNumber(env);
-        this.region = region;
-        this.flag = randomString( 8 ); 
-        sz = custom.mapEnvNamePartsToChar(env);
-        this.envreg    = sz+this.region;
-    }
-    public DLCConnect(int iiii, String env, String region) {
-        super();
-        Custom custom = new Custom();
-        String sz = "";
-        this.duration = 0L;
-        this.env = env;
-        this.key = "";
-        this.sec = "";
         this.accountNumber = custom.getEnvAccountNumber(env);
         this.region = region;
         this.flag = randomString( 8 ); 
@@ -148,14 +132,20 @@ public List<InstanceX> getListByNode(DLCConnect cn, String env, String reg, Stri
 public List<InstanceX> getInstanceStorageList(DLCConnect cn, String env, String reg) {
      return InstanceX.instanceXInstanceStorageList(cn,env,reg,cn.ConnectEC2(env,reg).describeInstances().getReservations());
 }
+
+
+
+
 public List<InstanceX> getList(DLCConnect cn, String env, String reg) {
      return InstanceX.instanceXList(cn,env,reg,cn.ConnectEC2(env,reg).describeInstances().getReservations());
 }
+
+//
+//  this is the call that inventory makes   getList(cn,i,r,filter)
+//
 public List<InstanceX> getList(DLCConnect cn, String env, String reg,String filter) {
      // List<InstanceX> l = InstanceX.instanceXList(cn,env,reg,cn.ConnectEC2(env,reg).describeInstances().getReservations());
-     DLCUtil u = new DLCUtil(false);
      List <Reservation> res = cn.ConnectEC2(env,reg).describeInstances().getReservations();
-
      List<InstanceX> l = InstanceX.instanceXList(cn,env,reg,res);
      return filterInstanceXList(l,filter);
 }
@@ -340,42 +330,6 @@ public AmazonIdentityManagementClient ConnectIAM(String aws_env) {
      AmazonIdentityManagementClient iam;
      iam = new AmazonIdentityManagementClient( getCreds(aws_env, getKeyPhrase()) );
      this.envcache.put("iam",aws_env);
-     return (iam);
-}
-public AmazonIdentityManagementClient ConnectIAM22222(String aws_env, String aws_reg) {
-     BasicAWSCredentials awsCredentials;
-     AmazonIdentityManagementClient iam;
-
-     awsCredentials =  this.credcache.get(aws_env);
-     if ( awsCredentials == null ) {
-          this.credcache.put( aws_env, getCreds(aws_env, getKeyPhrase()) );
-          awsCredentials = this.credcache.get(aws_env);
-     }
-     iam = this.iamcache.get(aws_env);
-     this.envcache.put("iam",aws_env);
-     this.regcache.put("iam",aws_reg);
-     this.envregcache.put("iam",aws_env + "-" + aws_reg);
-     if ( iam == null ) {
-          this.iamcache.put(aws_env, new AmazonIdentityManagementClient(awsCredentials));
-          this.envcache.put("iam",aws_env);
-          this.regcache.put("iam",aws_reg);
-          iam = this.iamcache.get(aws_env);
-     } 
-
-     switch (aws_reg) {
-               case "E1":
-                    iam.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_EAST_1));
-                    break; 
-               case "W1":
-                    iam.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_WEST_1));
-                    break; 
-               case "W2":
-                    iam.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_WEST_2));
-                    break; 
-               default:
-                    iam = null;
-                    break; 
-     }
      return (iam);
 }
 public String getDurationAsString() {

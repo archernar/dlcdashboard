@@ -218,7 +218,6 @@ public class s3u extends HttpServlet {
          cn = new DLCConnect(aws_env, aws_region, aws_key, aws_sec, phrase); 
          session.setAttribute("DLCConnect", cn); 
     } else {
-         //cn = (DLCConnect) session.getValue("DLCConnect"); 
          cn = (DLCConnect) session.getAttribute("DLCConnect"); 
     }
     String accountNumber   = custom.getAccountNumber(aws_env);
@@ -1219,22 +1218,26 @@ private String mapQ(String sz) {
                case "netinmulti":
                      szRet="NetworkIn";
                      break; 
+               case "readbytes":
                case "DiskReadBytes":
                case "diskreadbytes":
                case "diskreadbytesmulti":
                      szRet="DiskReadBytes";
                      break; 
+               case "writebytes":
                case "DiskWriteBytes":
                case "diskwritebytes":
                case "diskwritebytesmulti":
                      szRet="DiskWriteBytes";
                      break; 
                case "DiskReadOps":
+               case "readops":
                case "diskreadops":
                case "diskreadopsmulti":
                      szRet="DiskReadOps";
                      break; 
                case "DiskWriteOps":
+               case "writeops":
                case "diskwriteops":
                case "diskwriteopsmulti":
                      szRet="DiskWriteOps";

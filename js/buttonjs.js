@@ -58,6 +58,11 @@ function myTextArea(g1,r,c) {
      return(guid);
 }
 
+function myBCSpace(g1) {
+     var g2 = addSettingsElement(g1);
+     $("#"+g2).append("&nbsp;&nbsp;&nbsp;");
+     return(g2);
+}
 function myBC(sty,g1,cls,title,cookie, s, callback) {
      var g2 = addSettingsElement(g1);
      var guid = myBimpl(sty,g2,cls,title,cookie, s);

@@ -346,14 +346,20 @@ var QueueMonitorInterval;
      //myB(0,g1,cls,"sort","SORTKEY",["name","purpose","type","sys","id","envreg"]);
      myB(0,g1,cls,"disp","DISP",["2by2","4by1"]);
      myB(0,g1,cls,"ec2metric","EC2METRIC",["cpu","netin","netout","readbytes","writebytes","readops","writeops"]);
-     myBC(55,g1,"booton","GRAPH","",["SLCT"], function(e) { $("#chart_area").empty(); doCpuTableChart(); });
-     myBC(100,g1,"booton","SELECT ALL","",["SRUN"], function () { 
+     myBC(75,g1,"booton","GRAPH","",["SLCT"], function(e) { $("#chart_area").empty(); doCpuTableChart(); });
+     myBC(75,g1,"booton","SELECT ALL","",["SRUN"], function () { 
              resetselectpick();
              $("#"+GlobalTableId +" tr").hide();
              $("#"+GlobalTableId +" tr[status='HEADER']").show();
              $("#"+GlobalTableId +" tr[status='GREEN']").show();
              renumberTable();
              selectallrunning();
+     });
+     myBC(55,g1,"booton","HIDE CHARTS","",["HDCHT"], function () { 
+         $("#chart_area").hide();
+     });
+     myBC(55,g1,"booton","SHOW CHARTS","",["SHCHT"], function () { 
+         $("#chart_area").show();
      });
      closeSettingsBar("variable_menu_area");
      g1 = openSettingsBar("variable_menu_area");

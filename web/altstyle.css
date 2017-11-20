@@ -10,6 +10,17 @@ body {
         border-right: 0px solid Black;
         border-bottom: 0px solid Black;
 }
+.trable {
+        font: 10px/normal 'lucida grande', tahoma, verdana, arial, sans-serif;
+        color: Black;
+	background-color: White;
+        border-color:     White;
+        border:0px;
+        margin:0px;
+	padding: 0px;
+	border-collapse: collapse;
+}
+
 .table {
      color:            Black;
      background-color: White;

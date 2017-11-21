@@ -208,6 +208,8 @@ public class s3u extends HttpServlet {
     String qual        = UTIL.getURLStringParameter(req, "qual", "default");
     String mappedqual  = mapQ(qual);
     String vnode       = UTIL.getURLStringParameter(req, "vnode", "none");
+    String v1_param    = UTIL.getURLStringParameter(req, "v1", "none");
+    String v2_param    = UTIL.getURLStringParameter(req, "v2", "none");
     int paramHours     = UTIL.getURLIntParameter(req, "hours",  "6");
     int offset         = UTIL.getURLIntParameter(req, "offset", "0");
     int period         = UTIL.getURLIntParameter(req, "period", "60");
@@ -265,6 +267,8 @@ public class s3u extends HttpServlet {
           MyTimeStamp ts = new MyTimeStamp();
 
           sbHeader.JSON_NameValue( "uid"           , "arn-12345a",
+                                   "v1_param"      ,  v1_param,
+                                   "v2_param"      ,  v2_param,
                                    "updateDate"    , ts.nowzulu(),
                                    "titleText"     , "First Application",
                                    "mainText"      , "Hello World",
@@ -846,6 +850,12 @@ public class s3u extends HttpServlet {
                     n=0;
                     sbOut.println(CONST.szJSON_OBJECT_OPEN);
                          sbOut.println(sbHeader.toString());
+
+sbOut.println(dq("monk") + ": [");
+singletimeseriesOpRows2(mapQF(qual),sbOut,getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg) );
+sbOut.println("],");
+
+
                     sbOut.println(CONST.szJSON_COLS_OPEN);
                          sbOut.println(dataTableColumns(singletimeseriesOpCols()));
                     sbOut.println(CONST.szJSON_COLS_CLOSE);
@@ -1310,9 +1320,13 @@ public String dataTableColumns(List <String> list) {
                sz = sz.replaceAll("11$", "");
           }
           String field = String.format("F%02d", ct++);
+          // MOEMOE
           sb.append(d + q3(co(dq("id"),dq(field)),co(CONST.szDQLABEL,dq(sz)), co(CONST.szDQTYPE,dq(type))));
+//          sb.append(d + "{" + dq("x") + ":" + dq(field) + "," + dq("y") + ":" +   sz + "}");
           d = ",\n";
      }
+//     sb.insert(0,"[");
+//     sb.append("]");
      return( sb.toString() );
 }
 public void tableHeadersDefs(MyPrintWriter out, List <String> list) {
@@ -1449,7 +1463,7 @@ private void multipletimeseriesOpRows(int factor, MyStringBuilder sb, List<Datap
             )  + "}";
 
           sb.append(sz);
-          delim = ",";
+          delim = ",\n";
      }
      // out.println("],");
      // out.println(dqco("firsttimestamp", getFirstMetricTimeStamp(list)) +",");
@@ -1575,6 +1589,43 @@ private static void singletimeseriesFakeDataOpRows(int factor, MyStringBuilder s
           delim = ",";
      }
 }
+
+
+
+private static void singletimeseriesOpRows2(int factor, MyStringBuilder sb, List<Datapoint> list)  {
+     String delim="";
+     DecimalFormat df = new DecimalFormat("##0.00");
+     for (Datapoint dp : list) {
+          Double zerg = dp.getMaximum();
+          // Tue Feb 03 07:45:00 EST 2015
+          String szTS = dp.getTimestamp().toString();
+          String szTime = Long.toString( dp.getTimestamp().getTime() );
+          Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
+          calendar.setTime( dp.getTimestamp() );
+          String szDay   = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)); 
+          String szMonth = Integer.toString(calendar.get(Calendar.MONTH)); 
+          String szYear  = Integer.toString(calendar.get(Calendar.YEAR)); 
+          String szHour  = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY)); 
+          String szMinute  = Integer.toString(calendar.get(Calendar.MINUTE)); 
+          String szSecond  = Integer.toString(calendar.get(Calendar.SECOND)); 
+          // myChart.addTimeAxis("x", "Date", "%Y-%m-%d %H:%M:%S", "%Y-%m");
+          // myTimeAxis.tickFormat = "%Y-%m";
+          // http://dimplejs.org/advanced_examples_viewer.html?id=advanced_time_axis 
+          // https://stackoverflow.com/questions/20195870/dimple-time-format-juggling 
+          String jsonTS = szYear+ "-" +szMonth+ "-" +szDay+ " " +szHour+ ":" +szMinute+ ":" +szSecond;
+          String[] parts = szTS.split(" ");
+          String pn=parts[1];
+          if ( parts[1].equals("Jan") ) pn="01-";
+          if ( parts[1].equals("Feb") ) pn="02-";
+          String day = pn + parts[2] + " ";
+          String[] parts2 = parts[parts.length-3].split(":");
+          String szAbrev = day + parts2[parts2.length-3]+":"+parts2[parts2.length-2];
+          String sz = delim +"{" +  dq("x") + ":" + dq(jsonTS)  + "," + dq("y") + ":" +  dq(df.format(zerg/factor)) + "}";
+          sb.append(sz);
+          // MOEMOE
+          delim = ",\n";
+     }
+}
 private static void singletimeseriesOpRows(int factor, MyStringBuilder sb, List<Datapoint> list)  {
      String delim="";
      DecimalFormat df = new DecimalFormat("##0.00");
@@ -1606,7 +1657,8 @@ private static void singletimeseriesOpRows(int factor, MyStringBuilder sb, List<
           //String sz = delim +"{" +  dq("c") + ":" + sr( sgvco(dq(szTime))  +","+ sgvco(dq(df.format(zerg/factor))) )  +""+ "}";
           String sz = delim +"{" +  dq("c") + ":" + sr( sgvco(dq(jsonTS))  +","+ sgvco(dq(df.format(zerg/factor))) )  +""+ "}";
           sb.append(sz);
-          delim = ",";
+          // MOEMOE
+          delim = ",\n";
      }
 }
 private static void singletimeseriesOpRowsSecondForm(int factor, MyStringBuilder sb, List<Datapoint> list)  {

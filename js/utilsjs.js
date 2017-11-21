@@ -91,6 +91,21 @@ function serviceUrl2(e,op,q,n,r,p,h,o,f) {
      $("#tail_area").empty().append(szURL);
      return(sz);
 }
+function serviceUrl3(e,op,q,n,r,p,h,o,iv1,iv2) {
+     var uq = undies(q,"&qual=");
+     var un = undies(n,"&node=");
+     var ur = undies(r,"&loc=");
+     var up = undies(p,"&period=");
+     var uh = undies(h,"&hours=");
+     var uo = undies(o,"&offset=");
+     var v1 = undies(iv1,"&v1=");
+     var v2 = undies(iv2,"&v2=");
+     var cry = undies(getCCry("ACN1",""),"&cry=");
+     var sz = "p1?env="+e+"&op="+op+uq+un+ur+up+uh+uo+v1+v2+cry;
+     var szURL = "<a href='" + sz + "'>"+ sz + "</a>";
+     $("#tail_area").empty().append(szURL);
+     return(sz);
+}
 function serviceUrl(e,op,q,n,r,p,h,o) {
      var uq = undies(q,"&qual=");
      var un = undies(n,"&node=");

@@ -78,6 +78,23 @@ function chartjsDoTableChart(what,where,description,control,cls) {
 
                 var vd = new google.visualization.DataTable( JSON.stringify(data) ); 
                 switch (ctype_actual) {
+                     case "MOE":
+                          var svg = dimple.newSvg("body", 800, 400);
+                          var data = [
+                               { "Word":"Hello", "Awesomeness":2000 },
+                               { "Word":"Hello2", "Awesomeness":2000 },
+                               { "Word":"Hello33", "Awesomeness":2000 },
+                               { "Word":"Hello4", "Awesomeness":2000 },
+                               { "Word":"Hello33", "Awesomeness":2000 },
+                               { "Word":"World", "Awesomeness":3000 },
+                               { "Word":"World2", "Awesomeness":1000 }
+                          ];
+                          var chart = new dimple.chart(svg, data);
+                          chart.addCategoryAxis("x", "Word");
+                          chart.addMeasureAxis("y", "Awesomeness");
+                          chart.addSeries(null, dimple.plot.line);
+                          chart.draw();
+                          break;
                      case "Line":
                           (new google.visualization.LineChart(document.getElementById(where))).draw(vd, options);
                           break;

@@ -202,7 +202,38 @@ var QueueMonitorInterval;
           var offset     = getCookie("OSET");
           var metric     = getCookie("EC2METRIC");
           var yaxislabel = mapYAxisLabel(metric);
-          var url        = serviceUrl(env,datamode,metric,node,reg,period,hours,offset);
+          var url        = serviceUrl3(env,datamode,metric,node,reg,period,hours,offset,g1,g1h);
+          $.ajaxSetup({ async: false });
+          $("#"+sel).append( "<center>" + env +c+ reg +c+ node +c+ name +c+ purpose + "</center>" ).append( table1by1withheaders("100%",g1,g1h) );
+          appendAnchor(g1h, url, "json data");
+          $.getJSON( url, function( data ) { 
+                          console.log("v1 = " + data.v1_param);
+                          var svg = dimple.newSvg("#"+data.v1_param, 600, 400);
+                          var chart = new dimple.chart(svg, data.monk);
+                          chart.addCategoryAxis("x", "x");
+                          var m;
+                          m = chart.addTimeAxis("x", "Date", "%Y-%m-%d %H:%M:%S", "%Y-%m");
+                          m.timePeriod = d3.timeHour;
+                          m.timeInterval = 2;
+                          chart.addMeasureAxis("y", "y");
+
+                          // https://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#addTimeAxis
+                          chart.addSeries(null, dimple.plot.line);
+              //            myX.timeInterval = 60;
+                          chart.draw();
+          });
+     }
+     function graphitxxx(sel, env,reg,node,name,purpose) {
+          var c = ", ";
+          var g1         = randomStr();
+          var g1h        = randomStr();
+          var hours      = getCookie("DHRS",1);
+          var period     = getCookieDefault("PER",60);
+          var datamode   = getCookieDefault("DMOD","mts");
+          var offset     = getCookie("OSET");
+          var metric     = getCookie("EC2METRIC");
+          var yaxislabel = mapYAxisLabel(metric);
+          var url        = serviceUrl3(env,datamode,metric,node,reg,period,hours,offset,g1,g1h);
           $.ajaxSetup({ async: false });
           $("#"+sel).append( "<center>" + env +c+ reg +c+ node +c+ name +c+ purpose + "</center>" ).append( table1by1withheaders("100%",g1,g1h) );
           appendAnchor(g1h, url, "json data");

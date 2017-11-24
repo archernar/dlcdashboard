@@ -205,6 +205,7 @@ public class s3u extends HttpServlet {
     List<String> speclist = Arrays.asList(spec);
     String filter      = UTIL.getURLStringParameter(req, "filter", "");
     String node        = UTIL.getURLStringParameter(req, "node", "none");
+    String nodename    = UTIL.getURLStringParameter(req, "name", "none");
     String qual        = UTIL.getURLStringParameter(req, "qual", "default");
     String mappedqual  = mapQ(qual);
     String vnode       = UTIL.getURLStringParameter(req, "vnode", "none");
@@ -280,6 +281,7 @@ public class s3u extends HttpServlet {
                                    "region"     , aws_reg,
                                    "regionname" , UTIL.mapRegionCodesToNames(aws_reg),
                                    "node"       , node,
+                                   "name"       , nodename,
                                    "actualnow"  , new DateTime().minusHours(0).toDate().toString(),
                                    "hours"      , new Integer(hours).toString(),
                                    "offset"     , new Integer(offset).toString(),
@@ -851,9 +853,14 @@ public class s3u extends HttpServlet {
                     sbOut.println(CONST.szJSON_OBJECT_OPEN);
                          sbOut.println(sbHeader.toString());
 
-sbOut.println(dq("monk") + ": [");
-singletimeseriesOpRows2(mapQF(qual),sbOut,getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg) );
-sbOut.println("],");
+                    List<Datapoint> dpList = getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg);
+                    String dpMax = singletimeseriesMax(mapQF(qual), dpList);
+                    sbOut.println(dq("monkmax") + ": " + dpMax +",");
+
+                    sbOut.println(dq("monk") + ": [");
+                    // singletimeseriesOpRows2(mapQF(qual),sbOut,getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg) );
+                    singletimeseriesOpRows2(mapQF(qual),sbOut,dpList );
+                    sbOut.println("],");
 
 
                     sbOut.println(CONST.szJSON_COLS_OPEN);
@@ -1350,6 +1357,10 @@ public void tableHeadersDefs(MyPrintWriter out, List <String> list) {
      out.println(dq("rows") + ": [");
 }
 
+public static String sq(String sz) { 
+     StringBuilder sb = new StringBuilder();
+     return (sb.append("\"").append((sz==null) ? "-" : sz).append("\"").toString());
+}
 public static String dq(String sz) { 
      StringBuilder sb = new StringBuilder();
      return (sb.append("\"").append((sz==null) ? "-" : sz).append("\"").toString());
@@ -1591,28 +1602,45 @@ private static void singletimeseriesFakeDataOpRows(int factor, MyStringBuilder s
 }
 
 
-
+private static String szZeroPad(String sz) {
+     if (sz.length() == 1)  sz = "0" + sz;
+     return(sz);
+}
+private static String singletimeseriesMax(int factor, List<Datapoint> list)  {
+     Double max = 0.0;
+     DecimalFormat df = new DecimalFormat("##0.000");
+     for (Datapoint dp : list) {
+          Double zerg = dp.getMaximum()/factor;
+          if (zerg > max) max=zerg;
+     }
+     return(df.format(max));
+}
 private static void singletimeseriesOpRows2(int factor, MyStringBuilder sb, List<Datapoint> list)  {
      String delim="";
-     DecimalFormat df = new DecimalFormat("##0.00");
+     int ct = 0;
+     DecimalFormat df = new DecimalFormat("##0.000");
      for (Datapoint dp : list) {
+          ct++;
           Double zerg = dp.getMaximum();
           // Tue Feb 03 07:45:00 EST 2015
           String szTS = dp.getTimestamp().toString();
           String szTime = Long.toString( dp.getTimestamp().getTime() );
           Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
           calendar.setTime( dp.getTimestamp() );
-          String szDay   = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)); 
-          String szMonth = Integer.toString(calendar.get(Calendar.MONTH)); 
+          String szDay   = szZeroPad(Integer.toString(calendar.get(Calendar.DAY_OF_MONTH))); 
+          String szMonth = szZeroPad(Integer.toString(calendar.get(Calendar.MONTH)+1)); 
           String szYear  = Integer.toString(calendar.get(Calendar.YEAR)); 
-          String szHour  = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY)); 
-          String szMinute  = Integer.toString(calendar.get(Calendar.MINUTE)); 
-          String szSecond  = Integer.toString(calendar.get(Calendar.SECOND)); 
+          String szHour    = szZeroPad(Integer.toString(calendar.get(Calendar.HOUR_OF_DAY))); 
+          String szMinute  = szZeroPad(Integer.toString(calendar.get(Calendar.MINUTE))); 
+          String szSecond  = szZeroPad(Integer.toString(calendar.get(Calendar.SECOND))); 
           // myChart.addTimeAxis("x", "Date", "%Y-%m-%d %H:%M:%S", "%Y-%m");
           // myTimeAxis.tickFormat = "%Y-%m";
           // http://dimplejs.org/advanced_examples_viewer.html?id=advanced_time_axis 
           // https://stackoverflow.com/questions/20195870/dimple-time-format-juggling 
-          String jsonTS = szYear+ "-" +szMonth+ "-" +szDay+ " " +szHour+ ":" +szMinute+ ":" +szSecond;
+          // String jsonTS = szYear+ "-" +szMonth+ "-" +szDay+ " " +szHour+ ":" +szMinute+ ":" +szSecond;
+          String jsonTS = szYear+ "-" +szMonth+ "-" +szDay+ " " +szHour+ ":" +szMinute;
+
+
           String[] parts = szTS.split(" ");
           String pn=parts[1];
           if ( parts[1].equals("Jan") ) pn="01-";
@@ -1620,7 +1648,15 @@ private static void singletimeseriesOpRows2(int factor, MyStringBuilder sb, List
           String day = pn + parts[2] + " ";
           String[] parts2 = parts[parts.length-3].split(":");
           String szAbrev = day + parts2[parts2.length-3]+":"+parts2[parts2.length-2];
-          String sz = delim +"{" +  dq("x") + ":" + dq(jsonTS)  + "," + dq("y") + ":" +  dq(df.format(zerg/factor)) + "}";
+                     //  data: [{'date':new Date('2014-11-01'),'value':12},
+                     //  {'date':new Date('2014-11-02'),'value':18}],
+
+
+          // String sz = delim +"{" +  sq("date") + ": " + sq(jsonTS)  + "," + sq("value") + ":" +  df.format(zerg/factor) + "}";
+          //
+          // String sz = delim +"{" +  sq("Date") + ": " + Integer.toString(ct) + "," + sq("y") + ":" +  df.format(zerg/factor) + "}";
+          String sz = delim +"{" +  sq("Date") + ": " + sq(jsonTS) + "," + sq("y") + ":" +  df.format(zerg/factor) + "}";
+          
           sb.append(sz);
           // MOEMOE
           delim = ",\n";

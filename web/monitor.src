@@ -15,9 +15,10 @@
   <META NAME="GOOGLEBOT" CONTENT="NOARCHIVE">
   <script type="text/javascript" src="THEDLCJSFILE09876.js"></script> 
   <link   rel='stylesheet' type='text/css' href='THEDLCCSSFILE09876.css'> 
+  <link   rel='stylesheet' type='text/css' href='metricsgraphics.css'> 
 
-  <script src="http://d3js.org/d3.v4.min.js"></script>
-  <script src="http://dimplejs.org/dist/dimple.v2.3.0.min.js"></script>
+  <script type="text/javascript" src="d3.v4.3.0.min.js"></script>
+  <script type="text/javascript" src="metricsgraphics.js"></script>
 
   <script type="text/javascript">
     google.load('visualization', '1', {packages: ['table', 'corechart']});

@@ -91,9 +91,10 @@ function serviceUrl2(e,op,q,n,r,p,h,o,f) {
      $("#tail_area").empty().append(szURL);
      return(sz);
 }
-function serviceUrl3(e,op,q,n,r,p,h,o,iv1,iv2) {
+function serviceUrl3(e,op,q,n,name,r,p,h,o,iv1,iv2) {
      var uq = undies(q,"&qual=");
      var un = undies(n,"&node=");
+     var nm = undies(name,"&name=");
      var ur = undies(r,"&loc=");
      var up = undies(p,"&period=");
      var uh = undies(h,"&hours=");
@@ -101,7 +102,7 @@ function serviceUrl3(e,op,q,n,r,p,h,o,iv1,iv2) {
      var v1 = undies(iv1,"&v1=");
      var v2 = undies(iv2,"&v2=");
      var cry = undies(getCCry("ACN1",""),"&cry=");
-     var sz = "p1?env="+e+"&op="+op+uq+un+ur+up+uh+uo+v1+v2+cry;
+     var sz = "p1?env="+e+"&op="+op+uq+un+nm+ur+up+uh+uo+v1+v2+cry;
      var szURL = "<a href='" + sz + "'>"+ sz + "</a>";
      $("#tail_area").empty().append(szURL);
      return(sz);
@@ -163,7 +164,7 @@ function table4by1(w,g1,g2,g3,g4) {
 function table1by1withheaders(w,g1,g1h) {
     var tguid = "";
     var sz = "<table border=0 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
-    sz = sz + "<tr><th align='middle' id='" + g1h + "'></th></tr>";
+    sz = sz + "<tr><th align='right' id='" + g1h + "'></th></tr>";
     sz = sz + "<tr><td id='" + g1 + "'></td></tr>";
     sz = sz + "</table>";
     return(sz);
@@ -182,10 +183,14 @@ function table4by1withheaders(w,g1,g2,g3,g4,g1h,g2h,g3h,g4h) {
     sz = sz + "</table>";
     return(sz);
 }
+function table1by1(w,g1) {
+    var sz = "<table border=1 width='" +w+ "' CELLSPACING=0 CELLPADDING=0><tr><td width='100%' id='" + g1 + "'></td></tr></table>";
+    return(sz);
+}
 function table1by2(w,g1,g2) {
     var tguid = "";
-    var sz = "<table border=0 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
-    sz = sz + "<tr><td width='50%' id='" + g1 + "'></td><td id='" + g2 + "'></td></tr>";
+    var sz = "<table border=1 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
+    sz = sz + "<tr><td width='50%' id='" + g1 + "'></td><td width='50%' id='" + g2 + "'></td></tr>";
     sz = sz + "</table>";
     return(sz);
 }

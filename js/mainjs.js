@@ -149,6 +149,8 @@ var QueueMonitorInterval;
         var purpose = "";
         var g1 = "";
         var g2 = "";
+        var disp = getCookie("DISP").toLowerCase();
+
         $ca = $("#chart_area");
         for (i=0;i<NODESET.length;i++) {
              node = NODESET[i];
@@ -156,16 +158,22 @@ var QueueMonitorInterval;
              reg = REGSET[i];
              name = NODENAMESET[i];
              purpose = PURPOSESET[i];
-             if ( (i%2) == 0 ) {
+             if ( disp == "2by2" )  {
+                  if ( (i%2) == 0 ) {
+                       g1 = randomStr();
+                       g2 = randomStr();
+                       $ca.append( table1by2("100%",g1,g2) );
+                       graphit(g1,env,reg,node,name,purpose);
+                  }
+                  if ( (i%2) == 1 ) {
+                       graphit(g2,env,reg,node,name,purpose);
+                  }
+            } else {
                   g1 = randomStr();
-                  g2 = randomStr();
-                  $ca.append( table1by2("100%",g1,g2) );
+                  $ca.append( table1by1("100%",g1) );
                   graphit(g1,env,reg,node,name,purpose);
-             }
-             if ( (i%2) == 1 ) {
-                  graphit(g2,env,reg,node,name,purpose);
-             }
-        }
+                  }
+            }
      }
 
 
@@ -198,29 +206,56 @@ var QueueMonitorInterval;
           var g1h        = randomStr();
           var hours      = getCookie("DHRS",1);
           var period     = getCookieDefault("PER",60);
-          var datamode   = getCookieDefault("DMOD","mts");
+          var datamode   = getCookieDefault("DMOD","sts");
           var offset     = getCookie("OSET");
           var metric     = getCookie("EC2METRIC");
           var yaxislabel = mapYAxisLabel(metric);
-          var url        = serviceUrl3(env,datamode,metric,node,reg,period,hours,offset,g1,g1h);
+          var url        = serviceUrl3(env,datamode,metric,node,name,reg,period,hours,offset,g1,g1h);
+          var maxy;
+
           $.ajaxSetup({ async: false });
-          $("#"+sel).append( "<center>" + env +c+ reg +c+ node +c+ name +c+ purpose + "</center>" ).append( table1by1withheaders("100%",g1,g1h) );
+          //$("#"+sel).append( "<center>" + env +c+ reg +c+ node +c+ name +c+ purpose + "</center>" ).append( table1by1withheaders("100%",g1,g1h) );
+          // var popps = env +c+ reg +c+ node +c+ name +c+ purpose 
+          var popps =  name +"  --  "+ node  
+          $("#"+sel).append( table1by1withheaders("100%",g1,g1h) );
           appendAnchor(g1h, url, "json data");
           $.getJSON( url, function( data ) { 
-                          console.log("v1 = " + data.v1_param);
-                          var svg = dimple.newSvg("#"+data.v1_param, 600, 400);
-                          var chart = new dimple.chart(svg, data.monk);
-                          chart.addCategoryAxis("x", "x");
-                          var m;
-                          m = chart.addTimeAxis("x", "Date", "%Y-%m-%d %H:%M:%S", "%Y-%m");
-                          m.timePeriod = d3.timeHour;
-                          m.timeInterval = 2;
-                          chart.addMeasureAxis("y", "y");
+              var targ = "#"+data.v1_param;
+              var iw = document.getElementById(data.v1_param).offsetWidth-5;
+              console.log(iw);
+                      // description: 'This graphics shows Firefox GA downloads for the past six months.',
+                      // title: data.name + " "+ data.node + " " + data.aws_env,
+              data.monk = MG.convert.date(data.monk, "Date", "%Y-%m-%d %H:%M");
+              maxy = data.monkmax * 2;
 
-                          // https://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#addTimeAxis
-                          chart.addSeries(null, dimple.plot.line);
-              //            myX.timeInterval = 60;
-                          chart.draw();
+              maxy = Math.ceil((maxy+1)/10)*10
+              if (data.monkmax < 5) maxy=5;
+              if (data.monkmax < 4) maxy=4;
+              if (data.monkmax < 3) maxy=3;
+              if (data.monkmax < 2) maxy=2;
+              if (data.monkmax < 1) maxy=1;
+
+              MG.data_graphic({
+                      data: data.monk, // an array of objects, such as [{value:100,date:...},...]
+                      max_y: maxy, 
+                      width: iw,
+                      buffer: 0,
+                      left: 70,
+                      top: 10,
+                      bottom: 60,
+                      height: 180,
+                      y_label: "% cpu",
+                      x_label: "time",
+                      yax_format: d3.format('.2f'),
+                      yax_count: 6,
+                      area: true,
+                      target: targ, // the html element that the graphic is inserted in
+                      x_accessor: 'Date',  // the key that accesses the x value
+                      y_accessor: 'y', // the key that accesses the y value
+                      title: popps
+              })
+
+
           });
      }
      function graphitxxx(sel, env,reg,node,name,purpose) {
@@ -229,7 +264,7 @@ var QueueMonitorInterval;
           var g1h        = randomStr();
           var hours      = getCookie("DHRS",1);
           var period     = getCookieDefault("PER",60);
-          var datamode   = getCookieDefault("DMOD","mts");
+          var datamode   = getCookieDefault("DMOD","sts");
           var offset     = getCookie("OSET");
           var metric     = getCookie("EC2METRIC");
           var yaxislabel = mapYAxisLabel(metric);
@@ -367,7 +402,7 @@ var QueueMonitorInterval;
      //myB(0,g1,cls,"cmd","CMDSET",cmds);
      // myB(0,g1,cls,"region","REGL",["ALL","E1","W1","W2","A1","A2","A3","U1","U2","S1"]);
      myB(0,g1,cls,"regn","REGL",["E1","E2","W1","W2","ALL"]);
-     myB(0,g1,cls,"mode","DMOD",["mts","sts"]);
+     myB(0,g1,cls,"mode","DMOD",["sts","mts"]);
      myB(0,g1,cls,"zoom","ZOOM",["0","50","100","200","300","400","-25","-50","-100"]);
      myB(0,g1,cls,"hrs","DHRS",["24","48","72","96","120","144","240","1","2","4","6","12","18" ]);
      myB(0,g1,cls,"smpl","PER",["60","180","300","600","90"]);
@@ -378,13 +413,14 @@ var QueueMonitorInterval;
      myB(0,g1,cls,"disp","DISP",["2by2","4by1"]);
      myB(0,g1,cls,"ec2metric","EC2METRIC",["cpu","netin","netout","readbytes","writebytes","readops","writeops"]);
      myBC(75,g1,"booton","GRAPH","",["SLCT"], function(e) { $("#chart_area").empty(); doCpuTableChart(); });
-     myBC(75,g1,"booton","SELECT ALL","",["SRUN"], function () { 
+     myBC(75,g1,"booton","GRAPH ALL","",["SRUN"], function () { 
              resetselectpick();
              $("#"+GlobalTableId +" tr").hide();
              $("#"+GlobalTableId +" tr[status='HEADER']").show();
              $("#"+GlobalTableId +" tr[status='GREEN']").show();
              renumberTable();
              selectallrunning();
+             doCpuTableChart();
      });
      myBC(55,g1,"booton","HIDE CHARTS","",["HDCHT"], function () { 
          $("#chart_area").hide();

@@ -163,15 +163,15 @@ var QueueMonitorInterval;
                        g1 = randomStr();
                        g2 = randomStr();
                        $ca.append( table1by2("100%",g1,g2) );
-                       graphit(g1,env,reg,node,name,purpose);
+                       graphit(g1,env,reg,node,name,purpose, -1);
                   }
                   if ( (i%2) == 1 ) {
-                       graphit(g2,env,reg,node,name,purpose);
+                       graphit(g2,env,reg,node,name,purpose, -1);
                   }
             } else {
                   g1 = randomStr();
                   $ca.append( table1by1("100%",g1) );
-                  graphit(g1,env,reg,node,name,purpose);
+                  graphit(g1,env,reg,node,name,purpose, -1);
                   }
             }
      }
@@ -200,23 +200,28 @@ var QueueMonitorInterval;
         }, 200000);
      }
 
-     function graphit(sel, env,reg,node,name,purpose) {
+     function graphit(sel, env,reg,node,name,purpose, Hin) {
           var c = ", ";
           var g1         = randomStr();
           var g1h        = randomStr();
           var hours      = getCookie("DHRS",1);
+          if (Hin > -1) hours = Hin;
           var period     = getCookieDefault("PER",60);
           var datamode   = getCookieDefault("DMOD","sts");
           var offset     = getCookie("OSET");
           var metric     = getCookie("EC2METRIC");
           var yaxislabel = mapYAxisLabel(metric);
+
+
           var url        = serviceUrl3(env,datamode,metric,node,name,reg,period,hours,offset,g1,g1h);
           var maxy;
 
+
+          var title     = chartjsTitle2(metric+ " " +hours+ " Hours",hours,node,name,purpose,env,url);
+
           $.ajaxSetup({ async: false });
           //$("#"+sel).append( "<center>" + env +c+ reg +c+ node +c+ name +c+ purpose + "</center>" ).append( table1by1withheaders("100%",g1,g1h) );
-          // var popps = env +c+ reg +c+ node +c+ name +c+ purpose 
-          var popps =  name +"  --  "+ node  
+          var popps =  title; 
           $("#"+sel).append( table1by1withheaders("100%",g1,g1h) );
           appendAnchor(g1h, url, "json data");
           $.getJSON( url, function( data ) { 
@@ -229,11 +234,18 @@ var QueueMonitorInterval;
               maxy = data.monkmax * 2;
 
               maxy = Math.ceil((maxy+1)/10)*10
-              if (data.monkmax < 5) maxy=5;
-              if (data.monkmax < 4) maxy=4;
-              if (data.monkmax < 3) maxy=3;
-              if (data.monkmax < 2) maxy=2;
-              if (data.monkmax < 1) maxy=1;
+              if (data.monkmax <= 20) maxy=22;
+              if (data.monkmax <= 15) maxy=16;
+              if (data.monkmax <= 10) maxy=12;
+              if (data.monkmax <= 9) maxy=10;
+              if (data.monkmax <= 8) maxy=8;
+              if (data.monkmax <= 7) maxy=7;
+              if (data.monkmax <= 6) maxy=6;
+              if (data.monkmax <= 5) maxy=5;
+              if (data.monkmax <= 4) maxy=4;
+              if (data.monkmax <= 3) maxy=3;
+              if (data.monkmax <= 2) maxy=2;
+              if (data.monkmax <= 1) maxy=1;
 
               MG.data_graphic({
                       data: data.monk, // an array of objects, such as [{value:100,date:...},...]
@@ -242,12 +254,12 @@ var QueueMonitorInterval;
                       buffer: 0,
                       left: 70,
                       top: 10,
-                      bottom: 60,
-                      height: 180,
+                      bottom: 40,
+                      height: 120,
                       y_label: "% cpu",
                       x_label: "time",
                       yax_format: d3.format('.2f'),
-                      yax_count: 6,
+                      yax_count: 4,
                       area: true,
                       target: targ, // the html element that the graphic is inserted in
                       x_accessor: 'Date',  // the key that accesses the x value
@@ -296,7 +308,7 @@ var QueueMonitorInterval;
           var url2  = serviceUrl(env,datamode,met,node,reg,period,24,offset);
           var url3  = serviceUrl(env,datamode,met,node,reg,period,168,offset);
           var url4  = serviceUrl(env,datamode,met,node,reg,period,240,offset);
-          $($ca).empty().append( "<center>" + env +c+ reg +c+ node +c+ name +c+ purpose + "</center>" );
+          $($ca).empty();
           switch ( getCookie("DISP").toLowerCase() )  {
              case "2by2":
                   $ca.append( table2by2withheaders("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
@@ -307,15 +319,19 @@ var QueueMonitorInterval;
              default:
                   break; 
           }
-          appendAnchor(g1h, url1, "json data");
-          appendAnchor(g2h, url2, "json data");
-          appendAnchor(g3h, url3, "json data");
-          appendAnchor(g4h, url4, "json data");
+          //appendAnchor(g1h, url1, "json data");
+          //appendAnchor(g2h, url2, "json data");
+          //appendAnchor(g3h, url3, "json data");
+          //appendAnchor(g4h, url4, "json data");
           var yaxislabel = mapYAxisLabel(met);
-          snapPerf( met,g1,url1,env,reg,node,yaxislabel,chartjsTitle2(met+" 1 Hour",1,node,name,purpose,env,url1) );
-               snapPerf( met,g2,url2,env,reg,node,yaxislabel,chartjsTitle2(met+" 1 Day",24,node,name,purpose,env,url2) );
-                    snapPerf( met,g3,url3,env,reg,node,yaxislabel,chartjsTitle2(met+" 7 Day",168,node,name,purpose, env, url3) );
-                         snapPerf( met,g4,url4,env,reg,node,yaxislabel,chartjsTitle2(met+" 10 Day",240,node,name,purpose, env, url4) );
+          graphit(g1, env,reg,node,name,purpose, 1);
+          graphit(g2, env,reg,node,name,purpose, 24);
+          graphit(g3, env,reg,node,name,purpose, 24*7);
+          graphit(g4, env,reg,node,name,purpose, 24*10);
+          //snapPerf( met,g1,url1,env,reg,node,yaxislabel,chartjsTitle2(met+" 1 Hour",1,node,name,purpose,env,url1) );
+               //snapPerf( met,g2,url2,env,reg,node,yaxislabel,chartjsTitle2(met+" 1 Day",24,node,name,purpose,env,url2) );
+                    //snapPerf( met,g3,url3,env,reg,node,yaxislabel,chartjsTitle2(met+" 7 Day",168,node,name,purpose, env, url3) );
+                         //snapPerf( met,g4,url4,env,reg,node,yaxislabel,chartjsTitle2(met+" 10 Day",240,node,name,purpose, env, url4) );
      }
 
      // SNAPPERF 

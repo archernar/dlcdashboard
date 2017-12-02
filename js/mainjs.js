@@ -222,11 +222,11 @@ var QueueMonitorInterval;
           $.ajaxSetup({ async: false });
           //$("#"+sel).append( "<center>" + env +c+ reg +c+ node +c+ name +c+ purpose + "</center>" ).append( table1by1withheaders("100%",g1,g1h) );
           var popps =  title; 
-          $("#"+sel).append( table1by1withheaders("100%",g1,g1h) );
-          appendAnchor(g1h, url, "json data");
           $.getJSON( url, function( data ) { 
+              //$("#"+sel).empty().append( table1by1withheaders("100%",g1,g1h) );
+              $("#"+sel).empty().append( "<div id='" + g1 + "'></div>");
               var targ = "#"+data.v1_param;
-              var iw = document.getElementById(data.v1_param).offsetWidth-5;
+              var iw = document.getElementById(data.v1_param).offsetWidth-50;
               console.log(iw);
                       // description: 'This graphics shows Firefox GA downloads for the past six months.',
                       // title: data.name + " "+ data.node + " " + data.aws_env,
@@ -286,9 +286,11 @@ var QueueMonitorInterval;
           appendAnchor(g1h, url, "json data");
           snapPerf( metric,g1,url,env,reg,node,yaxislabel,chartjsTitle2(metric+" "+hours+ " hour(s)",hours,node,name,purpose,env,url) );
      }
-     function snapCpuPerfNow(env,reg,node,name,purpose,hours,period,met) {
+     function quickPerf(env,reg,node,name,purpose,hours,period,met) {
          // console.log("met= " + met);
           var c = ", ";
+          var nb = "&nbsp;";
+          var jsonlinks = "";
           $ca=$("#chart_area");
           var url = "";
           hours  = getCookie("DHRS",1);
@@ -304,30 +306,40 @@ var QueueMonitorInterval;
           var g2h  = randomStr();
           var g3h  = randomStr();
           var g4h  = randomStr();
+          var ft   = randomStr();
           var url1  = serviceUrl(env,datamode,met,node,reg,period,1,offset);
           var url2  = serviceUrl(env,datamode,met,node,reg,period,24,offset);
           var url3  = serviceUrl(env,datamode,met,node,reg,period,168,offset);
           var url4  = serviceUrl(env,datamode,met,node,reg,period,240,offset);
-          $($ca).empty();
+          jsonlinks= sAnchor(url1,"1") +nb+ sAnchor(url2,"24") +nb+ sAnchor(url3,"168") +nb+ sAnchor(url4,"240");
+          $ca.empty().append("<div class='charttitlebold' align='middle'>" +name+"</div>");
+          $ca.append("<div class='charttitle' align='middle'>" +jsonlinks+"</div>").append( fulltable(ft) );
+          $("#"+ft).empty().append("<div class='loader'></div>").show();
+
+          var yaxislabel = mapYAxisLabel(met);
+          setTimeout(function() {
           switch ( getCookie("DISP").toLowerCase() )  {
              case "2by2":
-                  $ca.append( table2by2withheaders("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
+                  $ca.empty().append("<div class='charttitlebold' align='middle'>" +name+ "</div>")
+                             .append("<div class='charttitle' align='middle'>" +jsonlinks+"</div>")
+                             .append( table2by2withheaders("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
                   break; 
              case "4by1":
-                  $ca.append( table4by1withheaders("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
+                  $ca.empty().append("<div class='charttitlebold' align='middle'>" +name+ "</div>")
+                             .append("<div class='charttitle' align='middle'>"+jsonlinks+"</div>")
+                             .append( table4by1withheaders("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
                   break; 
              default:
                   break; 
           }
-          //appendAnchor(g1h, url1, "json data");
-          //appendAnchor(g2h, url2, "json data");
-          //appendAnchor(g3h, url3, "json data");
-          //appendAnchor(g4h, url4, "json data");
-          var yaxislabel = mapYAxisLabel(met);
-          graphit(g1, env,reg,node,name,purpose, 1);
-          graphit(g2, env,reg,node,name,purpose, 24);
-          graphit(g3, env,reg,node,name,purpose, 24*7);
-          graphit(g4, env,reg,node,name,purpose, 24*10);
+                  graphit(g1, env,reg,node,name,purpose, 1);
+                  graphit(g2, env,reg,node,name,purpose, 24);
+                  graphit(g3, env,reg,node,name,purpose, 24*7);
+                  graphit(g4, env,reg,node,name,purpose, 24*10);
+          }, 100);
+
+
+
           //snapPerf( met,g1,url1,env,reg,node,yaxislabel,chartjsTitle2(met+" 1 Hour",1,node,name,purpose,env,url1) );
                //snapPerf( met,g2,url2,env,reg,node,yaxislabel,chartjsTitle2(met+" 1 Day",24,node,name,purpose,env,url2) );
                     //snapPerf( met,g3,url3,env,reg,node,yaxislabel,chartjsTitle2(met+" 7 Day",168,node,name,purpose, env, url3) );
@@ -428,7 +440,13 @@ var QueueMonitorInterval;
      //myB(0,g1,cls,"sort","SORTKEY",["name","purpose","type","sys","id","envreg"]);
      myB(0,g1,cls,"disp","DISP",["2by2","4by1"]);
      myB(0,g1,cls,"ec2metric","EC2METRIC",["cpu","netin","netout","readbytes","writebytes","readops","writeops"]);
-     myBC(75,g1,"booton","GRAPH","",["SLCT"], function(e) { $("#chart_area").empty(); doCpuTableChart(); });
+     myBC(75,g1,"booton","GRAPH","",["SLCT"], function(e) { 
+         $("#chart_area").empty().append("<div class='loader'></div>").show();
+          setTimeout(function() {
+               doCpuTableChart(); 
+          }, 100);
+         
+     });
      myBC(75,g1,"booton","GRAPH ALL","",["SRUN"], function () { 
              resetselectpick();
              $("#"+GlobalTableId +" tr").hide();

@@ -149,7 +149,7 @@ function table3by1(g1,g2,g3) {
 }
 function table4by1(w,g1,g2,g3,g4) {
     var tguid = "";
-    var sz = "<table border=1 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
+    var sz = "<table border=0 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
     sz = sz + "<tr>";
     sz = sz + "<td id='" + g1 + "'></td>";
     sz = sz + "</tr><tr>";
@@ -183,13 +183,18 @@ function table4by1withheaders(w,g1,g2,g3,g4,g1h,g2h,g3h,g4h) {
     sz = sz + "</table>";
     return(sz);
 }
+function fulltable(g1) {
+    var sz = "<center><table align='middle' valign='middle' border=0 CELLSPACING=0 CELLPADDING=5><tr>"
+    sz = sz + "<td align='middle' valign='middle' id='" + g1 + "'>XXX</td></tr></table></center>";
+    return(sz);
+}
 function table1by1(w,g1) {
-    var sz = "<table border=1 width='" +w+ "' CELLSPACING=0 CELLPADDING=0><tr><td width='100%' id='" + g1 + "'></td></tr></table>";
+    var sz = "<table border=0 width='" +w+ "' CELLSPACING=0 CELLPADDING=0><tr><td width='100%' id='" + g1 + "'></td></tr></table>";
     return(sz);
 }
 function table1by2(w,g1,g2) {
     var tguid = "";
-    var sz = "<table border=1 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
+    var sz = "<table border=0 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
     sz = sz + "<tr><td width='50%' id='" + g1 + "'></td><td width='50%' id='" + g2 + "'></td></tr>";
     sz = sz + "</table>";
     return(sz);
@@ -471,6 +476,12 @@ function addSettingsElement(guid) {
      return(g1);
 }
 
+function sAnchor(url,label) {
+     return("<A target='_blank' href='" +url+ "'>" +label+ "</A>");
+}
+function simpleAnchor(url,label) {
+     return("<A target='_blank' href='" +url+ "'>" +label+ "</A>");
+}
 function appendAnchor(sel,url,label) {
      $("#"+sel).append("<A target='_blank' href='" +url+ "'>" +label+ "</A>");
 }

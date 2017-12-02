@@ -87,6 +87,7 @@ DEBUG=0
 
 APPL=`$AWKBIN -v w=APPL -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
 WARNAME=`$AWKBIN -v w=WARNAME -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
+REGION=`$AWKBIN -v w=REGION -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
 BUCKET=`$AWKBIN -v w=BUCKET -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
 XBUCKET=`$AWKBIN -v w=XBUCKET -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
 ENVNAME=`$AWKBIN -v w=ENVNAME -F= '{b="";gsub(re,b,$1);gsub(re,b,$2);if ($1==w) {print $2;exit;}}' .fig`
@@ -95,7 +96,7 @@ KEY=$WARNAME-`cat lastbuild`.war
 LABEL=`cat lastbuild`
 
 
-awsebs="aws --output json --profile EBS elasticbeanstalk "
+awsebs="aws --region $REGION --output json --profile MESTESEBS elasticbeanstalk "
 # cp /usr/local/tools/fig .
 # ##################################################################
 # Option Description of git Output
@@ -140,6 +141,12 @@ do
                     ls
                     #aws iam --profile DTCCLABADMIN upload-server-certificate / --server-certificate-name rsk04184C001 --certificate-body file://server.crt --private-key file://privatekey.pem
                fi
+               if [ $OPTARG = "status" ] ; then
+                    aws --region $REGION --output json --profile MESTESEBS elasticbeanstalk describe-environments --application-name $APPL
+               fi
+               if [ $OPTARG = "s" ] ; then
+                    aws --region $REGION --output json --profile MESTESEBS elasticbeanstalk describe-environments --application-name $APPL
+               fi
                if [ $OPTARG = "ebsstatus" ] ; then
                     #aws --output json --profile EBS elasticbeanstalk describe-application-versions --application-name $APPL
                     #aws --output json --profile EBS elasticbeanstalk describe-application-versions
@@ -178,7 +185,7 @@ do
                     print "application:  $APPL"
                     print "label:        $LABEL"
                     print "+=====================================================================================================+"
-                    aws --profile EBS s3 cp /home/mestes/dist/$KEY s3://$BUCKET/$KEY
+                    aws --region us-east-2 --profile EBS s3 cp /home/mestes/dist/$KEY s3://$BUCKET/$KEY
                     $awsebs create-application-version --application-name $APPL --version-label $LABEL --source-bundle S3Bucket=$BUCKET,S3Key=$KEY
                     $awsebs update-environment --environment-name $ENVNAME --version-label $LABEL
                     $awsebs describe-environments --application-name $APPL
@@ -186,18 +193,21 @@ do
                if [ $OPTARG = "ebs" ] ; then
                     print "+=====================================================================================================+"
                     print "distro:       /home/mestes/dist/$KEY"
-                    print "s3 dest:      s3://$BUCKET/$KEY"
+                    print "region:       $REGION"
                     print "env name:     $ENVNAME"
                     print "bucket:       $BUCKET"
                     print "key:          $KEY"
                     print "application:  $APPL"
+                    print "s3 dest:      s3://$BUCKET/$KEY"
                     print "label:        $LABEL"
                     print "cmd:          $awsebs"
                     print $ENVNAME
                     print $APPL
                     print $LABEL
                     print "+=====================================================================================================+"
-                    aws --profile EBS s3 cp /home/mestes/dist/$KEY s3://$BUCKET/$KEY
+                    aws --region $REGION --profile MESTESEBS s3 cp /home/mestes/dist/$KEY s3://$BUCKET/$KEY
+                    aws --region $REGION --output text --profile MESTESEBS s3 ls s3://$BUCKET
+                    aws --region $REGION --output text --profile MESTESEBS s3 ls s3://$BUCKET/$KEY
                     $awsebs create-application-version --application-name $APPL --version-label $LABEL --source-bundle S3Bucket=$BUCKET,S3Key=$KEY
                     $awsebs update-environment --environment-name $ENVNAME --version-label $LABEL
                     $awsebs describe-environments --application-name $APPL

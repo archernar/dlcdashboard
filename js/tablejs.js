@@ -247,19 +247,19 @@ function resetselectpick() {
                               $("#"+op).parent().children('td').css({ 'background-color': '#b2b5bc' });
                          break;
                     case "netin":
-                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"netin"));
+                         $("#"+op).html(jsfunc7("quickPerf",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"netin"));
                          break;
                     case "netout":
-                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"netout"));
+                         $("#"+op).html(jsfunc7("quickPerf",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"netout"));
                          break;
                     case "cpu":
-                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"cpu"));
+                         $("#"+op).html(jsfunc7("quickPerf",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"cpu"));
                          break;
                     case "perf":
-                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"cpu"));
+                         $("#"+op).html(jsfunc7("quickPerf",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"cpu"));
                          break;
                     case "performance":
-                         $("#"+op).html(jsfunc7("snapCpuPerfNow",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"cpu"));
+                         $("#"+op).html(jsfunc7("quickPerf",operd2,operd3 ,operd4,r5,r6,hours,periodIn,"cpu"));
                          break;
                }
           }

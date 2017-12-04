@@ -234,6 +234,11 @@ var QueueMonitorInterval;
               maxy = data.monkmax * 2;
 
               maxy = Math.ceil((maxy+1)/10)*10
+              if (data.monkmax <= 70) maxy=80;
+              if (data.monkmax <= 60) maxy=75;
+              if (data.monkmax <= 50) maxy=75;
+              if (data.monkmax <= 40) maxy=50;
+              if (data.monkmax <= 30) maxy=40;
               if (data.monkmax <= 20) maxy=22;
               if (data.monkmax <= 15) maxy=16;
               if (data.monkmax <= 10) maxy=12;
@@ -246,6 +251,10 @@ var QueueMonitorInterval;
               if (data.monkmax <= 3) maxy=3;
               if (data.monkmax <= 2) maxy=2;
               if (data.monkmax <= 1) maxy=1;
+              if (data.monkmax <= .5) maxy=.75;
+              if (data.monkmax <= .33) maxy=.5;
+              if (data.monkmax <= .2) maxy=.3;
+              if (data.monkmax <= .1) maxy=.2;
 
               MG.data_graphic({
                       data: data.monk, // an array of objects, such as [{value:100,date:...},...]
@@ -257,7 +266,7 @@ var QueueMonitorInterval;
                       bottom: 40,
                       height: 120,
                       y_label: "% cpu",
-                      x_label: "time",
+                      x_label: data.monkdates,
                       yax_format: d3.format('.2f'),
                       yax_count: 4,
                       area: true,

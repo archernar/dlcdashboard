@@ -189,12 +189,12 @@ function fulltable(g1) {
     return(sz);
 }
 function table1by1(w,g1) {
-    var sz = "<table border=0 width='" +w+ "' CELLSPACING=0 CELLPADDING=0><tr><td width='100%' id='" + g1 + "'></td></tr></table>";
+    var sz = "<table border=0 width='" +w+ "' CELLSPACING=0 CELLPADDING=12><tr><td width='100%' id='" + g1 + "'></td></tr></table>";
     return(sz);
 }
 function table1by2(w,g1,g2) {
     var tguid = "";
-    var sz = "<table border=0 width='" +w+ "' CELLSPACING=0 CELLPADDING=0>"
+    var sz = "<table border=0 width='" +w+ "' CELLSPACING=0 CELLPADDING=12>"
     sz = sz + "<tr><td width='50%' id='" + g1 + "'></td><td width='50%' id='" + g2 + "'></td></tr>";
     sz = sz + "</table>";
     return(sz);

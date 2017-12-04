@@ -132,6 +132,8 @@ public class InstanceX {
      double   cost;
      MyTimeStamp  launchtimestamp;
      Date     launchdate;
+     String   monitoringState;
+
      List<String> unitStorageList = new ArrayList<String>();
      List<String> unitCostStorageList = new ArrayList<String>();
      List<String> volumeList = new ArrayList<String>();
@@ -171,6 +173,7 @@ public class InstanceX {
          this.mappedenv = sz;
          this.envreg    = sz+this.region;
          this.stateCode = instance.getState().getCode();
+         this.monitoringState = instance.getMonitoring().getState();
 
 
          this.AZ                    = this.instance.getPlacement().getAvailabilityZone();
@@ -382,6 +385,8 @@ public class InstanceX {
      public String   getVolumesJson()       { return json(this.volumes); }
      public String   setVolumes(String sz)  { return this.volumes=sz;}
 
+     public String   getMonitoringState()           { return this.monitoringState; }
+     public String   getMonitoringStateJson()       { return json(this.monitoringState); }
 
      public String   getPlacementGroupJson() { return json(this.placementGroup); } 
 

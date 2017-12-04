@@ -200,7 +200,21 @@ public class DLCUtil {
      public void sysOut(String... args) { 
           this.sysOut(true, args);
      }
-
+     public void sysOut(String sz, int i) { 
+          this.sysOut(true, sz + Integer.toString(i)); 
+     }
+     public void sysOut(String sz, double i) { 
+          this.sysOut(true, sz + Double.toString(i)); 
+     }
+     public void sysOut(int i) { 
+          this.sysOut(true, Integer.toString(i)); 
+     }
+     public void sysOut(double i) { 
+          this.sysOut(true, Double.toString(i)); 
+     }
+     public void sysOut(long i) { 
+          this.sysOut(true, Long.toString(i)); 
+     }
      public String HTMLselect(String sz) { 
           return "<select>" + sz + "</select>";
      }

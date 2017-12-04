@@ -8,7 +8,7 @@ import org.joda.time.*;
 
 public class MyTimeStamp {
      // http://www.xyzws.com/javafaq/how-to-use-simpledateformat-class-formating-parsing-date-and-time/142
-     final DLCUtil dlcutil = new DLCUtil(false);
+     final DLCUtil dlcutil = new DLCUtil(true);
      String ts;
      long time_0 = 0L;
      String desc_0 = "";

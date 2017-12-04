@@ -150,7 +150,7 @@ public class s3u extends HttpServlet {
     }
 
     protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-    UTIL.sysOut(req.getRequestURL().toString() + "?" + req.getQueryString());
+    // UTIL.sysOut(req.getRequestURL().toString() + "?" + req.getQueryString());
     
     // PrintWriter out = resp.getWriter();
     MyPrintWriter out = new MyPrintWriter(resp);
@@ -851,26 +851,25 @@ public class s3u extends HttpServlet {
                case "singletimeseries":
                     n=0;
                     sbOut.println(CONST.szJSON_OBJECT_OPEN);
-                         sbOut.println(sbHeader.toString());
+                    sbOut.println(sbHeader.toString());
 
+                    String szDateRange = getCloudWatchDataDateRange(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg);
                     List<Datapoint> dpList = getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg);
                     String dpMax = singletimeseriesMax(mapQF(qual), dpList);
                     sbOut.println(dq("monkmax") + ": " + dpMax +",");
-
+                    sbOut.println(dq("monkdates") + ": " + szDateRange +",");
                     sbOut.println(dq("monk") + ": [");
-                    // singletimeseriesOpRows2(mapQF(qual),sbOut,getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg) );
                     singletimeseriesOpRows2(mapQF(qual),sbOut,dpList );
-                    sbOut.println("],");
+                    sbOut.println("]");
 
 
-                    sbOut.println(CONST.szJSON_COLS_OPEN);
-                         sbOut.println(dataTableColumns(singletimeseriesOpCols()));
-                    sbOut.println(CONST.szJSON_COLS_CLOSE);
-                    sbOut.println(CONST.szJSON_ROWS_OPEN);
+                    // sbOut.println(CONST.szJSON_COLS_OPEN);
+                    // sbOut.println(dataTableColumns(singletimeseriesOpCols()));
+                    // sbOut.println(CONST.szJSON_COLS_CLOSE);
 
-//private static void singletimeserieslastdpOpRows(int factor, MyStringBuilder sb, List<Datapoint> list)  {
-                         singletimeseriesOpRows(mapQF(qual),sbOut,getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg) );
-                    sbOut.println(CONST.szJSON_ROWS_CLOSE);
+                    // sbOut.println(CONST.szJSON_ROWS_OPEN);
+                    // singletimeseriesOpRows(mapQF(qual),sbOut,getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg) );
+                    // sbOut.println(CONST.szJSON_ROWS_CLOSE);
 if ( 1  == 0 ) {
 sbOut.println(CONST.szCOMMA);
 sbOut.println(CONST.szJSON_DATA_OPEN);
@@ -2289,7 +2288,7 @@ public int inventoryRedshiftOpRows(int nn, DLCConnect cn,MyStringBuilder sb ,Lis
 
 public List <String> inventoryOpCols() {
      String sz="vCPU,mem,strg,net,ebs";
-     return(Arrays.asList("IDENTITY","env","reg","tag","s","type","$hour","ami-","launch","dd","id","name","purpose","config",
+     return(Arrays.asList("IDENTITY","env","reg","tag","s","type","$hour","ami-","launch","dd","id","mon","name","purpose","config",
 "owner","devices","network","sg","cpu","netin","netout"));
 }
 public int inventoryOpRows(HttpServletRequest req, int nn, DLCConnect cn,MyStringBuilder sb ,List <InstanceX> list) {
@@ -2299,7 +2298,7 @@ public int inventoryOpRows(HttpServletRequest req, int nn, DLCConnect cn,MyStrin
      String jsondata = "";
      String delim= "";
      String csvdata = "";
-     List <String> csvcols=Arrays.asList("env","reg","tag","s","type","$hour","ami-","launch","dd","id","name","purpose");
+     List <String> csvcols=Arrays.asList("env","reg","tag","s","type","$hour","ami-","launch","dd","id","mon","name","purpose");
      csvdata = listConcatter(csvcols, csvdata, ",");
      if (nn >0) delim=",";
 
@@ -2323,6 +2322,7 @@ public int inventoryOpRows(HttpServletRequest req, int nn, DLCConnect cn,MyStrin
                ie.getLaunchDateJson(),
                ie.getLaunchDeltaDaysJson(),
                ie.getIdCleanJson(),
+               ie.getMonitoringStateJson(),
                ie.getNameJson(),
                ie.getPurposeJson(),
                UTIL.json(sbConfig.toString()), 
@@ -2343,6 +2343,7 @@ public int inventoryOpRows(HttpServletRequest req, int nn, DLCConnect cn,MyStrin
                ie.getInstanceType(),
                ie.getPrice(),
                ie.getImageId(),
+               ie.getMonitoringState(),
                ie.getLaunchDate(),
                ie.getLaunchDeltaDays(),
                ie.getId(),
@@ -3076,7 +3077,11 @@ private void addDimension(List<Dimension> list, String name, String value) {
      d.setValue(value);
      list.add(d); 
 }
-
+private static int intDiv(int a, int b) {
+     double d;
+     d=Math.ceil((double)a/b);
+     return( (int) d );
+}
 //GETCLOUDWATCHBILLINGDATA
 private List<Datapoint> getCloudWatchBillingData2(DLCConnect cn,String aws_env, String aws_reg, String thisDim)  {
      int ct = 0;
@@ -3216,35 +3221,80 @@ private List<Datapoint> getCloudWatchBillingData(DLCConnect cn,String aws_env, S
 //
 // @getCloudWatchData 
 // GETCLOUDWATCHDATA
+private String getCloudWatchDataDateRange(DLCConnect cn,String ns,String metric,int offset,int hours,int p, String nodeId,String aws_env, String aws_reg)  {
+     Date end   = new DateTime().minusHours(0).toDate();
+     Date start = new DateTime().minusHours(hours).toDate();
+     return( dq(start.toString() + " - " + end.toString()) );
+}
 private List<Datapoint> getCloudWatchData(DLCConnect cn,String ns,String metric,int offset,int hours,int p, String nodeId,String aws_env, String aws_reg)  {
      int ct = 0;
+     int HH = 0;
      if (p == 1) p = 60;
+     MyTimeStamp ts = new MyTimeStamp();
+     DLCUtil ut = new DLCUtil(false);
+     ut.sysOut("XXXXXXXXXXXXXXX", 0);
+     StopWatch sw = new StopWatch();
+     InstanceQ iq = new InstanceQ(cn, nodeId);
+     boolean detail = iq.isDetailedMonitoring();
+     p  = 300;
+     if (detail) { 
+         p = 60;
+     }
 
      String namespace = "AWS/EC2";
      if (!ns.equals("")) namespace=ns;
-     List<String> stats = Arrays.asList("Average","Maximum","Minimum");
+     //List<String> stats = Arrays.asList("Average","Maximum","Minimum");
+     List<String> stats = Arrays.asList("Maximum");
      List<Datapoint> list = new ArrayList<Datapoint>();
 
      Dimension instanceDimension = new Dimension();
-          instanceDimension.setName("InstanceId");
-          instanceDimension.setValue(nodeId);
+     instanceDimension.setName("InstanceId");
+     instanceDimension.setValue(nodeId);
      GetMetricStatisticsRequest request = new GetMetricStatisticsRequest();
-          request.setNamespace(namespace);
-          request.setPeriod(p);
-          request.setMetricName(metric);
-          request.setStatistics(stats);
-          request.setDimensions(Arrays.asList(instanceDimension));
-
+     request.setNamespace(namespace);
+     request.setPeriod(p);
+     request.setMetricName(metric);
+     request.setStatistics(stats);
+     request.setDimensions(Arrays.asList(instanceDimension));
      AmazonCloudWatchClient cloudWatch = cn.ConnectCloudWatch(aws_env, aws_reg);
 
+     // int HN = offset;
+     // int HE = hours;
+     //i int N = 1;
+     // if ( hours > HH ) {
+     //     N = hours / HH; 
+     //     HE = HH;
+     // }
      int HN = offset;
-     int HE = hours;
-     int N = 1;
-     if ( hours > 24 ) {
-          N = hours / 24; 
-          HE = 24;
-     }
+     
+     int N =  (new Double(Math.ceil( (double) (hours * (detail ? 60 : 12))) / 1440)).intValue();
+     int HE = (new Double(Math.ceil( (double) (detail ? 24 : 120) / 1440 ))).intValue();
+     int DPH = (detail ? 60 : 12); 
+     int DPS = hours * DPH; 
+     int DPSC = intDiv(DPS,1440);
+     if (DPSC <= 0) DPSC = 1;
+     N = DPSC;
+     HE = intDiv(hours, DPSC);
+     int HPC = intDiv(hours,DPSC);
+
+     ut.sysOut("________________", 0);
+     ut.sysOut("________________", 0);
+     ut.sysOut("________________", 0);
+     ut.sysOut("Period:     ", p);
+     ut.sysOut("Hours:      ", hours);
+     ut.sysOut("DPH:        ", DPH);
+     ut.sysOut("DPS:        ", DPS);
+     ut.sysOut("DPSC:       ", DPSC);
+     ut.sysOut("DPS/1440:   ", DPSC);
+     ut.sysOut("HPC:        ", HPC);
+     ut.sysOut("N:          ", N);
+     ut.sysOut("HE:         ", HE);
+
+
+
      for (int i=0;i<N;i++) {
+          ut.sysOut("^^^^^^^^^^", i);
+          sw.reset();
           //Joda Time
           // Typically Now
           Date end = new DateTime().minusHours(HN).toDate();
@@ -3253,15 +3303,22 @@ private List<Datapoint> getCloudWatchData(DLCConnect cn,String ns,String metric,
           Date start = new DateTime().minusHours(HN+HE).toDate();
           request.setStartTime(start);
           GetMetricStatisticsResult r = cloudWatch.getMetricStatistics(request);
+          ut.sysOut("     Points: ", r.getDatapoints().size());
+          ut.sysOut("          " + start.toString() + " - " + end.toString());
+
+          ct = ct + r.getDatapoints().size();
           list.addAll(r.getDatapoints()); 
           //UTIL.sysOut(r.getDatapoints().toString() ); 
           HN = HN + HE;
+          ut.sysOut(sw.markTimeString());
      }
+     ut.sysOut("Total:  ", ct);
+     ut.sysOut("Lotal:  ", list.size());
 
      Collections.sort(list, new Comparator<Datapoint>() {
           @Override
           public int compare(Datapoint i1, Datapoint i2) {
-               return i1.getTimestamp().compareTo(i2.getTimestamp());
+               return i2.getTimestamp().compareTo(i1.getTimestamp());
           }
      });
 

@@ -47,7 +47,8 @@ body {
 .table {
      color:            Black;
      background-color: White;
-     border-color:     White;
+     border-color:     #d3d3d3;
+     border-color:     Yellow;
 }
 .th {
   text-align: middle;

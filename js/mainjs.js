@@ -152,6 +152,7 @@ var QueueMonitorInterval;
         var disp = getCookie("DISP").toLowerCase();
 
         $ca = $("#chart_area");
+        $ca.empty();
         for (i=0;i<NODESET.length;i++) {
              node = NODESET[i];
              env = ENVSET[i];
@@ -162,7 +163,7 @@ var QueueMonitorInterval;
                   if ( (i%2) == 0 ) {
                        g1 = randomStr();
                        g2 = randomStr();
-                       $ca.append( table1by2("100%",g1,g2) );
+                       $ca.append( table1by2b("100%",g1,g2) );
                        graphit(g1,env,reg,node,name,purpose, -1);
                   }
                   if ( (i%2) == 1 ) {
@@ -170,7 +171,7 @@ var QueueMonitorInterval;
                   }
             } else {
                   g1 = randomStr();
-                  $ca.append( table1by1("100%",g1) );
+                  $ca.append( table1by1b("100%",g1) );
                   graphit(g1,env,reg,node,name,purpose, -1);
                   }
             }
@@ -226,6 +227,12 @@ var QueueMonitorInterval;
               //$("#"+sel).empty().append( table1by1withheaders("100%",g1,g1h) );
               $("#"+sel).empty().append( "<div id='" + g1 + "'></div>");
               var targ = "#"+data.v1_param;
+            
+              $(targ).css("border", "solid black 1px")
+                     .css({ borderColor:"#e6e6e6" })
+                     .css("padding-bottom", "15px")
+                     .css("padding-top",    "15px");
+
               var iw = document.getElementById(data.v1_param).offsetWidth-50;
               console.log(iw);
                       // description: 'This graphics shows Firefox GA downloads for the past six months.',
@@ -316,11 +323,16 @@ var QueueMonitorInterval;
           var g3h  = randomStr();
           var g4h  = randomStr();
           var ft   = randomStr();
-          var url1  = serviceUrl(env,datamode,met,node,reg,period,1,offset);
-          var url2  = serviceUrl(env,datamode,met,node,reg,period,24,offset);
-          var url3  = serviceUrl(env,datamode,met,node,reg,period,168,offset);
-          var url4  = serviceUrl(env,datamode,met,node,reg,period,240,offset);
-          jsonlinks= sAnchor(url1,"1") +nb+ sAnchor(url2,"24") +nb+ sAnchor(url3,"168") +nb+ sAnchor(url4,"240");
+
+          var rangeString = getCookieDefault("RANGE","1 2 4 8");
+          var range = rangeString.split(" ");
+
+
+          var url1  = serviceUrl(env,datamode,met,node,reg,period,range[0],offset);
+          var url2  = serviceUrl(env,datamode,met,node,reg,period,range[1],offset);
+          var url3  = serviceUrl(env,datamode,met,node,reg,period,range[2],offset);
+          var url4  = serviceUrl(env,datamode,met,node,reg,period,range[3],offset);
+          jsonlinks= sAnchor(url1,range[0]) +nb+ sAnchor(url2,range[1]) +nb+ sAnchor(url3,range[2]) +nb+ sAnchor(url4,range[3]);
           $ca.empty().append("<div class='charttitlebold' align='middle'>" +name+"</div>");
           $ca.append("<div class='charttitle' align='middle'>" +jsonlinks+"</div>").append( fulltable(ft) );
           $("#"+ft).empty().append("<div class='loader'></div>").show();
@@ -331,20 +343,20 @@ var QueueMonitorInterval;
              case "2by2":
                   $ca.empty().append("<div class='charttitlebold' align='middle'>" +name+ "</div>")
                              .append("<div class='charttitle' align='middle'>" +jsonlinks+"</div>")
-                             .append( table2by2withheaders("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
+                             .append( table2by2withheadersb("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
                   break; 
              case "4by1":
                   $ca.empty().append("<div class='charttitlebold' align='middle'>" +name+ "</div>")
                              .append("<div class='charttitle' align='middle'>"+jsonlinks+"</div>")
-                             .append( table4by1withheaders("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
+                             .append( table4by1withheadersb("100%",g1,g2,g3,g4,g1h,g2h,g3h,g4h) );
                   break; 
              default:
                   break; 
           }
-                  graphit(g1, env,reg,node,name,purpose, 1);
-                  graphit(g2, env,reg,node,name,purpose, 24);
-                  graphit(g3, env,reg,node,name,purpose, 24*7);
-                  graphit(g4, env,reg,node,name,purpose, 24*10);
+                  graphit(g1, env,reg,node,name,purpose, range[0]);
+                  graphit(g2, env,reg,node,name,purpose, range[1]);
+                  graphit(g3, env,reg,node,name,purpose, range[2]);
+                  graphit(g4, env,reg,node,name,purpose, range[3]);
           }, 100);
 
 
@@ -409,6 +421,7 @@ var QueueMonitorInterval;
          setCookie("MENU"+"DEX", 0, 12);
          setCookie("EC2METRIC"+"DEX", 0, 12);
          setCookie("DISP"+"DEX", 0, 12);
+         setCookie("RANGE"+"DEX", 0, 12);
          setCookie("GRAPH"+"DEX", 0, 12);
      }
      var cls="booton";
@@ -449,11 +462,14 @@ var QueueMonitorInterval;
      //myB(0,g1,cls,"sort","SORTKEY",["name","purpose","type","sys","id","envreg"]);
      myB(0,g1,cls,"disp","DISP",["2by2","4by1"]);
      myB(0,g1,cls,"ec2metric","EC2METRIC",["cpu","netin","netout","readbytes","writebytes","readops","writeops"]);
+     myB(90,g1,cls,"range","RANGE",["1 2 4 8","1 24 48 96","1 24 168 240"]);
      myBC(75,g1,"booton","GRAPH","",["SLCT"], function(e) { 
-         $("#chart_area").empty().append("<div class='loader'></div>").show();
-          setTimeout(function() {
-               doCpuTableChart(); 
-          }, 100);
+     var ft = randomStr();
+     $("#chart_area").empty().append( fulltable(ft) );
+     $("#"+ft).empty().append("<div class='loader'></div>").show();
+     setTimeout(function() {
+          doCpuTableChart(); 
+     }, 100);
          
      });
      myBC(75,g1,"booton","GRAPH ALL","",["SRUN"], function () { 

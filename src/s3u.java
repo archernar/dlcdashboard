@@ -853,10 +853,16 @@ public class s3u extends HttpServlet {
                     sbOut.println(CONST.szJSON_OBJECT_OPEN);
                     sbOut.println(sbHeader.toString());
 
+                    InstanceQ iq = new InstanceQ(cn, node);
+
                     String szDateRange = getCloudWatchDataDateRange(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg);
                     List<Datapoint> dpList = getCloudWatchData(cn,namespace,mapQ(qual),offset,hours,period,node,aws_env,aws_reg);
+                    //String szSimpleData = singletimeseriesSimple(mapQF(qual),dpList);
                     String dpMax = singletimeseriesMax(mapQF(qual), dpList);
                     sbOut.println(dq("monkmax") + ": " + dpMax +",");
+                    //sbOut.println(dq("monksimple") + ": " +szSimpleData+ ",");
+                    sbOut.println(dq("monktype") + ": " + dq(iq.getInstanceType()) +",");
+                    sbOut.println(dq("monktags") + ": " + dq(iq.getTags()) +",");
                     sbOut.println(dq("monkdates") + ": " + szDateRange +",");
                     sbOut.println(dq("monk") + ": [");
                     singletimeseriesOpRows2(mapQF(qual),sbOut,dpList );
@@ -1614,6 +1620,36 @@ private static String singletimeseriesMax(int factor, List<Datapoint> list)  {
      }
      return(df.format(max));
 }
+
+// the array double[] m MUST BE SORTED
+public static double median(double[] m) {
+    int middle = m.length/2;
+        if (m.length%2 == 1) {
+             return m[middle];
+        } else {
+             return (m[middle-1] + m[middle]) / 2.0;
+        }
+}
+private static String singletimeseriesSimple(int factor, List<Datapoint> list)  {
+     int ct = 0;
+     String delim="";
+     StringBuilder sb = new StringBuilder();
+     DecimalFormat sdf = new DecimalFormat("##0.000");
+     double[] d = new double[2048];
+     sb.append("[");
+     for (Datapoint dp : list) {
+          Double zerg = dp.getMaximum();
+          d[ct++]=zerg;
+          sb.append(delim);
+          sb.append( sdf.format(zerg/factor) );
+          delim=",";
+     }
+     sb.append("]");
+     Arrays.sort(d);
+     double dm = median(d);
+     return(sb.toString());
+}     
+
 private static void singletimeseriesOpRows2(int factor, MyStringBuilder sb, List<Datapoint> list)  {
      String delim="";
      int ct = 0;
@@ -1646,7 +1682,7 @@ private static void singletimeseriesOpRows2(int factor, MyStringBuilder sb, List
           if ( parts[1].equals("Feb") ) pn="02-";
           String day = pn + parts[2] + " ";
           String[] parts2 = parts[parts.length-3].split(":");
-          String szAbrev = day + parts2[parts2.length-3]+":"+parts2[parts2.length-2];
+          String zAbrev = day + parts2[parts2.length-3]+":"+parts2[parts2.length-2];
                      //  data: [{'date':new Date('2014-11-01'),'value':12},
                      //  {'date':new Date('2014-11-02'),'value':18}],
 

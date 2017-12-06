@@ -140,7 +140,6 @@ var QueueMonitorInterval;
                 // if ( cp > 0) 
                 //     clientAreaInterval = setInterval(function() { doTableChart(szDesc,what,where,"",0, "gridtable") }, cp);
       }
-
      function doCpuTableChart() {
         var env = "";
         var node = "";
@@ -150,7 +149,7 @@ var QueueMonitorInterval;
         var g1 = "";
         var g2 = "";
         var disp = getCookie("DISP").toLowerCase();
-
+        var options = {};
         $ca = $("#chart_area");
         $ca.empty();
         for (i=0;i<NODESET.length;i++) {
@@ -164,15 +163,15 @@ var QueueMonitorInterval;
                        g1 = randomStr();
                        g2 = randomStr();
                        $ca.append( table1by2b("100%",g1,g2) );
-                       graphit(g1,env,reg,node,name,purpose, -1);
+                       options = {sel:g1,uu:".",env:env,reg:reg,node:node,name:name,purp:purpose,Hin:-1}; graphit(options);
                   }
                   if ( (i%2) == 1 ) {
-                       graphit(g2,env,reg,node,name,purpose, -1);
+                       options = {sel:g2,uu:".",env:env,reg:reg,node:node,name:name,purp:purpose,Hin:-1}; graphit(options);
                   }
             } else {
                   g1 = randomStr();
                   $ca.append( table1by1b("100%",g1) );
-                  graphit(g1,env,reg,node,name,purpose, -1);
+                  options = {sel:g1,uu:".",env:env,reg:reg,node:node,name:name,purp:purpose,Hin:-1}; graphit(options);
                   }
             }
      }
@@ -201,7 +200,16 @@ var QueueMonitorInterval;
         }, 200000);
      }
 
-     function graphit(sel, env,reg,node,name,purpose, Hin) {
+     //function graphi/purposet(sel,uu,env,reg,node,name,purpose, Hin) {
+     function graphit(options) {
+          var sel  = options.sel;
+          var uu   = options.uu;
+          var env  = options.env;
+          var reg  = options.reg;
+          var node = options.node
+          var name = options.name
+          var purp = options.purp;
+          var Hin  =  options.Hin;
           var c = ", ";
           var g1         = randomStr();
           var g1h        = randomStr();
@@ -212,18 +220,24 @@ var QueueMonitorInterval;
           var offset     = getCookie("OSET");
           var metric     = getCookie("EC2METRIC");
           var yaxislabel = mapYAxisLabel(metric);
-
-
-          var url        = serviceUrl3(env,datamode,metric,node,name,reg,period,hours,offset,g1,g1h);
           var maxy;
 
+          var url        = uu;
+          if (uu == ".") {
+              url  = serviceUrl3(env,datamode,metric,node,name,reg,period,hours,offset,g1,g1h);
+          }
+          else {
+              metric=uu;
+              url  = serviceUrl3(env,datamode,metric,node,name,reg,period,hours,offset,g1,g1h);
+          }
 
-          var title     = chartjsTitle2(metric+ " " +hours+ " Hours",hours,node,name,purpose,env,url);
+          var title     = chartjsTitle2(metric+ " " +hours+ " Hours",hours,node,name,purp,env,url);
 
           $.ajaxSetup({ async: false });
-          //$("#"+sel).append( "<center>" + env +c+ reg +c+ node +c+ name +c+ purpose + "</center>" ).append( table1by1withheaders("100%",g1,g1h) );
+          //$("#"+sel).append( "<center>" + env +c+ reg +c+ node +c+ name +c+ purp + "</center>" ).append( table1by1withheaders("100%",g1,g1h) );
           var popps =  title; 
           $.getJSON( url, function( data ) { 
+              popps = popps + "\n" + data.monktype;
               //$("#"+sel).empty().append( table1by1withheaders("100%",g1,g1h) );
               $("#"+sel).empty().append( "<div id='" + g1 + "'></div>");
               var targ = "#"+data.v1_param;
@@ -234,7 +248,6 @@ var QueueMonitorInterval;
                      .css("padding-top",    "15px");
 
               var iw = document.getElementById(data.v1_param).offsetWidth-50;
-              console.log(iw);
                       // description: 'This graphics shows Firefox GA downloads for the past six months.',
                       // title: data.name + " "+ data.node + " " + data.aws_env,
               data.monk = MG.convert.date(data.monk, "Date", "%Y-%m-%d %H:%M");
@@ -303,7 +316,7 @@ var QueueMonitorInterval;
           snapPerf( metric,g1,url,env,reg,node,yaxislabel,chartjsTitle2(metric+" "+hours+ " hour(s)",hours,node,name,purpose,env,url) );
      }
      function quickPerf(env,reg,node,name,purpose,hours,period,met) {
-         // console.log("met= " + met);
+          console.log("met= " + met);
           var c = ", ";
           var nb = "&nbsp;";
           var jsonlinks = "";
@@ -353,10 +366,21 @@ var QueueMonitorInterval;
              default:
                   break; 
           }
-                  graphit(g1, env,reg,node,name,purpose, range[0]);
-                  graphit(g2, env,reg,node,name,purpose, range[1]);
-                  graphit(g3, env,reg,node,name,purpose, range[2]);
-                  graphit(g4, env,reg,node,name,purpose, range[3]);
+          var options = {sel: g1,
+                          uu: met,
+                         env: env,
+                         met: met,
+                         reg: reg,
+                        node: node,
+                        name: name,
+                        purp: purpose,
+                         Hin: range[0] 
+                        }
+          options.sel=g1; options.Hin=range[0]; graphit(options);
+          options.sel=g2; options.Hin=range[1]; graphit(options);
+          options.sel=g3; options.Hin=range[2]; graphit(options);
+          options.sel=g4; options.Hin=range[3]; graphit(options);
+          // graphit(g4,".",env, reg, node,name,purpose, range[3]);
           }, 100);
 
 
